@@ -244,6 +244,25 @@
             margin-bottom: 2rem;
         }
 
+        .welcome-back {
+            background: #e8f5e9;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .welcome-back h4 {
+            color: #4caf50;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .welcome-back p {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -382,6 +401,36 @@
             color: white;
             border-radius: 1rem;
             padding: 1rem;
+            position: relative;
+        }
+
+        .live-badge {
+            position: absolute;
+            top: -8px;
+            right: 10px;
+            background: #4caf50;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: bold;
+            animation: livePulse 2s infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .live-badge::before {
+            content: "🔴";
+            margin-right: 0.25rem;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .vote-stats {
@@ -687,98 +736,6 @@
             transition: width 0.5s ease;
         }
 
-        /* Admin Page */
-        .admin-section {
-            padding: 1rem;
-        }
-
-        .admin-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border: 1px solid #e0e0e0;
-        }
-
-        .admin-title {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 1rem;
-        }
-
-        .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .admin-stat-card {
-            background: linear-gradient(135deg, #e3f2fd 0%, #f5f9ff 100%);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .admin-stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #1e88e5;
-        }
-
-        .admin-stat-label {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 0.25rem;
-        }
-
-        .admin-actions {
-            display: grid;
-            gap: 0.75rem;
-        }
-
-        .btn-admin {
-            padding: 0.875rem;
-            border: none;
-            border-radius: 0.75rem;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-export {
-            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
-            color: white;
-        }
-
-        .btn-export:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-        }
-
-        .btn-reset {
-            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-            color: white;
-        }
-
-        .btn-reset:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
-        }
-
-        .btn-lock {
-            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-            color: white;
-        }
-
-        .btn-lock:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
-        }
-
         /* Payment Modal */
         .modal {
             display: none;
@@ -878,6 +835,12 @@
             display: none;
         }
 
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -973,10 +936,15 @@
                     <p class="login-subtitle">Enter your details to access voting</p>
                 </div>
 
+                <div id="welcomeBackMessage" class="welcome-back hidden">
+                    <h4>Welcome Back!</h4>
+                    <p id="welcomeBackText"></p>
+                </div>
+
                 <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="nameInput" placeholder="Enter your full name">
-                    <div class="error-message" id="nameError">Name not found in Diploma 2 list</div>
+                    <label>Full Name (any part is fine)</label>
+                    <input type="text" id="nameInput" placeholder="e.g., Solomon, Stephen, or Solomon Stephen">
+                    <div class="error-message" id="nameError">Name not recognized</div>
                 </div>
 
                 <div class="form-group">
@@ -991,13 +959,11 @@
         </div>
     </div>
 
-    <!-- Main App (Voting, Leaderboard, Admin) -->
+    <!-- Main App -->
     <div id="mainApp" class="container hidden">
-        <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('voting')">🗳️ Vote</button>
-            <button class="nav-tab" onclick="switchTab('leaderboard')">📊 Leaderboard</button>
-            <button class="nav-tab" onclick="switchTab('admin')">⚙️ Admin</button>
+            <button class="nav-tab active" onclick="switchTab('voting', event)">🗳️ Vote</button>
+            <button class="nav-tab" onclick="switchTab('leaderboard', event)">📊 Leaderboard</button>
         </div>
 
         <!-- Voting Section -->
@@ -1019,6 +985,7 @@
                     </div>
 
                     <div class="vote-counter">
+                        <div class="live-badge">LIVE</div>
                         <div class="vote-stats">
                             <div class="vote-stat">
                                 <div class="vote-stat-value" id="categoriesVoted">0</div>
@@ -1043,59 +1010,16 @@
                     <input type="text" class="search-input" id="searchInput" placeholder="Search categories or nominees..." onkeyup="filterCategories()">
                 </div>
 
-                <div class="categories-section" id="categoriesContainer"></div>
+                <div class="categories-section" id="categoriesContainer">
+                    <div class="loading">Loading categories...</div>
+                </div>
             </div>
         </div>
 
         <!-- Leaderboard Section -->
         <div id="leaderboardSection" class="hidden">
-            <div class="leaderboard-section" id="leaderboardContainer"></div>
-        </div>
-
-        <!-- Admin Section -->
-        <div id="adminSection" class="hidden">
-            <div class="admin-section">
-                <div class="admin-card">
-                    <div class="admin-title">📊 Voting Statistics</div>
-                    <div class="admin-stats">
-                        <div class="admin-stat-card">
-                            <div class="admin-stat-value" id="adminTotalVotes">0</div>
-                            <div class="admin-stat-label">Total Votes</div>
-                        </div>
-                        <div class="admin-stat-card">
-                            <div class="admin-stat-value" id="adminTotalVoters">0</div>
-                            <div class="admin-stat-label">Total Voters</div>
-                        </div>
-                        <div class="admin-stat-card">
-                            <div class="admin-stat-value" id="adminFreeVotes">0</div>
-                            <div class="admin-stat-label">Free Votes</div>
-                        </div>
-                        <div class="admin-stat-card">
-                            <div class="admin-stat-value" id="adminPaidVotes">0</div>
-                            <div class="admin-stat-label">Paid Votes</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="admin-card">
-                    <div class="admin-title">⚙️ Admin Actions</div>
-                    <div class="admin-actions">
-                        <button class="btn-admin btn-export" onclick="exportResults()">
-                            📥 Export Results (CSV)
-                        </button>
-                        <button class="btn-admin btn-lock" onclick="toggleVoting()">
-                            🔒 Lock/Unlock Voting
-                        </button>
-                        <button class="btn-admin btn-reset" onclick="resetVotes()">
-                            🔄 Reset All Votes
-                        </button>
-                    </div>
-                </div>
-
-                <div class="admin-card">
-                    <div class="admin-title">📋 Detailed Results</div>
-                    <div id="adminDetailedResults"></div>
-                </div>
+            <div class="leaderboard-section" id="leaderboardContainer">
+                <div class="loading">Loading leaderboard...</div>
             </div>
         </div>
     </div>
@@ -1119,20 +1043,63 @@
         </div>
     </div>
 
-    <script>
-        // Registered Diploma 2 Students (will be replaced with your full list)
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1tYPF1ZlGAe7gzXxlo6rjw2QMeaZ_MHo",
+            authDomain: "diass-year-2-dipards.firebaseapp.com",
+            databaseURL: "https://diass-year-2-dipards-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "diass-year-2-dipards",
+            storageBucket: "diass-year-2-dipards.firebasestorage.app",
+            messagingSenderId: "1093369035381",
+            appId: "1:1093369035381:web:129a5fb1b1a029efa3963c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Registered Students
         const registeredStudents = [
-            "Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel",
-            "Adebayo Julius", "Salimon Farouq", "Olanrewaju Bolu", "Nwanedo Chidera", "Donatus Chidera",
-            "Shobayo Simbi", "Seyi Gandonu", "MOR", "Biggie", "Treasure Ebube", "Solomon Joy", "Temmy",
-            "Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Ugo Christsanctus",
-            "Debby Donatus", "Kowiat", "Abimbola", "MOH", "Olakunle Kazeem", "Henry Ernest",
-            "Ashley Favour", "Gift", "Mr. Wilson", "Prof. Falode", "Mr. Femi", "Ayo Briefcase Guy",
-            "Tess Nwanedo Chidera", "Chidera Donatus", "Christian Farouq", "Emmy Indebted",
-            "Tess", "Ifeoma", "Simbi", "Mr. Chris", "Ayo Salimon Farouq"
+            "Solomon Stephen Sunday",
+            "Emeghara Favour Chiamaka",
+            "Fasoro Boluwatife Esther",
+            "Eroje Blessed Ifeoma",
+            "Fakunle Zion Ezekiel",
+            "Adeniran Deborah Taiwo",
+            "Gandonu Victoria Nifemi",
+            "Agboyinu Omowunmi Mautin",
+            "Salimon Farouk Ayomide",
+            "Ogunlade Pelumi Victoria",
+            "Salawu Precious Oluwanifemi",
+            "Abioye Kowiat Oyindamola",
+            "Kadiri Favour Hawawu",
+            "Nicholas Winner Chioma",
+            "Abdulquari Olayinka Obadin",
+            "Nnawugwu Ugochukwu",
+            "Adejumobi Damilola Favour",
+            "Daibu Mohammed Fareedah",
+            "Solola Olalomo",
+            "King Gloria Temitope",
+            "Precious Adanna Sunday",
+            "Nwanedo Chidera Testimony",
+            "Omoboye Kikelomo Omotola",
+            "Asegba Faith",
+            "Omitiran Mary Jolade",
+            "Adelowo Eniola Abbey",
+            "Adebayo Ademola Julius",
+            "Adisa Ismaila Temitope",
+            "Christian Ogala",
+            "Donatus Chidera Deborah",
+            "Iyanuoluwa Gift",
+            "Olanrewaju Boluwatife Ololatide",
+            "Bakare Eniola Ayomide",
+            "Olaoye Zainab Omotolani"
         ];
 
-        // Categories Data
+        // Categories
         const categories = [
             { name: "Most Brilliant Diplomat", icon: "🎓", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
             { name: "Most Handsome Diplomat", icon: "👔", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
@@ -1154,26 +1121,26 @@
             { name: "Most Outstanding Diplomat", icon: "🏆", nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"] }
         ];
 
-        // State Management
-        let currentUser = { name: '', email: '' };
-        let categoryVotes = {}; // { categoryName: { nominee: count } }
-        let userVotes = {}; // { categoryName: nominee }
+        // Global State
+        let currentUser = { name: '', email: '', fullName: '' };
+        let userVotes = {};
         let extraVotesPurchased = 0;
         let pendingVote = null;
         let votingLocked = false;
-        let currentTab = 'voting';
+        let allVotes = {};
 
-        // Initialize vote counts
-        categories.forEach(cat => {
-            categoryVotes[cat.name] = {};
-            cat.nominees.forEach(nom => {
-                categoryVotes[cat.name][nom] = 0;
-            });
-        });
+        // Expose functions globally
+        window.db = db;
+        window.ref = ref;
+        window.set = set;
+        window.get = get;
+        window.update = update;
+        window.onValue = onValue;
+        window.categories = categories;
+        window.registeredStudents = registeredStudents;
 
         // Countdown Timer
         let timeLeft = { days: 7, hours: 12, minutes: 30, seconds: 0 };
-
         function updateCountdown() {
             if (timeLeft.seconds > 0) {
                 timeLeft.seconds--;
@@ -1190,78 +1157,78 @@
                 timeLeft.minutes = 59;
                 timeLeft.seconds = 59;
             }
-
             document.getElementById('days').textContent = timeLeft.days;
             document.getElementById('hours').textContent = timeLeft.hours;
             document.getElementById('minutes').textContent = timeLeft.minutes;
             document.getElementById('seconds').textContent = timeLeft.seconds;
         }
-
         setInterval(updateCountdown, 1000);
 
-        // Navigation Functions
-        function showHome() {
+        // Flexible Name Matching
+        window.findMatchingStudent = function(input) {
+            const inputKeywords = input.toLowerCase().trim().split(/\s+/).filter(w => w.length > 2);
+            if (inputKeywords.length === 0) return null;
+
+            for (const student of registeredStudents) {
+                const studentKeywords = student.toLowerCase().split(/\s+/);
+                const matchCount = inputKeywords.filter(kw => 
+                    studentKeywords.some(sw => sw.includes(kw) || kw.includes(sw))
+                ).length;
+                
+                if (matchCount >= Math.min(inputKeywords.length, 2)) {
+                    return student;
+                }
+            }
+            return null;
+        };
+
+        // Navigation
+        window.showHome = function() {
             document.getElementById('homePage').classList.remove('hidden');
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('mainApp').classList.add('hidden');
-        }
+        };
 
-        function showLogin() {
+        window.showLogin = function() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('mainApp').classList.add('hidden');
-        }
+        };
 
-        function showMainApp() {
+        window.showMainApp = async function() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            switchTab('voting');
+            await loadUserData();
             renderCategories();
-            updateVoteUI();
-        }
+            loadAllVotes();
+        };
 
-        // Tab Switching
-        function switchTab(tab) {
-            currentTab = tab;
-            
-            // Update tab buttons
-            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Show/hide sections
-            document.getElementById('votingSection').classList.toggle('hidden', tab !== 'voting');
-            document.getElementById('leaderboardSection').classList.toggle('hidden', tab !== 'leaderboard');
-            document.getElementById('adminSection').classList.toggle('hidden', tab !== 'admin');
-            
-            // Render content
-            if (tab === 'leaderboard') renderLeaderboard();
-            if (tab === 'admin') renderAdmin();
-        }
-
-        // Login Verification
-        function handleLogin() {
-            const name = document.getElementById('nameInput').value.trim();
+        // Login
+        window.handleLogin = async function() {
+            const nameInput = document.getElementById('nameInput').value.trim();
             const email = document.getElementById('emailInput').value.trim();
             
-            // Reset error messages
             document.getElementById('nameError').classList.remove('show');
             document.getElementById('emailError').classList.remove('show');
             
             let hasError = false;
             
-            // Validate name
-            if (!name) {
+            if (!nameInput) {
                 document.getElementById('nameError').textContent = 'Please enter your name';
                 document.getElementById('nameError').classList.add('show');
                 hasError = true;
-            } else if (!isStudentRegistered(name)) {
-                document.getElementById('nameError').textContent = 'Name not found in Diploma 2 list';
-                document.getElementById('nameError').classList.add('show');
-                hasError = true;
+            } else {
+                const matchedStudent = window.findMatchingStudent(nameInput);
+                if (!matchedStudent) {
+                    document.getElementById('nameError').textContent = 'Name not recognized. Try entering different parts of your name.';
+                    document.getElementById('nameError').classList.add('show');
+                    hasError = true;
+                } else {
+                    currentUser.fullName = matchedStudent;
+                }
             }
             
-            // Validate email
             if (!email || !email.includes('@')) {
                 document.getElementById('emailError').classList.add('show');
                 hasError = true;
@@ -1269,34 +1236,101 @@
             
             if (hasError) return;
             
-            // Login successful
-            currentUser = { name, email };
-            document.getElementById('userName').textContent = name;
+            currentUser.name = nameInput;
+            currentUser.email = email;
+            document.getElementById('userName').textContent = currentUser.fullName;
+            
+            // Update student login status in Firebase
+            const emailKey = email.replace(/[.#$[\]]/g, '_');
+            await update(ref(db, `students/${emailKey}`), {
+                fullName: currentUser.fullName,
+                email: email,
+                lastLogin: Date.now(),
+                status: 'online'
+            });
+            
             showMainApp();
+        };
+
+        // Load user data from Firebase
+        async function loadUserData() {
+            const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
+            const userRef = ref(db, `userVotes/${emailKey}`);
+            const snapshot = await get(userRef);
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                userVotes = data.votes || {};
+                extraVotesPurchased = data.extraVotes || 0;
+                
+                const votesCount = Object.keys(userVotes).length;
+                const remaining = 18 - votesCount;
+                
+                if (votesCount > 0) {
+                    document.getElementById('welcomeBackMessage').classList.remove('hidden');
+                    document.getElementById('welcomeBackText').textContent = 
+                        `You have ${votesCount} vote${votesCount !== 1 ? 's' : ''} cast. ${remaining} categor${remaining !== 1 ? 'ies' : 'y'} remaining!`;
+                }
+            }
+            updateVoteUI();
         }
 
-        function isStudentRegistered(name) {
-            return registeredStudents.some(student => 
-                student.toLowerCase() === name.toLowerCase()
-            );
+        // Load all votes for leaderboard
+        function loadAllVotes() {
+            const votesRef = ref(db, 'categoryVotes');
+            onValue(votesRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    allVotes = snapshot.val();
+                } else {
+                    allVotes = {};
+                    categories.forEach(cat => {
+                        allVotes[cat.name] = {};
+                        cat.nominees.forEach(nom => {
+                            allVotes[cat.name][nom] = 0;
+                        });
+                    });
+                }
+                if (document.getElementById('leaderboardSection').classList.contains('hidden') === false) {
+                    renderLeaderboard();
+                }
+            });
         }
 
-        function handleLogout() {
-            if (confirm('Are you sure you want to logout? Your votes will be saved.')) {
-                currentUser = { name: '', email: '' };
+        // Logout
+        window.handleLogout = async function() {
+            if (confirm('Are you sure you want to logout? Your votes are saved and you can resume anytime.')) {
+                const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
+                await update(ref(db, `students/${emailKey}`), {
+                    status: 'offline',
+                    lastActivity: Date.now()
+                });
+                
+                currentUser = { name: '', email: '', fullName: '' };
                 document.getElementById('nameInput').value = '';
                 document.getElementById('emailInput').value = '';
+                document.getElementById('welcomeBackMessage').classList.add('hidden');
                 showHome();
             }
-        }
+        };
 
-        // Get initials for avatar
-        function getInitials(name) {
+        // Tab Switching
+        window.switchTab = function(tab, event) {
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('votingSection').classList.toggle('hidden', tab !== 'voting');
+            document.getElementById('leaderboardSection').classList.toggle('hidden', tab !== 'leaderboard');
+            
+            if (tab === 'leaderboard') renderLeaderboard();
+        };
+
+        // Get initials
+        window.getInitials = function(name) {
             return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-        }
+        };
 
         // Render Categories
-        function renderCategories() {
+        window.renderCategories = function() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
 
@@ -1305,6 +1339,10 @@
                 const card = document.createElement('div');
                 card.className = 'category-card';
                 card.setAttribute('data-category', category.name.toLowerCase());
+                
+                const statusHTML = hasVoted 
+                    ? '<span class="category-status voted">✓ Voted</span>'
+                    : '<span class="category-status not-voted">Not Voted</span>';
                 
                 card.innerHTML = `
                     <div class="category-header" onclick="toggleCategory(${idx})">
@@ -1316,9 +1354,7 @@
                             </div>
                         </div>
                         <div style="display: flex; align-items: center;">
-                            <span class="category-status ${hasVoted ? 'voted' : 'not-voted'}">
-                                ${hasVoted ? '✓ Voted' : 'Not Voted'}
-                            </span>
+                            ${statusHTML}
                             <div class="category-arrow">›</div>
                         </div>
                     </div>
@@ -1328,7 +1364,7 @@
                             return `
                                 <div class="nominee-item" data-nominee="${nominee.toLowerCase()}">
                                     <div class="nominee-left">
-                                        <div class="nominee-avatar">${getInitials(nominee)}</div>
+                                        <div class="nominee-avatar">${window.getInitials(nominee)}</div>
                                         <div class="nominee-name">${nominee}</div>
                                     </div>
                                     <button 
@@ -1346,16 +1382,16 @@
                 
                 container.appendChild(card);
             });
-        }
+        };
 
-        // Toggle category expansion
-        function toggleCategory(idx) {
+        // Toggle category
+        window.toggleCategory = function(idx) {
             const cards = document.querySelectorAll('.category-card');
             cards[idx].classList.toggle('expanded');
-        }
+        };
 
-        // Handle Voting
-        function handleVote(category, nominee) {
+        // Handle Vote
+        window.handleVote = async function(category, nominee) {
             if (votingLocked) {
                 alert('Voting is currently locked by admin');
                 return;
@@ -1366,38 +1402,71 @@
             if (!hasVotedInCategory) {
                 // Free vote
                 userVotes[category] = nominee;
-                categoryVotes[category][nominee]++;
+                
+                // Save to Firebase
+                const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
+                await set(ref(db, `userVotes/${emailKey}`), {
+                    votes: userVotes,
+                    extraVotes: extraVotesPurchased,
+                    fullName: currentUser.fullName,
+                    lastVote: Date.now()
+                });
+                
+                // Update category votes
+                const voteRef = ref(db, `categoryVotes/${category}/${nominee}`);
+                const snapshot = await get(voteRef);
+                const currentVotes = snapshot.exists() ? snapshot.val() : 0;
+                await set(voteRef, currentVotes + 1);
+                
+                // Update student activity
+                await update(ref(db, `students/${emailKey}`), {
+                    votesCount: Object.keys(userVotes).length,
+                    lastActivity: Date.now()
+                });
+                
                 updateVoteUI();
                 renderCategories();
-                alert(`✅ Free vote cast for ${nominee}!`);
+                alert(`✅ Vote cast for ${nominee}!`);
             } else {
-                // Need to buy extra vote
                 pendingVote = { category, nominee };
                 showPaymentModal();
             }
-        }
+        };
 
         // Payment Modal
-        function showPaymentModal() {
+        window.showPaymentModal = function() {
             document.getElementById('modalExtraVotes').textContent = extraVotesPurchased;
             document.getElementById('paymentModal').classList.add('active');
-        }
+        };
 
-        function closeModal() {
+        window.closeModal = function() {
             document.getElementById('paymentModal').classList.remove('active');
             pendingVote = null;
-        }
+        };
 
-        function handlePayment() {
+        window.handlePayment = async function() {
             if (pendingVote) {
-                categoryVotes[pendingVote.category][pendingVote.nominee]++;
                 extraVotesPurchased++;
+                
+                const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
+                await set(ref(db, `userVotes/${emailKey}`), {
+                    votes: userVotes,
+                    extraVotes: extraVotesPurchased,
+                    fullName: currentUser.fullName,
+                    lastVote: Date.now()
+                });
+                
+                // Update category votes
+                const voteRef = ref(db, `categoryVotes/${pendingVote.category}/${pendingVote.nominee}`);
+                const snapshot = await get(voteRef);
+                const currentVotes = snapshot.exists() ? snapshot.val() : 0;
+                await set(voteRef, currentVotes + 1);
+                
                 updateVoteUI();
-                renderLeaderboard(); // Update leaderboard if visible
-                alert(`✅ Payment successful! Extra vote cast for ${pendingVote.nominee}!`);
+                alert(`💰 Extra vote purchased and cast for ${pendingVote.nominee}!`);
             }
             closeModal();
-        }
+        };
 
         // Update Vote UI
         function updateVoteUI() {
@@ -1411,8 +1480,8 @@
             document.getElementById('votingProgress').style.width = progress + '%';
         }
 
-        // Search/Filter Functionality
-        function filterCategories() {
+        // Search/Filter
+        window.filterCategories = function() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categoryCards = document.querySelectorAll('.category-card');
 
@@ -1435,18 +1504,16 @@
                 if (categoryMatch || hasVisibleNominee || searchTerm === '') {
                     card.style.display = 'block';
                     if (searchTerm !== '') {
-                        nomineeItems.forEach(item => {
-                            item.style.display = 'flex';
-                        });
+                        nomineeItems.forEach(item => item.style.display = 'flex');
                     }
                 } else {
                     card.style.display = 'none';
                 }
             });
-        }
+        };
 
         // Render Leaderboard
-        function renderLeaderboard() {
+        window.renderLeaderboard = function() {
             const container = document.getElementById('leaderboardContainer');
             container.innerHTML = '';
 
@@ -1454,9 +1521,9 @@
                 const card = document.createElement('div');
                 card.className = 'leaderboard-card';
                 
-                // Sort nominees by votes
+                const categoryVotes = allVotes[category.name] || {};
                 const sortedNominees = category.nominees
-                    .map(nom => ({ name: nom, votes: categoryVotes[category.name][nom] }))
+                    .map(nom => ({ name: nom, votes: categoryVotes[nom] || 0 }))
                     .sort((a, b) => b.votes - a.votes);
                 
                 const maxVotes = sortedNominees[0].votes || 1;
@@ -1488,96 +1555,7 @@
                 
                 container.appendChild(card);
             });
-        }
-
-        // Render Admin Panel
-        function renderAdmin() {
-            // Calculate statistics
-            let totalVotes = 0;
-            let totalFreeVotes = Object.keys(userVotes).length;
-            let totalPaidVotes = 0;
-            
-            categories.forEach(cat => {
-                Object.values(categoryVotes[cat.name]).forEach(count => {
-                    totalVotes += count;
-                });
-            });
-            
-            totalPaidVotes = extraVotesPurchased;
-            
-            document.getElementById('adminTotalVotes').textContent = totalVotes;
-            document.getElementById('adminTotalVoters').textContent = 1; // In real app, track unique voters
-            document.getElementById('adminFreeVotes').textContent = totalFreeVotes;
-            document.getElementById('adminPaidVotes').textContent = totalPaidVotes;
-            
-            // Detailed results
-            const detailedContainer = document.getElementById('adminDetailedResults');
-            detailedContainer.innerHTML = '';
-            
-            categories.forEach(category => {
-                const resultCard = document.createElement('div');
-                resultCard.style.cssText = 'background: #f5f9ff; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1rem;';
-                
-                resultCard.innerHTML = `
-                    <h4 style="font-size: 1rem; color: #333; margin-bottom: 0.75rem;">${category.icon} ${category.name}</h4>
-                    ${category.nominees.map(nom => `
-                        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: white; border-radius: 0.5rem; margin-bottom: 0.25rem;">
-                            <span style="font-size: 0.9rem;">${nom}</span>
-                            <span style="font-weight: bold; color: #1e88e5;">${categoryVotes[category.name][nom]} votes</span>
-                        </div>
-                    `).join('')}
-                `;
-                
-                detailedContainer.appendChild(resultCard);
-            });
-        }
-
-        // Admin Functions
-        function exportResults() {
-            let csv = 'Category,Nominee,Votes\n';
-            
-            categories.forEach(category => {
-                category.nominees.forEach(nominee => {
-                    csv += `"${category.name}","${nominee}",${categoryVotes[category.name][nominee]}\n`;
-                });
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'diploma2-voting-results.csv';
-            a.click();
-            window.URL.revokeObjectURL(url);
-            
-            alert('✅ Results exported successfully!');
-        }
-
-        function toggleVoting() {
-            votingLocked = !votingLocked;
-            alert(votingLocked ? '🔒 Voting has been locked' : '🔓 Voting has been unlocked');
-            renderCategories();
-        }
-
-        function resetVotes() {
-            if (confirm('⚠️ Are you sure you want to reset ALL votes? This cannot be undone!')) {
-                if (confirm('This will delete all voting data. Are you absolutely sure?')) {
-                    categories.forEach(cat => {
-                        categoryVotes[cat.name] = {};
-                        cat.nominees.forEach(nom => {
-                            categoryVotes[cat.name][nom] = 0;
-                        });
-                    });
-                    userVotes = {};
-                    extraVotesPurchased = 0;
-                    updateVoteUI();
-                    renderCategories();
-                    renderLeaderboard();
-                    renderAdmin();
-                    alert('✅ All votes have been reset');
-                }
-            }
-        }
+        };
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
