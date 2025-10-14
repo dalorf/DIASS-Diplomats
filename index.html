@@ -1,0 +1,1588 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diploma 2 Final Year Awards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 50%, #fff8e1 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Home Page Styles */
+        .home-page {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .hero {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+
+        .crown-icon {
+            font-size: 5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .sparkles {
+            font-size: 2rem;
+            position: absolute;
+            top: -10px;
+            right: 45%;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #1565c0;
+            margin: 1rem 0;
+            font-weight: bold;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .countdown-box {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 400px;
+            margin: 0 auto 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #74B9FF;
+        }
+
+        .countdown-title {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        .countdown-item {
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            color: white;
+        }
+
+        .countdown-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .countdown-label {
+            font-size: 0.7rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
+        }
+
+        .info-section {
+            max-width: 600px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #74B9FF;
+        }
+
+        .info-title {
+            font-size: 1.5rem;
+            color: #1565c0;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .info-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-step:nth-child(2) {
+            background: #fff8e1;
+        }
+
+        .info-step:nth-child(3) {
+            background: #e8f5e9;
+        }
+
+        .step-number {
+            width: 2rem;
+            height: 2rem;
+            background: #1e88e5;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .info-step:nth-child(2) .step-number {
+            background: #ffa726;
+        }
+
+        .info-step:nth-child(3) .step-number {
+            background: #66bb6a;
+        }
+
+        .step-content h4 {
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Login Page */
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border: 1px solid #74B9FF;
+        }
+
+        .login-icon {
+            width: 4rem;
+            height: 4rem;
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid #ddd;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #42a5f5;
+            box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.1);
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .btn-back {
+            width: 100%;
+            background: transparent;
+            color: #1e88e5;
+            border: none;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .btn-back:hover {
+            text-decoration: underline;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 1rem;
+            background: transparent;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab.active {
+            color: #1e88e5;
+            border-bottom-color: #1e88e5;
+        }
+
+        .nav-tab:hover {
+            background: #f5f9ff;
+        }
+
+        /* Voting Page */
+        .voting-page {
+            min-height: 100vh;
+            padding-bottom: 5rem;
+        }
+
+        .voting-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e0e0e0;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .header-info h2 {
+            font-size: 1.25rem;
+            color: #333;
+        }
+
+        .header-info p {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .btn-logout {
+            background: #f5f5f5;
+            border: none;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: #e0e0e0;
+        }
+
+        .vote-counter {
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            color: white;
+            border-radius: 1rem;
+            padding: 1rem;
+        }
+
+        .vote-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .vote-stat {
+            text-align: center;
+        }
+
+        .vote-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .vote-stat-label {
+            font-size: 0.7rem;
+            opacity: 0.9;
+        }
+
+        .votes-progress {
+            background: rgba(255,255,255,0.2);
+            border-radius: 0.5rem;
+            height: 0.5rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .votes-progress-bar {
+            background: #ffd700;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .search-section {
+            padding: 1rem;
+            background: white;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid #ddd;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #42a5f5;
+            box-shadow: 0 2px 10px rgba(66, 165, 245, 0.2);
+        }
+
+        .categories-section {
+            padding: 1rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .category-header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .category-header:hover {
+            background: #f5f9ff;
+        }
+
+        .category-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .category-icon {
+            font-size: 1.75rem;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .category-count {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .category-status {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .category-status.voted {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .category-status.not-voted {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .category-arrow {
+            font-size: 1.25rem;
+            color: #666;
+            transition: transform 0.3s ease;
+        }
+
+        .category-card.expanded .category-arrow {
+            transform: rotate(90deg);
+        }
+
+        .nominees-section {
+            border-top: 1px solid #e0e0e0;
+            padding: 1rem;
+            background: linear-gradient(to bottom, #f5f9ff, white);
+            display: none;
+        }
+
+        .category-card.expanded .nominees-section {
+            display: block;
+        }
+
+        .nominee-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem;
+            background: white;
+            border-radius: 0.75rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .nominee-item:hover {
+            border-color: #74B9FF;
+        }
+
+        .nominee-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nominee-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+
+        .nominee-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .btn-vote {
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-vote:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(66, 165, 245, 0.3);
+        }
+
+        .btn-vote.voted {
+            background: #e8f5e9;
+            color: #4caf50;
+            cursor: not-allowed;
+        }
+
+        .btn-vote.voted:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Leaderboard */
+        .leaderboard-section {
+            padding: 1rem;
+        }
+
+        .leaderboard-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+
+        .leaderboard-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f5f9ff;
+            border-radius: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .leaderboard-rank {
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .leaderboard-rank.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+        }
+
+        .leaderboard-rank.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%);
+        }
+
+        .leaderboard-rank.bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%);
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .leaderboard-votes {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .leaderboard-bar {
+            background: rgba(66, 165, 245, 0.2);
+            border-radius: 0.25rem;
+            height: 0.5rem;
+            margin-top: 0.25rem;
+            overflow: hidden;
+        }
+
+        .leaderboard-bar-fill {
+            background: linear-gradient(90deg, #42a5f5 0%, #1e88e5 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        /* Admin Page */
+        .admin-section {
+            padding: 1rem;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+
+        .admin-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-stat-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f5f9ff 100%);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .admin-stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e88e5;
+        }
+
+        .admin-stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .admin-actions {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .btn-admin {
+            padding: 0.875rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            color: white;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-lock {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+        }
+
+        .btn-lock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        /* Payment Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .modal-icon {
+            width: 4rem;
+            height: 4rem;
+            background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-text {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-votes {
+            background: #e3f2fd;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-votes p:first-child {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-votes p:last-child {
+            font-size: 2rem;
+            color: #1e88e5;
+            font-weight: bold;
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .countdown-value {
+                font-size: 1.5rem;
+            }
+
+            .info-card {
+                padding: 1.5rem;
+            }
+
+            .nav-tab {
+                font-size: 0.85rem;
+                padding: 0.875rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Home Page -->
+    <div id="homePage" class="container">
+        <div class="home-page">
+            <div class="hero">
+                <div class="crown-icon">👑</div>
+                <div class="sparkles">✨</div>
+            </div>
+
+            <h1>Diploma 2<br>Final Year Awards</h1>
+            <p class="tagline">Celebrating Excellence, Style & Spirit</p>
+
+            <div class="countdown-box">
+                <div class="countdown-title">⏰ Voting Closes In</div>
+                <div class="countdown-grid">
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="days">7</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="hours">12</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="minutes">30</div>
+                        <div class="countdown-label">Mins</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="seconds">0</div>
+                        <div class="countdown-label">Secs</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="showLogin()">Start Voting</button>
+
+            <div class="info-section">
+                <div class="info-card">
+                    <div class="info-title">⭐ How It Works</div>
+                    <div class="info-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Free Votes for All Categories</h4>
+                            <p>Vote once in each of the 18 categories for free</p>
+                        </div>
+                    </div>
+                    <div class="info-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Purchase Extra Votes</h4>
+                            <p>Buy additional votes to support your favorites even more</p>
+                        </div>
+                    </div>
+                    <div class="info-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Watch the Leaderboard</h4>
+                            <p>See live results and track who's leading in each category</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="container hidden">
+        <div class="login-page">
+            <div class="login-card">
+                <div class="login-icon">🏆</div>
+                <div style="text-align: center;">
+                    <h2 class="login-title">Diplomat Verification</h2>
+                    <p class="login-subtitle">Enter your details to access voting</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" placeholder="Enter your full name">
+                    <div class="error-message" id="nameError">Name not found in Diploma 2 list</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="emailInput" placeholder="yourname@example.com">
+                    <div class="error-message" id="emailError">Please enter a valid email</div>
+                </div>
+
+                <button class="btn-primary" style="width: 100%;" onclick="handleLogin()">Verify & Continue</button>
+                <button class="btn-back" onclick="showHome()">← Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (Voting, Leaderboard, Admin) -->
+    <div id="mainApp" class="container hidden">
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('voting')">🗳️ Vote</button>
+            <button class="nav-tab" onclick="switchTab('leaderboard')">📊 Leaderboard</button>
+            <button class="nav-tab" onclick="switchTab('admin')">⚙️ Admin</button>
+        </div>
+
+        <!-- Voting Section -->
+        <div id="votingSection">
+            <div class="voting-page">
+                <div class="voting-header">
+                    <div class="header-top">
+                        <div class="header-info">
+                            <h2>Diploma 2 Awards</h2>
+                            <p id="userName"></p>
+                        </div>
+                        <button class="btn-logout" onclick="handleLogout()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="vote-counter">
+                        <div class="vote-stats">
+                            <div class="vote-stat">
+                                <div class="vote-stat-value" id="categoriesVoted">0</div>
+                                <div class="vote-stat-label">Categories</div>
+                            </div>
+                            <div class="vote-stat">
+                                <div class="vote-stat-value" id="freeVotesLeft">18</div>
+                                <div class="vote-stat-label">Free Left</div>
+                            </div>
+                            <div class="vote-stat">
+                                <div class="vote-stat-value" id="extraVotesPurchased">0</div>
+                                <div class="vote-stat-label">Extra Votes</div>
+                            </div>
+                        </div>
+                        <div class="votes-progress">
+                            <div class="votes-progress-bar" id="votingProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="search-section">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search categories or nominees..." onkeyup="filterCategories()">
+                </div>
+
+                <div class="categories-section" id="categoriesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Section -->
+        <div id="leaderboardSection" class="hidden">
+            <div class="leaderboard-section" id="leaderboardContainer"></div>
+        </div>
+
+        <!-- Admin Section -->
+        <div id="adminSection" class="hidden">
+            <div class="admin-section">
+                <div class="admin-card">
+                    <div class="admin-title">📊 Voting Statistics</div>
+                    <div class="admin-stats">
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-value" id="adminTotalVotes">0</div>
+                            <div class="admin-stat-label">Total Votes</div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-value" id="adminTotalVoters">0</div>
+                            <div class="admin-stat-label">Total Voters</div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-value" id="adminFreeVotes">0</div>
+                            <div class="admin-stat-label">Free Votes</div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-value" id="adminPaidVotes">0</div>
+                            <div class="admin-stat-label">Paid Votes</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-title">⚙️ Admin Actions</div>
+                    <div class="admin-actions">
+                        <button class="btn-admin btn-export" onclick="exportResults()">
+                            📥 Export Results (CSV)
+                        </button>
+                        <button class="btn-admin btn-lock" onclick="toggleVoting()">
+                            🔒 Lock/Unlock Voting
+                        </button>
+                        <button class="btn-admin btn-reset" onclick="resetVotes()">
+                            🔄 Reset All Votes
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-title">📋 Detailed Results</div>
+                    <div id="adminDetailedResults"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">⭐</div>
+            <h3 class="modal-title">Purchase Extra Vote</h3>
+            <p class="modal-text">You've already voted in this category. Buy an extra vote to support this nominee even more!</p>
+
+            <div class="modal-votes">
+                <p>Extra Votes Purchased</p>
+                <p id="modalExtraVotes">0</p>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-primary" style="width: 100%;" onclick="handlePayment()">Pay & Vote Now</button>
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Registered Diploma 2 Students (will be replaced with your full list)
+        const registeredStudents = [
+            "Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel",
+            "Adebayo Julius", "Salimon Farouq", "Olanrewaju Bolu", "Nwanedo Chidera", "Donatus Chidera",
+            "Shobayo Simbi", "Seyi Gandonu", "MOR", "Biggie", "Treasure Ebube", "Solomon Joy", "Temmy",
+            "Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Ugo Christsanctus",
+            "Debby Donatus", "Kowiat", "Abimbola", "MOH", "Olakunle Kazeem", "Henry Ernest",
+            "Ashley Favour", "Gift", "Mr. Wilson", "Prof. Falode", "Mr. Femi", "Ayo Briefcase Guy",
+            "Tess Nwanedo Chidera", "Chidera Donatus", "Christian Farouq", "Emmy Indebted",
+            "Tess", "Ifeoma", "Simbi", "Mr. Chris", "Ayo Salimon Farouq"
+        ];
+
+        // Categories Data
+        const categories = [
+            { name: "Most Brilliant Diplomat", icon: "🎓", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
+            { name: "Most Handsome Diplomat", icon: "👔", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
+            { name: "Most Beautiful Diplomat", icon: "👗", nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"] },
+            { name: "Most Reserved Diplomat (Male)", icon: "🤐", nominees: ["MOR", "Christian Ogala", "Biggie"] },
+            { name: "Most Reserved Diplomat (Female)", icon: "🤫", nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"] },
+            { name: "Most Talented Diplomat", icon: "🎭", nominees: ["Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Solomon Stephen"] },
+            { name: "Most Creative Diplomat", icon: "🎨", nominees: ["Daibu Fareedah", "MOR", "Solomon Stephen", "Ernest Henry"] },
+            { name: "Most Social Diplomat (Male)", icon: "🎉", nominees: ["Ernest Henry", "Ayo Salimon Farouq", "Ugo Christsanctus"] },
+            { name: "Most Social Diplomat (Female)", icon: "💃", nominees: ["Debby Donatus", "Kowiat", "Abimbola"] },
+            { name: "Most Entrepreneurial Diplomat", icon: "💼", nominees: ["Nicholas Mirabel", "Debby Donatus", "MOH", "Olakunle Kazeem"] },
+            { name: "Most Popular Diplomat (Male)", icon: "⭐", nominees: ["Henry Ernest", "Ugochukwu Christsanctus", "Adebayo Julius"] },
+            { name: "Most Popular Diplomat (Female)", icon: "✨", nominees: ["Ashley Favour", "Shobayo Simbi", "Gift"] },
+            { name: "Favorite Diploma Lecturer", icon: "📚", nominees: ["Mr. Wilson", "Prof. Falode", "Mr. Femi"] },
+            { name: "Most Expensive Diplomat (Male)", icon: "💎", nominees: ["Kazeem Olakunle", "Ayo Briefcase Guy"] },
+            { name: "Most Expensive Diplomat (Female)", icon: "💍", nominees: ["Tess Nwanedo Chidera", "Chidera Donatus"] },
+            { name: "Diploma Fashionista (Male)", icon: "🕴️", nominees: ["Henry Ernest", "Bolu Olanrewaju", "Christian Farouq", "Emmy Indebted"] },
+            { name: "Diploma Fashionista (Female)", icon: "👠", nominees: ["Kowiat", "Tess", "Ifeoma", "Simbi"] },
+            { name: "Most Outstanding Diplomat", icon: "🏆", nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"] }
+        ];
+
+        // State Management
+        let currentUser = { name: '', email: '' };
+        let categoryVotes = {}; // { categoryName: { nominee: count } }
+        let userVotes = {}; // { categoryName: nominee }
+        let extraVotesPurchased = 0;
+        let pendingVote = null;
+        let votingLocked = false;
+        let currentTab = 'voting';
+
+        // Initialize vote counts
+        categories.forEach(cat => {
+            categoryVotes[cat.name] = {};
+            cat.nominees.forEach(nom => {
+                categoryVotes[cat.name][nom] = 0;
+            });
+        });
+
+        // Countdown Timer
+        let timeLeft = { days: 7, hours: 12, minutes: 30, seconds: 0 };
+
+        function updateCountdown() {
+            if (timeLeft.seconds > 0) {
+                timeLeft.seconds--;
+            } else if (timeLeft.minutes > 0) {
+                timeLeft.minutes--;
+                timeLeft.seconds = 59;
+            } else if (timeLeft.hours > 0) {
+                timeLeft.hours--;
+                timeLeft.minutes = 59;
+                timeLeft.seconds = 59;
+            } else if (timeLeft.days > 0) {
+                timeLeft.days--;
+                timeLeft.hours = 23;
+                timeLeft.minutes = 59;
+                timeLeft.seconds = 59;
+            }
+
+            document.getElementById('days').textContent = timeLeft.days;
+            document.getElementById('hours').textContent = timeLeft.hours;
+            document.getElementById('minutes').textContent = timeLeft.minutes;
+            document.getElementById('seconds').textContent = timeLeft.seconds;
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        // Navigation Functions
+        function showHome() {
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        }
+
+        function showMainApp() {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            switchTab('voting');
+            renderCategories();
+            updateVoteUI();
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide sections
+            document.getElementById('votingSection').classList.toggle('hidden', tab !== 'voting');
+            document.getElementById('leaderboardSection').classList.toggle('hidden', tab !== 'leaderboard');
+            document.getElementById('adminSection').classList.toggle('hidden', tab !== 'admin');
+            
+            // Render content
+            if (tab === 'leaderboard') renderLeaderboard();
+            if (tab === 'admin') renderAdmin();
+        }
+
+        // Login Verification
+        function handleLogin() {
+            const name = document.getElementById('nameInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            
+            // Reset error messages
+            document.getElementById('nameError').classList.remove('show');
+            document.getElementById('emailError').classList.remove('show');
+            
+            let hasError = false;
+            
+            // Validate name
+            if (!name) {
+                document.getElementById('nameError').textContent = 'Please enter your name';
+                document.getElementById('nameError').classList.add('show');
+                hasError = true;
+            } else if (!isStudentRegistered(name)) {
+                document.getElementById('nameError').textContent = 'Name not found in Diploma 2 list';
+                document.getElementById('nameError').classList.add('show');
+                hasError = true;
+            }
+            
+            // Validate email
+            if (!email || !email.includes('@')) {
+                document.getElementById('emailError').classList.add('show');
+                hasError = true;
+            }
+            
+            if (hasError) return;
+            
+            // Login successful
+            currentUser = { name, email };
+            document.getElementById('userName').textContent = name;
+            showMainApp();
+        }
+
+        function isStudentRegistered(name) {
+            return registeredStudents.some(student => 
+                student.toLowerCase() === name.toLowerCase()
+            );
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout? Your votes will be saved.')) {
+                currentUser = { name: '', email: '' };
+                document.getElementById('nameInput').value = '';
+                document.getElementById('emailInput').value = '';
+                showHome();
+            }
+        }
+
+        // Get initials for avatar
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+        }
+
+        // Render Categories
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            categories.forEach((category, idx) => {
+                const hasVoted = userVotes[category.name] !== undefined;
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.setAttribute('data-category', category.name.toLowerCase());
+                
+                card.innerHTML = `
+                    <div class="category-header" onclick="toggleCategory(${idx})">
+                        <div class="category-left">
+                            <div class="category-icon">${category.icon}</div>
+                            <div class="category-info">
+                                <div class="category-title">${category.name}</div>
+                                <div class="category-count">${category.nominees.length} nominees</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span class="category-status ${hasVoted ? 'voted' : 'not-voted'}">
+                                ${hasVoted ? '✓ Voted' : 'Not Voted'}
+                            </span>
+                            <div class="category-arrow">›</div>
+                        </div>
+                    </div>
+                    <div class="nominees-section">
+                        ${category.nominees.map(nominee => {
+                            const hasVotedForNominee = userVotes[category.name] === nominee;
+                            return `
+                                <div class="nominee-item" data-nominee="${nominee.toLowerCase()}">
+                                    <div class="nominee-left">
+                                        <div class="nominee-avatar">${getInitials(nominee)}</div>
+                                        <div class="nominee-name">${nominee}</div>
+                                    </div>
+                                    <button 
+                                        class="btn-vote ${hasVotedForNominee ? 'voted' : ''}" 
+                                        onclick="handleVote('${category.name}', '${nominee}')"
+                                        ${votingLocked ? 'disabled' : ''}
+                                    >
+                                        ${hasVotedForNominee ? '✓ Voted' : 'Vote'}
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Toggle category expansion
+        function toggleCategory(idx) {
+            const cards = document.querySelectorAll('.category-card');
+            cards[idx].classList.toggle('expanded');
+        }
+
+        // Handle Voting
+        function handleVote(category, nominee) {
+            if (votingLocked) {
+                alert('Voting is currently locked by admin');
+                return;
+            }
+
+            const hasVotedInCategory = userVotes[category] !== undefined;
+            
+            if (!hasVotedInCategory) {
+                // Free vote
+                userVotes[category] = nominee;
+                categoryVotes[category][nominee]++;
+                updateVoteUI();
+                renderCategories();
+                alert(`✅ Free vote cast for ${nominee}!`);
+            } else {
+                // Need to buy extra vote
+                pendingVote = { category, nominee };
+                showPaymentModal();
+            }
+        }
+
+        // Payment Modal
+        function showPaymentModal() {
+            document.getElementById('modalExtraVotes').textContent = extraVotesPurchased;
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            pendingVote = null;
+        }
+
+        function handlePayment() {
+            if (pendingVote) {
+                categoryVotes[pendingVote.category][pendingVote.nominee]++;
+                extraVotesPurchased++;
+                updateVoteUI();
+                renderLeaderboard(); // Update leaderboard if visible
+                alert(`✅ Payment successful! Extra vote cast for ${pendingVote.nominee}!`);
+            }
+            closeModal();
+        }
+
+        // Update Vote UI
+        function updateVoteUI() {
+            const categoriesVoted = Object.keys(userVotes).length;
+            const freeVotesLeft = 18 - categoriesVoted;
+            const progress = (categoriesVoted / 18) * 100;
+
+            document.getElementById('categoriesVoted').textContent = categoriesVoted;
+            document.getElementById('freeVotesLeft').textContent = freeVotesLeft;
+            document.getElementById('extraVotesPurchased').textContent = extraVotesPurchased;
+            document.getElementById('votingProgress').style.width = progress + '%';
+        }
+
+        // Search/Filter Functionality
+        function filterCategories() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryCards = document.querySelectorAll('.category-card');
+
+            categoryCards.forEach(card => {
+                const categoryName = card.getAttribute('data-category');
+                const nomineeItems = card.querySelectorAll('.nominee-item');
+                let categoryMatch = categoryName.includes(searchTerm);
+                let hasVisibleNominee = false;
+
+                nomineeItems.forEach(item => {
+                    const nomineeName = item.getAttribute('data-nominee');
+                    if (nomineeName.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                        hasVisibleNominee = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                if (categoryMatch || hasVisibleNominee || searchTerm === '') {
+                    card.style.display = 'block';
+                    if (searchTerm !== '') {
+                        nomineeItems.forEach(item => {
+                            item.style.display = 'flex';
+                        });
+                    }
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Render Leaderboard
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboardContainer');
+            container.innerHTML = '';
+
+            categories.forEach(category => {
+                const card = document.createElement('div');
+                card.className = 'leaderboard-card';
+                
+                // Sort nominees by votes
+                const sortedNominees = category.nominees
+                    .map(nom => ({ name: nom, votes: categoryVotes[category.name][nom] }))
+                    .sort((a, b) => b.votes - a.votes);
+                
+                const maxVotes = sortedNominees[0].votes || 1;
+                
+                card.innerHTML = `
+                    <div class="leaderboard-title">${category.icon} ${category.name}</div>
+                    ${sortedNominees.map((nominee, idx) => {
+                        let rankClass = '';
+                        if (idx === 0) rankClass = 'gold';
+                        else if (idx === 1) rankClass = 'silver';
+                        else if (idx === 2) rankClass = 'bronze';
+                        
+                        const percentage = maxVotes > 0 ? (nominee.votes / maxVotes) * 100 : 0;
+                        
+                        return `
+                            <div class="leaderboard-item">
+                                <div class="leaderboard-rank ${rankClass}">${idx + 1}</div>
+                                <div class="leaderboard-info">
+                                    <div class="leaderboard-name">${nominee.name}</div>
+                                    <div class="leaderboard-votes">${nominee.votes} vote${nominee.votes !== 1 ? 's' : ''}</div>
+                                    <div class="leaderboard-bar">
+                                        <div class="leaderboard-bar-fill" style="width: ${percentage}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Render Admin Panel
+        function renderAdmin() {
+            // Calculate statistics
+            let totalVotes = 0;
+            let totalFreeVotes = Object.keys(userVotes).length;
+            let totalPaidVotes = 0;
+            
+            categories.forEach(cat => {
+                Object.values(categoryVotes[cat.name]).forEach(count => {
+                    totalVotes += count;
+                });
+            });
+            
+            totalPaidVotes = extraVotesPurchased;
+            
+            document.getElementById('adminTotalVotes').textContent = totalVotes;
+            document.getElementById('adminTotalVoters').textContent = 1; // In real app, track unique voters
+            document.getElementById('adminFreeVotes').textContent = totalFreeVotes;
+            document.getElementById('adminPaidVotes').textContent = totalPaidVotes;
+            
+            // Detailed results
+            const detailedContainer = document.getElementById('adminDetailedResults');
+            detailedContainer.innerHTML = '';
+            
+            categories.forEach(category => {
+                const resultCard = document.createElement('div');
+                resultCard.style.cssText = 'background: #f5f9ff; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1rem;';
+                
+                resultCard.innerHTML = `
+                    <h4 style="font-size: 1rem; color: #333; margin-bottom: 0.75rem;">${category.icon} ${category.name}</h4>
+                    ${category.nominees.map(nom => `
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: white; border-radius: 0.5rem; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.9rem;">${nom}</span>
+                            <span style="font-weight: bold; color: #1e88e5;">${categoryVotes[category.name][nom]} votes</span>
+                        </div>
+                    `).join('')}
+                `;
+                
+                detailedContainer.appendChild(resultCard);
+            });
+        }
+
+        // Admin Functions
+        function exportResults() {
+            let csv = 'Category,Nominee,Votes\n';
+            
+            categories.forEach(category => {
+                category.nominees.forEach(nominee => {
+                    csv += `"${category.name}","${nominee}",${categoryVotes[category.name][nominee]}\n`;
+                });
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'diploma2-voting-results.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            alert('✅ Results exported successfully!');
+        }
+
+        function toggleVoting() {
+            votingLocked = !votingLocked;
+            alert(votingLocked ? '🔒 Voting has been locked' : '🔓 Voting has been unlocked');
+            renderCategories();
+        }
+
+        function resetVotes() {
+            if (confirm('⚠️ Are you sure you want to reset ALL votes? This cannot be undone!')) {
+                if (confirm('This will delete all voting data. Are you absolutely sure?')) {
+                    categories.forEach(cat => {
+                        categoryVotes[cat.name] = {};
+                        cat.nominees.forEach(nom => {
+                            categoryVotes[cat.name][nom] = 0;
+                        });
+                    });
+                    userVotes = {};
+                    extraVotesPurchased = 0;
+                    updateVoteUI();
+                    renderCategories();
+                    renderLeaderboard();
+                    renderAdmin();
+                    alert('✅ All votes have been reset');
+                }
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showHome();
+        });
+    </script>
+</body>
+</html>
