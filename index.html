@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diploma 2 Final Year Awards</title>
+    <title>DIASS 2 Final Year Awards</title>
     <style>
         * {
             margin: 0;
@@ -758,6 +758,7 @@
             transition: width 0.5s ease;
         }
 
+        
         .modal {
             display: none;
             position: fixed;
@@ -1627,7 +1628,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             showHome();
         });
-        
     </script>
+
+    <!-- Login/Register Modal (ADDED FEATURE) -->
+<div id="loginModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-icon">🔑</div>
+        <div class="modal-title">Login / Register</div>
+        <div class="modal-text">Enter your name exactly as registered and your Gmail to continue.</div>
+        <form id="loginForm" onsubmit="event.preventDefault(); handleRegistration();">
+            <div class="form-group">
+                <label for="nameInput">Full Name</label>
+                <input type="text" id="nameInput" placeholder="e.g. Solomon Stephen Sunday" required autocomplete="off" />
+            </div>
+            <div class="form-group">
+                <label for="gmailInput">Gmail Address</label>
+                <input type="email" id="gmailInput" placeholder="your@gmail.com" required autocomplete="off" />
+            </div>
+            <div id="registrationError" class="error-message"></div>
+            <button type="submit" id="loginSubmitBtn" class="btn-primary" style="width:100%;margin-top:10px;">Continue</button>
+            <button type="button" class="btn-secondary" onclick="closeLogin()" style="width:100%;margin-top:10px;">Cancel</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>
