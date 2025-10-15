@@ -862,6 +862,36 @@
             color: #666;
         }
 
+        .admin-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #222 0%, #1565c0 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 16px rgba(30,136,229,0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(30,136,229,0.4);
+        }
+
+        .admin-btn:active {
+            transform: scale(1.05);
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -1093,6 +1123,9 @@
         </div>
     </div>
 
+    <!-- Admin Button (floating) -->
+    <button class="admin-btn" title="Admin Panel" onclick="window.location.href='admin.html'">⚙️</button>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -1128,7 +1161,7 @@
          // Categories
         const categories = [
             { name: "Most Brilliant Diplomat", icon: "🎓", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
-            { name: "Most Handsome Diplomat", icon: "👔", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
+            { name: "Most Handsome Diplomat", icon: "🎩", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
             { name: "Most Beautiful Diplomat", icon: "👗", nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"] },
             { name: "Most Reserved Diplomat (Male)", icon: "🤐", nominees: ["MOR", "Christian Ogala", "Biggie"] },
             { name: "Most Reserved Diplomat (Female)", icon: "🤫", nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"] },
@@ -1594,6 +1627,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             showHome();
         });
+        
     </script>
 </body>
 </html>
