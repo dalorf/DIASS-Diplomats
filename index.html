@@ -1,9 +1,9 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DIASS 2 Final Year Diplomat Awards</title>
+    <title>Diploma 2 Final Year Awards</title>
     <style>
         * {
             margin: 0;
@@ -15,17 +15,19 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 50%, #fff8e1 100%);
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
             max-width: 100%;
             margin: 0 auto;
+            overflow-x: hidden;
         }
 
-        /* Home Page Styles */
         .home-page {
             text-align: center;
             padding: 3rem 1rem;
+            max-width: 100%;
         }
 
         .hero {
@@ -201,7 +203,6 @@
             font-size: 0.9rem;
         }
 
-        /* Login Page */
         .login-page {
             min-height: 100vh;
             display: flex;
@@ -301,6 +302,20 @@
             display: block;
         }
 
+        .warning-message {
+            color: #ff9800;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+            background: #fff3e0;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .warning-message.show {
+            display: block;
+        }
+
         .btn-back {
             width: 100%;
             background: transparent;
@@ -316,7 +331,6 @@
             text-decoration: underline;
         }
 
-        /* Navigation Tabs */
         .nav-tabs {
             display: flex;
             background: white;
@@ -348,7 +362,6 @@
             background: #f5f9ff;
         }
 
-        /* Voting Page */
         .voting-page {
             min-height: 100vh;
             padding-bottom: 5rem;
@@ -425,12 +438,6 @@
         .live-badge::before {
             content: "🔴";
             margin-right: 0.25rem;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
         }
 
         .vote-stats {
@@ -527,12 +534,16 @@
 
         .category-info {
             flex: 1;
+            min-width: 0;
         }
 
         .category-title {
             font-size: 0.95rem;
             font-weight: bold;
             color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .category-count {
@@ -545,6 +556,8 @@
             padding: 0.25rem 0.5rem;
             border-radius: 0.5rem;
             margin-right: 0.5rem;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .category-status.voted {
@@ -588,6 +601,8 @@
             margin-bottom: 0.5rem;
             border: 1px solid #e0e0e0;
             transition: all 0.3s ease;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .nominee-item:hover {
@@ -598,6 +613,8 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            flex: 1;
+            min-width: 0;
         }
 
         .nominee-avatar {
@@ -611,12 +628,16 @@
             justify-content: center;
             font-weight: bold;
             font-size: 0.875rem;
+            flex-shrink: 0;
         }
 
         .nominee-name {
             font-size: 0.95rem;
             font-weight: 500;
             color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .btn-vote {
@@ -629,6 +650,8 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .btn-vote:hover {
@@ -647,7 +670,6 @@
             box-shadow: none;
         }
 
-        /* Leaderboard */
         .leaderboard-section {
             padding: 1rem;
         }
@@ -736,7 +758,6 @@
             transition: width 0.5s ease;
         }
 
-        /* Payment Modal */
         .modal {
             display: none;
             position: fixed;
@@ -858,18 +879,50 @@
                 font-size: 0.85rem;
                 padding: 0.875rem 0.5rem;
             }
+
+            .category-title {
+                font-size: 0.85rem;
+            }
+
+            .nominee-name {
+                font-size: 0.85rem;
+            }
+
+            .btn-vote {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .category-header {
+                padding: 0.75rem;
+            }
+
+            .category-icon {
+                font-size: 1.5rem;
+            }
+
+            .nominee-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .btn-vote {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Home Page -->
     <div id="homePage" class="container">
         <div class="home-page">
             <div class="hero">
                 <div class="crown-icon">👑</div>
                 <div class="sparkles">✨</div>
             </div>
- 
+
             <h1>Final Year Diplomat Awards</h1>
              <h2>Lagos State University DIASS Year 2</h2>
             <p class="tagline">Celebrating Excellence, Style & Spirit</p>
@@ -927,7 +980,6 @@
         </div>
     </div>
 
-    <!-- Login Page -->
     <div id="loginPage" class="container hidden">
         <div class="login-page">
             <div class="login-card">
@@ -943,8 +995,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Student Name </label>
-                    <input type="text" id="nameInput" placeholder="e.g., Daibu-Mohammed, or Solomon Stephen">
+                    <label>Full Name (any part is fine)</label>
+                    <input type="text" id="nameInput" placeholder="e.g., Solomon, Stephen, or Solomon Stephen">
                     <div class="error-message" id="nameError">Name not recognized</div>
                 </div>
 
@@ -952,6 +1004,7 @@
                     <label>Email Address</label>
                     <input type="email" id="emailInput" placeholder="yourname@example.com">
                     <div class="error-message" id="emailError">Please enter a valid email</div>
+                    <div class="warning-message" id="rateLimitWarning"></div>
                 </div>
 
                 <button class="btn-primary" style="width: 100%;" onclick="handleLogin()">Verify & Continue</button>
@@ -960,14 +1013,12 @@
         </div>
     </div>
 
-    <!-- Main App -->
     <div id="mainApp" class="container hidden">
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('voting', event)">🗳️ Vote</button>
             <button class="nav-tab" onclick="switchTab('leaderboard', event)">📊 Leaderboard</button>
         </div>
 
-        <!-- Voting Section -->
         <div id="votingSection">
             <div class="voting-page">
                 <div class="voting-header">
@@ -1017,7 +1068,6 @@
             </div>
         </div>
 
-        <!-- Leaderboard Section -->
         <div id="leaderboardSection" class="hidden">
             <div class="leaderboard-section" id="leaderboardContainer">
                 <div class="loading">Loading leaderboard...</div>
@@ -1025,7 +1075,6 @@
         </div>
     </div>
 
-    <!-- Payment Modal -->
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <div class="modal-icon">⭐</div>
@@ -1044,7 +1093,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -1062,45 +1110,22 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Registered Students
         const registeredStudents = [
-            "Solomon Stephen Sunday",
-            "Emeghara Favour Chiamaka",
-            "Fasoro Boluwatife Esther",
-            "Eroje Blessed Ifeoma",
-            "Fakunle Zion Ezekiel",
-            "Adeniran Deborah Taiwo",
-            "Gandonu Victoria Nifemi",
-            "Agboyinu Omowunmi Mautin",
-            "Salimon Farouk Ayomide",
-            "Ogunlade Pelumi Victoria",
-            "Salawu Precious Oluwanifemi",
-            "Abioye Kowiat Oyindamola",
-            "Kadiri Favour Hawawu",
-            "Nicholas Winner Chioma",
-            "Abdulquari Olayinka Obadin",
-            "Nnawugwu Ugochukwu",
-            "Adejumobi Damilola Favour",
-            "Daibu Mohammed Fareedah",
-            "Solola Olalomo",
-            "King Gloria Temitope",
-            "Precious Adanna Sunday",
-            "Nwanedo Chidera Testimony",
-            "Omoboye Kikelomo Omotola",
-            "Asegba Faith",
-            "Omitiran Mary Jolade",
-            "Adelowo Eniola Abbey",
-            "Adebayo Ademola Julius",
-            "Adisa Ismaila Temitope",
-            "Christian Ogala",
-            "Donatus Chidera Deborah",
-            "Iyanuoluwa Gift",
-            "Olanrewaju Boluwatife Ololatide",
-            "Bakare Eniola Ayomide",
+            "Solomon Stephen Sunday", "Emeghara Favour Chiamaka", "Fasoro Boluwatife Esther",
+            "Eroje Blessed Ifeoma", "Fakunle Zion Ezekiel", "Adeniran Deborah Taiwo",
+            "Gandonu Victoria Nifemi", "Agboyinu Omowunmi Mautin", "Salimon Farouk Ayomide",
+            "Ogunlade Pelumi Victoria", "Salawu Precious Oluwanifemi", "Abioye Kowiat Oyindamola",
+            "Kadiri Favour Hawawu", "Nicholas Winner Chioma", "Abdulquari Olayinka Obadin",
+            "Nnawugwu Ugochukwu", "Adejumobi Damilola Favour", "Daibu Mohammed Fareedah",
+            "Solola Olalomo", "King Gloria Temitope", "Precious Adanna Sunday",
+            "Nwanedo Chidera Testimony", "Omoboye Kikelomo Omotola", "Asegba Faith",
+            "Omitiran Mary Jolade", "Adelowo Eniola Abbey", "Adebayo Ademola Julius",
+            "Adisa Ismaila Temitope", "Christian Ogala", "Donatus Chidera Deborah",
+            "Iyanuoluwa Gift", "Olanrewaju Boluwatife Ololatide", "Bakare Eniola Ayomide",
             "Olaoye Zainab Omotolani"
         ];
 
-        // Categories
+         // Categories
         const categories = [
             { name: "Most Brilliant Diplomat", icon: "🎓", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
             { name: "Most Handsome Diplomat", icon: "👔", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
@@ -1122,25 +1147,39 @@
             { name: "Most Outstanding Diplomat", icon: "🏆", nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"] }
         ];
 
-        // Global State
         let currentUser = { name: '', email: '', fullName: '' };
         let userVotes = {};
         let extraVotesPurchased = 0;
         let pendingVote = null;
         let votingLocked = false;
         let allVotes = {};
+        
+        const rateLimits = {
+            login: { attempts: 0, lastAttempt: 0, maxAttempts: 5, cooldown: 300000 },
+            vote: { attempts: 0, lastAttempt: 0, maxAttempts: 20, cooldown: 60000 }
+        };
 
-        // Expose functions globally
-        window.db = db;
-        window.ref = ref;
-        window.set = set;
-        window.get = get;
-        window.update = update;
-        window.onValue = onValue;
-        window.categories = categories;
-        window.registeredStudents = registeredStudents;
+        function checkRateLimit(action) {
+            const limit = rateLimits[action];
+            const now = Date.now();
+            
+            if (now - limit.lastAttempt > limit.cooldown) {
+                limit.attempts = 0;
+            }
+            
+            if (limit.attempts >= limit.maxAttempts) {
+                const remainingTime = Math.ceil((limit.cooldown - (now - limit.lastAttempt)) / 1000);
+                return {
+                    allowed: false,
+                    message: `Too many attempts. Please wait ${Math.ceil(remainingTime / 60)} minute(s) before trying again.`
+                };
+            }
+            
+            limit.attempts++;
+            limit.lastAttempt = now;
+            return { allowed: true };
+        }
 
-        // Countdown Timer
         let timeLeft = { days: 7, hours: 12, minutes: 30, seconds: 0 };
         function updateCountdown() {
             if (timeLeft.seconds > 0) {
@@ -1165,7 +1204,6 @@
         }
         setInterval(updateCountdown, 1000);
 
-        // Flexible Name Matching
         window.findMatchingStudent = function(input) {
             const inputKeywords = input.toLowerCase().trim().split(/\s+/).filter(w => w.length > 2);
             if (inputKeywords.length === 0) return null;
@@ -1183,7 +1221,6 @@
             return null;
         };
 
-        // Navigation
         window.showHome = function() {
             document.getElementById('homePage').classList.remove('hidden');
             document.getElementById('loginPage').classList.add('hidden');
@@ -1205,8 +1242,15 @@
             loadAllVotes();
         };
 
-        // Login
         window.handleLogin = async function() {
+            const rateCheck = checkRateLimit('login');
+            if (!rateCheck.allowed) {
+                document.getElementById('rateLimitWarning').textContent = '⚠️ ' + rateCheck.message;
+                document.getElementById('rateLimitWarning').classList.add('show');
+                return;
+            }
+
+            document.getElementById('rateLimitWarning').classList.remove('show');
             const nameInput = document.getElementById('nameInput').value.trim();
             const email = document.getElementById('emailInput').value.trim();
             
@@ -1237,11 +1281,11 @@
             
             if (hasError) return;
             
+            rateLimits.login.attempts = 0;
             currentUser.name = nameInput;
             currentUser.email = email;
             document.getElementById('userName').textContent = currentUser.fullName;
             
-            // Update student login status in Firebase
             const emailKey = email.replace(/[.#$[\]]/g, '_');
             await update(ref(db, `students/${emailKey}`), {
                 fullName: currentUser.fullName,
@@ -1253,7 +1297,6 @@
             showMainApp();
         };
 
-        // Load user data from Firebase
         async function loadUserData() {
             const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
             const userRef = ref(db, `userVotes/${emailKey}`);
@@ -1276,7 +1319,6 @@
             updateVoteUI();
         }
 
-        // Load all votes for leaderboard
         function loadAllVotes() {
             const votesRef = ref(db, 'categoryVotes');
             onValue(votesRef, (snapshot) => {
@@ -1297,7 +1339,6 @@
             });
         }
 
-        // Logout
         window.handleLogout = async function() {
             if (confirm('Are you sure you want to logout? Your votes are saved and you can resume anytime.')) {
                 const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
@@ -1314,7 +1355,6 @@
             }
         };
 
-        // Tab Switching
         window.switchTab = function(tab, event) {
             document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
@@ -1325,12 +1365,10 @@
             if (tab === 'leaderboard') renderLeaderboard();
         };
 
-        // Get initials
         window.getInitials = function(name) {
             return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
         };
 
-        // Render Categories
         window.renderCategories = function() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
@@ -1385,14 +1423,18 @@
             });
         };
 
-        // Toggle category
         window.toggleCategory = function(idx) {
             const cards = document.querySelectorAll('.category-card');
             cards[idx].classList.toggle('expanded');
         };
 
-        // Handle Vote
         window.handleVote = async function(category, nominee) {
+            const rateCheck = checkRateLimit('vote');
+            if (!rateCheck.allowed) {
+                alert('🚫 ' + rateCheck.message);
+                return;
+            }
+
             if (votingLocked) {
                 alert('Voting is currently locked by admin');
                 return;
@@ -1401,10 +1443,8 @@
             const hasVotedInCategory = userVotes[category] !== undefined;
             
             if (!hasVotedInCategory) {
-                // Free vote
                 userVotes[category] = nominee;
                 
-                // Save to Firebase
                 const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
                 await set(ref(db, `userVotes/${emailKey}`), {
                     votes: userVotes,
@@ -1413,13 +1453,11 @@
                     lastVote: Date.now()
                 });
                 
-                // Update category votes
                 const voteRef = ref(db, `categoryVotes/${category}/${nominee}`);
                 const snapshot = await get(voteRef);
                 const currentVotes = snapshot.exists() ? snapshot.val() : 0;
                 await set(voteRef, currentVotes + 1);
                 
-                // Update student activity
                 await update(ref(db, `students/${emailKey}`), {
                     votesCount: Object.keys(userVotes).length,
                     lastActivity: Date.now()
@@ -1434,7 +1472,6 @@
             }
         };
 
-        // Payment Modal
         window.showPaymentModal = function() {
             document.getElementById('modalExtraVotes').textContent = extraVotesPurchased;
             document.getElementById('paymentModal').classList.add('active');
@@ -1457,7 +1494,6 @@
                     lastVote: Date.now()
                 });
                 
-                // Update category votes
                 const voteRef = ref(db, `categoryVotes/${pendingVote.category}/${pendingVote.nominee}`);
                 const snapshot = await get(voteRef);
                 const currentVotes = snapshot.exists() ? snapshot.val() : 0;
@@ -1469,7 +1505,6 @@
             closeModal();
         };
 
-        // Update Vote UI
         function updateVoteUI() {
             const categoriesVoted = Object.keys(userVotes).length;
             const freeVotesLeft = 18 - categoriesVoted;
@@ -1481,7 +1516,6 @@
             document.getElementById('votingProgress').style.width = progress + '%';
         }
 
-        // Search/Filter
         window.filterCategories = function() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categoryCards = document.querySelectorAll('.category-card');
@@ -1513,7 +1547,6 @@
             });
         };
 
-        // Render Leaderboard
         window.renderLeaderboard = function() {
             const container = document.getElementById('leaderboardContainer');
             container.innerHTML = '';
@@ -1558,7 +1591,6 @@
             });
         };
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             showHome();
         });
