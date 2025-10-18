@@ -1143,8 +1143,8 @@
     <button class="admin-btn" title="Admin Panel" onclick="window.location.href='admin.html'">⚙️</button>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD1tYPF1ZlGAe7gzXxlo6rjw2QMeaZ_MHo",
@@ -1161,33 +1161,46 @@
         try {
             app = initializeApp(firebaseConfig);
             db = getDatabase(app);
-            console.log('Firebase initialized successfully');
+            console.log('✅ Firebase initialized successfully');
         } catch (error) {
-            console.error('Firebase initialization error:', error);
+            console.error('❌ Firebase initialization error:', error);
             alert('Failed to connect to database. Please refresh the page.');
-            throw error; // Stop the app if initialization fails
+            throw error;
         }
-        // Predefined list of registered students
-        // In a real application, this should come from a secure backend or database        
 
-        const registeredStudents = [
-            "Solomon Stephen Sunday", "Emeghara Favour Chiamaka", "Fasoro Boluwatife Esther",
-            "Eroje Blessed Ifeoma", "Fakunle Zion Ezekiel", "Adeniran Deborah Taiwo",
-            "Gandonu Victoria Nifemi", "Agboyinu Omowunmi Mautin", "Salimon Farouk Ayomide",
-            "Ogunlade Pelumi Victoria", "Salawu Precious Oluwanifemi", "Abioye Kowiat Oyindamola",
-            "Kadiri Favour Hawawu", "Nicholas Winner Chioma", "Abdulquari Olayinka Obadin",
-            "Nnawugwu Ugochukwu", "Adejumobi Damilola Favour", "Daibu Mohammed Fareedah",
-            "Solola Olalomo", "King Gloria Temitope", "Precious Adanna Sunday",
-            "Nwanedo Chidera Testimony", "Omoboye Kikelomo Omotola", "Asegba Faith",
-            "Omitiran Mary Jolade", "Adelowo Eniola Abbey", "Adebayo Ademola Julius",
-            "Adisa Ismaila Temitope", "Christian Ogala", "Donatus Chidera Deborah",
-            "Iyanuoluwa Gift", "Olanrewaju Boluwatife Ololatide", "Bakare Eniola Ayomide",
-            "Olaoye Zainab Omotolani"
-        ];
+        let registeredStudents = [];
+        let studentsUnsubscribe = null;
+
+        function loadRegisteredStudents() {
+            const studentsRef = ref(db, 'registeredStudents');
+            studentsUnsubscribe = onValue(studentsRef, (snapshot) => {
+                registeredStudents = [];
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    
+                    Object.keys(data).forEach(studentKey => {
+                        const studentData = data[studentKey];
+                        
+                        if (studentData && typeof studentData === 'object' && studentData.name) {
+                            registeredStudents.push(studentData.name);
+                        }
+                    });
+                    
+                    console.log('✅ Loaded registered students from Firebase:', registeredStudents.length);
+                } else {
+                    console.warn('⚠️ No registered students found in Firebase');
+                }
+            }, (error) => {
+                console.error('❌ Error loading registered students:', error);
+            });
+        }
+
+        loadRegisteredStudents();
 
         const categories = [
             { name: "Most Brilliant Diplomat", icon: "🎓", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
-            { name: "Most Handsome Diplomat", icon: "🎩", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
+            { name: "Most Handsome Diplomat", icon: "👔", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
             { name: "Most Beautiful Diplomat", icon: "👗", nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"] },
             { name: "Most Reserved Diplomat (Male)", icon: "🤐", nominees: ["MOR", "Christian Ogala", "Biggie"] },
             { name: "Most Reserved Diplomat (Female)", icon: "🤫", nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"] },
@@ -1198,7 +1211,7 @@
             { name: "Most Entrepreneurial Diplomat", icon: "💼", nominees: ["Nicholas Mirabel", "Debby Donatus", "MOH", "Olakunle Kazeem"] },
             { name: "Most Popular Diplomat (Male)", icon: "⭐", nominees: ["Henry Ernest", "Ugochukwu Christsanctus", "Adebayo Julius"] },
             { name: "Most Popular Diplomat (Female)", icon: "✨", nominees: ["Ashley Favour", "Shobayo Simbi", "Gift"] },
-            { name: "Favorite Diploma Lecturer", icon: "📚", nominees: ["Mr. Wilson", "Prof. Falode", "Dr. Shekoni"] },
+            { name: "Favorite Diploma Lecturer", icon: "📚", nominees: ["Mr. Wilson", "Prof. Falode", "Mr. Femi"] },
             { name: "Most Expensive Diplomat (Male)", icon: "💎", nominees: ["Kazeem Olakunle", "Ayo Briefcase Guy"] },
             { name: "Most Expensive Diplomat (Female)", icon: "💍", nominees: ["Tess Nwanedo Chidera", "Chidera Donatus"] },
             { name: "Diploma Fashionista (Male)", icon: "🕴️", nominees: ["Henry Ernest", "Bolu Olanrewaju", "Christian Farouq", "Emmy Indebted"] },
@@ -1264,6 +1277,11 @@
         setInterval(updateCountdown, 1000);
 
         window.findMatchingStudent = function(input) {
+            if (registeredStudents.length === 0) {
+                console.warn('⚠️ No registered students available for matching');
+                return null;
+            }
+
             const inputKeywords = input.toLowerCase().trim().split(/\s+/).filter(w => w.length > 2);
             if (inputKeywords.length === 0) return null;
 
@@ -1329,13 +1347,19 @@
                 document.getElementById('nameError').classList.add('show');
                 hasError = true;
             } else {
-                const matchedStudent = window.findMatchingStudent(nameInput);
-                if (!matchedStudent) {
-                    document.getElementById('nameError').textContent = 'Name not recognized. Try entering different parts of your name.';
+                if (registeredStudents.length === 0) {
+                    document.getElementById('nameError').textContent = '⏳ Loading student list... Please wait and try again.';
                     document.getElementById('nameError').classList.add('show');
                     hasError = true;
                 } else {
-                    currentUser.fullName = matchedStudent;
+                    const matchedStudent = window.findMatchingStudent(nameInput);
+                    if (!matchedStudent) {
+                        document.getElementById('nameError').textContent = 'Name not recognized. Try entering different parts of your name or contact admin.';
+                        document.getElementById('nameError').classList.add('show');
+                        hasError = true;
+                    } else {
+                        currentUser.fullName = matchedStudent;
+                    }
                 }
             }
             
@@ -1382,17 +1406,54 @@
                 currentUser.name = nameInput;
                 currentUser.email = email;
                 document.getElementById('userName').textContent = currentUser.fullName;
-                const emailKey = email.replace(/[.#$[\]]/g, '_');
-                await update(ref(db, `students/${emailKey}`), {
-                    fullName: currentUser.fullName,
+                
+                const emailKey = email.replace(/\./g, ',');
+
+                // Update registered students with email
+const registeredStudentsRef = ref(db, 'registeredStudents');
+const registeredSnapshot = await get(registeredStudentsRef);
+let studentExists = false;
+
+if (registeredSnapshot.exists()) {
+    const students = registeredSnapshot.val();
+    for (const key in students) {
+        if (students[key].name === currentUser.fullName) {
+            await update(ref(db, `registeredStudents/${key}`), {
+                email: email,
+                hasVoted: false,
+                lastActivity: Date.now()
+            });
+            studentExists = true;
+            break;
+        }
+    }
+}
+
+if (!studentExists) {
+    const newStudentRef = push(ref(db, 'registeredStudents'));
+    await set(newStudentRef, {
+        name: currentUser.fullName,
+        email: email,
+        hasVoted: false,
+        registeredAt: Date.now()
+    });
+}
+                
+                await set(ref(db, `students/${emailKey}`), {
+                    name: currentUser.fullName,
                     email: email,
                     lastLogin: Date.now(),
-                    status: 'online'
+                    lastActivity: Date.now(),
+                    status: 'online',
+                    votesCount: 0,
+                    hasVoted: false
                 });
+                
+                console.log('✅ Student data saved to Firebase:', emailKey);
                 
                 showMainApp();
             } catch (error) {
-                console.error('Login error:', error);
+                console.error('❌ Login error:', error);
                 document.getElementById('emailError').textContent = 'An error occurred. Please try again.';
                 document.getElementById('emailError').classList.add('show');
             } finally {
@@ -1402,7 +1463,7 @@
         };
 
         async function loadUserData() {
-            const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
+            const emailKey = currentUser.email.replace(/\./g, ',');
             const userRef = ref(db, `userVotes/${emailKey}`);
             const snapshot = await get(userRef);
             
@@ -1445,7 +1506,7 @@
 
         window.handleLogout = async function() {
             if (confirm('Are you sure you want to logout? Your votes are saved and you can resume anytime.')) {
-                const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
+                const emailKey = currentUser.email.replace(/\./g, ',');
                 await update(ref(db, `students/${emailKey}`), {
                     status: 'offline',
                     lastActivity: Date.now()
@@ -1514,7 +1575,7 @@
                                     </div>
                                     <button 
                                         class="btn-vote ${hasVotedForNominee ? 'voted' : ''}" 
-                                        onclick="handleVote('${category.name}', '${nominee}')"
+                                        onclick="handleVote('${category.name.replace(/'/g, "\\'")}', '${nominee.replace(/'/g, "\\'")}')"
                                         ${votingLocked ? 'disabled' : ''}
                                     >
                                         ${hasVotedForNominee ? '✓ Voted' : 'Vote'}
@@ -1549,30 +1610,40 @@
             const hasVotedInCategory = userVotes[category] !== undefined;
             
             if (!hasVotedInCategory) {
-                userVotes[category] = nominee;
-                
-                const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
-                await set(ref(db, `userVotes/${emailKey}`), {
-                    votes: userVotes,
-                    extraVotes: extraVotesPurchased,
-                    fullName: currentUser.fullName,
-                    lastVote: Date.now()
-                });
-                
-                const voteRef = ref(db, `categoryVotes/${category}/${nominee}`);
-                const snapshot = await get(voteRef);
-                const currentVotes = snapshot.exists() ? snapshot.val() : 0;
-                await set(voteRef, currentVotes + 1);
-                
-                await update(ref(db, `students/${emailKey}`), {
-                    votesCount: Object.keys(userVotes).length,
-                    lastActivity: Date.now()
-                });
-                
-                rateLimits.vote.attempts = 0;
-                updateVoteUI();
-                renderCategories();
-                alert(`✅ Vote cast for ${nominee}!`);
+                try {
+                    userVotes[category] = nominee;
+                    
+                    const emailKey = currentUser.email.replace(/\./g, ',');
+                    
+                    await set(ref(db, `userVotes/${emailKey}`), {
+                        votes: userVotes,
+                        extraVotes: extraVotesPurchased,
+                        fullName: currentUser.fullName,
+                        lastVote: Date.now()
+                    });
+                    
+                    const voteRef = ref(db, `categoryVotes/${category}/${nominee}`);
+                    const snapshot = await get(voteRef);
+                    const currentVotes = snapshot.exists() ? snapshot.val() : 0;
+                    await set(voteRef, currentVotes + 1);
+                    
+                    const votesCount = Object.keys(userVotes).length;
+                    await update(ref(db, `students/${emailKey}`), {
+                        votesCount: votesCount,
+                        hasVoted: votesCount > 0,
+                        lastActivity: Date.now()
+                    });
+                    
+                    console.log('✅ Vote recorded:', category, nominee, 'Total votes:', votesCount);
+                    
+                    rateLimits.vote.attempts = 0;
+                    updateVoteUI();
+                    renderCategories();
+                    alert(`✅ Vote cast for ${nominee}!`);
+                } catch (error) {
+                    console.error('❌ Error casting vote:', error);
+                    alert('Error casting vote. Please try again.');
+                }
             } else {
                 pendingVote = { category, nominee };
                 showPaymentModal();
@@ -1591,23 +1662,34 @@
 
         window.handlePayment = async function() {
             if (pendingVote) {
-                extraVotesPurchased++;
-                
-                const emailKey = currentUser.email.replace(/[.#$[\]]/g, '_');
-                await set(ref(db, `userVotes/${emailKey}`), {
-                    votes: userVotes,
-                    extraVotes: extraVotesPurchased,
-                    fullName: currentUser.fullName,
-                    lastVote: Date.now()
-                });
-                
-                const voteRef = ref(db, `categoryVotes/${pendingVote.category}/${pendingVote.nominee}`);
-                const snapshot = await get(voteRef);
-                const currentVotes = snapshot.exists() ? snapshot.val() : 0;
-                await set(voteRef, currentVotes + 1);
-                
-                updateVoteUI();
-                alert(`💰 Extra vote purchased and cast for ${pendingVote.nominee}!`);
+                try {
+                    extraVotesPurchased++;
+                    
+                    const emailKey = currentUser.email.replace(/\./g, ',');
+                    await set(ref(db, `userVotes/${emailKey}`), {
+                        votes: userVotes,
+                        extraVotes: extraVotesPurchased,
+                        fullName: currentUser.fullName,
+                        lastVote: Date.now()
+                    });
+                    
+                    const voteRef = ref(db, `categoryVotes/${pendingVote.category}/${pendingVote.nominee}`);
+                    const snapshot = await get(voteRef);
+                    const currentVotes = snapshot.exists() ? snapshot.val() : 0;
+                    await set(voteRef, currentVotes + 1);
+                    
+                    await update(ref(db, `students/${emailKey}`), {
+                        lastActivity: Date.now()
+                    });
+                    
+                    console.log('✅ Extra vote purchased and cast');
+                    
+                    updateVoteUI();
+                    alert(`💰 Extra vote purchased and cast for ${pendingVote.nominee}!`);
+                } catch (error) {
+                    console.error('❌ Error with extra vote:', error);
+                    alert('Error processing extra vote. Please try again.');
+                }
             }
             closeModal();
         };
@@ -1700,6 +1782,12 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             showHome();
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (studentsUnsubscribe) {
+                studentsUnsubscribe();
+            }
         });
     </script>
 </body>
