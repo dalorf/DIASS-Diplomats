@@ -1141,15 +1141,16 @@
                 await remove(ref(db, 'categoryVotes'));
                 await remove(ref(db, 'userVotes'));
                 
-                const studentsSnapshot = await get(ref(db, 'students'));
-                if (studentsSnapshot.exists()) {
-                    const updates = {};
-                    Object.keys(studentsSnapshot.val()).forEach(key => {
-                        updates[`students/${key}/votesCount`] = 0;
-                        updates[`students/${key}/hasVoted`] = false;
-                    });
-                    await set(ref(db), updates);
-                }
+               const studentsSnapshot = await get(ref(db, 'students'));
+if (studentsSnapshot.exists()) {
+    const students = studentsSnapshot.val();
+    for (const key of Object.keys(students)) {
+        await update(ref(db, `students/${key}`), {
+            votesCount: 0,
+            hasVoted: false
+        });
+    }
+}
                 
                 await logAction('votes_reset', true);
                 alert('All votes have been reset.');
