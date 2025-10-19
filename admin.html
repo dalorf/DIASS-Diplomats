@@ -78,7 +78,7 @@
             margin-bottom: 0.5rem;
         }
 
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 0.875rem;
             border: 2px solid #ddd;
@@ -87,7 +87,7 @@
             transition: all 0.3s ease;
         }
 
-        .form-group input:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: #f44336;
             box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
@@ -347,7 +347,40 @@
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+        }
+
+        .category-actions {
+            display: flex;
             gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-edit {
+            background: #2196f3;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #1976d2;
+        }
+
+        .btn-add-nominee {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-add-nominee:hover {
+            background: #388e3c;
         }
 
         .nominee-result {
@@ -372,6 +405,9 @@
         .nominee-votes {
             font-weight: bold;
             color: #2196f3;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .live-indicator {
@@ -510,6 +546,25 @@
             font-weight: 600;
             cursor: pointer;
         }
+
+        .nominee-list {
+            margin-top: 1rem;
+        }
+
+        .nominee-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f5f5f5;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nominee-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -594,13 +649,14 @@
         </div>
 
         <div class="section-card">
-            <h2 class="section-title">🏆 Detailed Voting Results</h2>
+            <h2 class="section-title">🏆 Manage Categories & Nominees</h2>
             <div class="results-grid" id="resultsContainer">
-                <p style="text-align: center; color: #666;">Loading results...</p>
+                <p style="text-align: center; color: #666;">Loading categories...</p>
             </div>
         </div>
     </div>
 
+    <!-- Add Student Modal -->
     <div id="addStudentModal" class="modal">
         <div class="modal-content">
             <h3 class="modal-header">➕ Add New Student</h3>
@@ -619,9 +675,77 @@
         </div>
     </div>
 
+    <!-- Edit Category Modal -->
+    <div id="editCategoryModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-header">✏️ Edit Category</h3>
+            <div class="form-group">
+                <label for="editCategoryName">Category Name</label>
+                <input type="text" id="editCategoryName" placeholder="Category name">
+            </div>
+            <div class="form-group">
+                <label for="editCategoryIcon">Category Icon (Emoji)</label>
+                <input type="text" id="editCategoryIcon" placeholder="🏆" maxlength="2">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeEditCategoryModal()">Cancel</button>
+                <button class="btn-submit" onclick="saveCategory()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Nominee Modal -->
+    <div id="addNomineeModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-header">➕ Add Nominee</h3>
+            <div class="form-group">
+                <label>Category: <strong id="addNomineeCategoryName"></strong></label>
+            </div>
+            <div class="form-group">
+                <label for="newNomineeName">Nominee Name</label>
+                <input type="text" id="newNomineeName" placeholder="Enter nominee name">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeAddNomineeModal()">Cancel</button>
+                <button class="btn-submit" onclick="addNominee()">Add Nominee</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Nominees Modal -->
+    <div id="manageNomineesModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-header">👥 Manage Nominees</h3>
+            <div class="form-group">
+                <label>Category: <strong id="manageNomineeCategoryName"></strong></label>
+            </div>
+            <div class="nominee-list" id="nomineesList">
+                <p style="text-align: center; color: #666;">Loading nominees...</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeManageNomineesModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Nominee Modal -->
+    <div id="editNomineeModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-header">✏️ Edit Nominee</h3>
+            <div class="form-group">
+                <label for="editNomineeName">Nominee Name</label>
+                <input type="text" id="editNomineeName" placeholder="Enter nominee name">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeEditNomineeModal()">Cancel</button>
+                <button class="btn-submit" onclick="saveNomineeEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, set, get, onValue, remove, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, remove, push, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD1tYPF1ZlGAe7gzXxlo6rjw2QMeaZ_MHo",
@@ -646,27 +770,9 @@
         let allVotes = {};
         let votingLocked = false;
         let unsubscribers = [];
-
-        const categories = [
-            { name: "Most Brilliant Diplomat", icon: "🎓", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
-            { name: "Most Handsome Diplomat", icon: "👔", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
-            { name: "Most Beautiful Diplomat", icon: "👗", nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"] },
-            { name: "Most Reserved Diplomat (Male)", icon: "🤐", nominees: ["MOR", "Christian Ogala", "Biggie"] },
-            { name: "Most Reserved Diplomat (Female)", icon: "🤫", nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"] },
-            { name: "Most Talented Diplomat", icon: "🎭", nominees: ["Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Solomon Stephen"] },
-            { name: "Most Creative Diplomat", icon: "🎨", nominees: ["Daibu Fareedah", "MOR", "Solomon Stephen", "Ernest Henry"] },
-            { name: "Most Social Diplomat (Male)", icon: "🎉", nominees: ["Ernest Henry", "Ayo Salimon Farouq", "Ugo Christsanctus"] },
-            { name: "Most Social Diplomat (Female)", icon: "💃", nominees: ["Debby Donatus", "Kowiat", "Abimbola"] },
-            { name: "Most Entrepreneurial Diplomat", icon: "💼", nominees: ["Nicholas Mirabel", "Debby Donatus", "MOH", "Olakunle Kazeem"] },
-            { name: "Most Popular Diplomat (Male)", icon: "⭐", nominees: ["Henry Ernest", "Ugochukwu Christsanctus", "Adebayo Julius"] },
-            { name: "Most Popular Diplomat (Female)", icon: "✨", nominees: ["Ashley Favour", "Shobayo Simbi", "Gift"] },
-            { name: "Favorite Diploma Lecturer", icon: "📚", nominees: ["Mr. Wilson", "Prof. Falode", "Mr. Femi"] },
-            { name: "Most Expensive Diplomat (Male)", icon: "💎", nominees: ["Kazeem Olakunle", "Ayo Briefcase Guy"] },
-            { name: "Most Expensive Diplomat (Female)", icon: "💍", nominees: ["Tess Nwanedo Chidera", "Chidera Donatus"] },
-            { name: "Diploma Fashionista (Male)", icon: "🕴️", nominees: ["Henry Ernest", "Bolu Olanrewaju", "Christian Farouq", "Emmy Indebted"] },
-            { name: "Diploma Fashionista (Female)", icon: "👠", nominees: ["Kowiat", "Tess", "Ifeoma", "Simbi"] },
-            { name: "Most Outstanding Diplomat", icon: "🏆", nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"] }
-        ];
+        let categories = [];
+        let currentEditingCategory = null;
+        let currentEditingNominee = null;
 
         function sanitizeInput(input) {
             if (!input) return '';
@@ -680,6 +786,47 @@
                 hash = hash & hash;
             }
             return hash.toString();
+        }
+
+        // Initialize default categories if not exists
+        async function initializeCategories() {
+            try {
+                const categoriesRef = ref(db, 'categories');
+                const snapshot = await get(categoriesRef);
+                
+                if (!snapshot.exists()) {
+                    const defaultCategories = [
+                        { name: "Most Brilliant Diplomat", icon: "🎓", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
+                        { name: "Most Handsome Diplomat", icon: "👔", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
+                        { name: "Most Beautiful Diplomat", icon: "👗", nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"] },
+                        { name: "Most Reserved Diplomat (Male)", icon: "🤐", nominees: ["MOR", "Christian Ogala", "Biggie"] },
+                        { name: "Most Reserved Diplomat (Female)", icon: "🤫", nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"] },
+                        { name: "Most Talented Diplomat", icon: "🎭", nominees: ["Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Solomon Stephen"] },
+                        { name: "Most Creative Diplomat", icon: "🎨", nominees: ["Daibu Fareedah", "MOR", "Solomon Stephen", "Ernest Henry"] },
+                        { name: "Most Social Diplomat (Male)", icon: "🎉", nominees: ["Ernest Henry", "Ayo Salimon Farouq", "Ugo Christsanctus"] },
+                        { name: "Most Social Diplomat (Female)", icon: "💃", nominees: ["Debby Donatus", "Kowiat", "Abimbola"] },
+                        { name: "Most Entrepreneurial Diplomat", icon: "💼", nominees: ["Nicholas Mirabel", "Debby Donatus", "MOH", "Olakunle Kazeem"] },
+                        { name: "Most Popular Diplomat (Male)", icon: "⭐", nominees: ["Henry Ernest", "Ugochukwu Christsanctus", "Adebayo Julius"] },
+                        { name: "Most Popular Diplomat (Female)", icon: "✨", nominees: ["Ashley Favour", "Shobayo Simbi", "Gift"] },
+                        { name: "Favorite Diploma Lecturer", icon: "📚", nominees: ["Mr. Wilson", "Prof. Falode", "Mr. Femi"] },
+                        { name: "Most Expensive Diplomat (Male)", icon: "💎", nominees: ["Kazeem Olakunle", "Ayo Briefcase Guy"] },
+                        { name: "Most Expensive Diplomat (Female)", icon: "💍", nominees: ["Tess Nwanedo Chidera", "Chidera Donatus"] },
+                        { name: "Diploma Fashionista (Male)", icon: "🕴️", nominees: ["Henry Ernest", "Bolu Olanrewaju", "Christian Farouq", "Emmy Indebted"] },
+                        { name: "Diploma Fashionista (Female)", icon: "👠", nominees: ["Kowiat", "Tess", "Ifeoma", "Simbi"] },
+                        { name: "Most Outstanding Diplomat", icon: "🏆", nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"] }
+                    ];
+                    
+                    console.log('Initializing default categories...');
+                    await set(categoriesRef, defaultCategories);
+                    console.log('Categories initialized successfully!');
+                } else {
+                    console.log('Categories already exist in Firebase');
+                }
+            } catch (error) {
+                console.error('Error initializing categories:', error);
+                console.log('⚠️ Using fallback: Categories will load from existing data or show empty');
+                // Don't throw error, let the app continue with existing data
+            }
         }
 
         window.handleAdminLogin = async function() {
@@ -724,6 +871,7 @@
                     document.getElementById('adminLogin').style.display = 'none';
                     document.getElementById('adminDashboard').classList.add('active');
                     await logAction('login', true);
+                    await initializeCategories();
                     loadDashboardData();
                 } else {
                     loginAttempts++;
@@ -816,9 +964,229 @@
             }
         };
 
+        // Category Management Functions
+        window.showEditCategoryModal = function(categoryIndex) {
+            currentEditingCategory = categoryIndex;
+            const category = categories[categoryIndex];
+            document.getElementById('editCategoryName').value = category.name;
+            document.getElementById('editCategoryIcon').value = category.icon;
+            document.getElementById('editCategoryModal').classList.add('active');
+        };
+
+        window.closeEditCategoryModal = function() {
+            document.getElementById('editCategoryModal').classList.remove('active');
+            currentEditingCategory = null;
+        };
+
+        window.saveCategory = async function() {
+            const name = sanitizeInput(document.getElementById('editCategoryName').value);
+            const icon = sanitizeInput(document.getElementById('editCategoryIcon').value);
+
+            if (!name || name.length < 3) {
+                alert('Please enter a valid category name (at least 3 characters)');
+                return;
+            }
+
+            try {
+                const categoryRef = ref(db, `categories/${currentEditingCategory}`);
+                await update(categoryRef, {
+                    name: name,
+                    icon: icon || '🏆'
+                });
+
+                await logAction('category_edited', true, { categoryName: name });
+                alert('Category updated successfully!');
+                closeEditCategoryModal();
+            } catch (error) {
+                console.error('Error updating category:', error);
+                alert('Error updating category. Please try again.');
+            }
+        };
+
+        // Nominee Management Functions
+        window.showAddNomineeModal = function(categoryIndex) {
+            currentEditingCategory = categoryIndex;
+            const category = categories[categoryIndex];
+            document.getElementById('addNomineeCategoryName').textContent = category.name;
+            document.getElementById('newNomineeName').value = '';
+            document.getElementById('addNomineeModal').classList.add('active');
+        };
+
+        window.closeAddNomineeModal = function() {
+            document.getElementById('addNomineeModal').classList.remove('active');
+            currentEditingCategory = null;
+        };
+
+        window.addNominee = async function() {
+            const nomineeName = sanitizeInput(document.getElementById('newNomineeName').value);
+
+            if (!nomineeName || nomineeName.length < 2) {
+                alert('Please enter a valid nominee name (at least 2 characters)');
+                return;
+            }
+
+            try {
+                const category = categories[currentEditingCategory];
+                const nominees = category.nominees || [];
+                
+                if (nominees.includes(nomineeName)) {
+                    alert('This nominee already exists in this category!');
+                    return;
+                }
+
+                nominees.push(nomineeName);
+                
+                const categoryRef = ref(db, `categories/${currentEditingCategory}/nominees`);
+                await set(categoryRef, nominees);
+
+                await logAction('nominee_added', true, { 
+                    categoryName: category.name, 
+                    nomineeName: nomineeName 
+                });
+
+                alert(`Nominee "${nomineeName}" added successfully!`);
+                closeAddNomineeModal();
+            } catch (error) {
+                console.error('Error adding nominee:', error);
+                alert('Error adding nominee. Please try again.');
+            }
+        };
+
+        window.showManageNomineesModal = function(categoryIndex) {
+            currentEditingCategory = categoryIndex;
+            const category = categories[categoryIndex];
+            document.getElementById('manageNomineeCategoryName').textContent = category.name;
+            
+            const nomineesList = document.getElementById('nomineesList');
+            nomineesList.innerHTML = '';
+
+            if (!category.nominees || category.nominees.length === 0) {
+                nomineesList.innerHTML = '<p style="text-align: center; color: #666;">No nominees yet</p>';
+            } else {
+                category.nominees.forEach((nominee, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'nominee-item';
+                    item.innerHTML = `
+                        <span>${sanitizeInput(nominee)}</span>
+                        <div class="nominee-item-actions">
+                            <button class="btn-small btn-edit" onclick="showEditNomineeModal(${categoryIndex}, ${index})">Edit</button>
+                            <button class="btn-small btn-delete" onclick="deleteNominee(${categoryIndex}, ${index}, '${sanitizeInput(nominee).replace(/'/g, "\\'")}')">Delete</button>
+                        </div>
+                    `;
+                    nomineesList.appendChild(item);
+                });
+            }
+
+            document.getElementById('manageNomineesModal').classList.add('active');
+        };
+
+        window.closeManageNomineesModal = function() {
+            document.getElementById('manageNomineesModal').classList.remove('active');
+            currentEditingCategory = null;
+        };
+
+        window.showEditNomineeModal = function(categoryIndex, nomineeIndex) {
+            currentEditingCategory = categoryIndex;
+            currentEditingNominee = nomineeIndex;
+            const nominee = categories[categoryIndex].nominees[nomineeIndex];
+            document.getElementById('editNomineeName').value = nominee;
+            document.getElementById('editNomineeModal').classList.add('active');
+        };
+
+        window.closeEditNomineeModal = function() {
+            document.getElementById('editNomineeModal').classList.remove('active');
+            currentEditingNominee = null;
+        };
+
+        window.saveNomineeEdit = async function() {
+            const newName = sanitizeInput(document.getElementById('editNomineeName').value);
+
+            if (!newName || newName.length < 2) {
+                alert('Please enter a valid nominee name (at least 2 characters)');
+                return;
+            }
+
+            try {
+                const category = categories[currentEditingCategory];
+                const oldName = category.nominees[currentEditingNominee];
+                category.nominees[currentEditingNominee] = newName;
+
+                const categoryRef = ref(db, `categories/${currentEditingCategory}/nominees`);
+                await set(categoryRef, category.nominees);
+
+                // Update votes if any exist for this nominee
+                const votesRef = ref(db, `categoryVotes/${category.name}`);
+                const votesSnapshot = await get(votesRef);
+                if (votesSnapshot.exists()) {
+                    const votes = votesSnapshot.val();
+                    if (votes[oldName]) {
+                        const voteCount = votes[oldName];
+                        await remove(ref(db, `categoryVotes/${category.name}/${oldName}`));
+                        await set(ref(db, `categoryVotes/${category.name}/${newName}`), voteCount);
+                    }
+                }
+
+                await logAction('nominee_edited', true, { 
+                    categoryName: category.name, 
+                    oldName: oldName,
+                    newName: newName 
+                });
+
+                alert('Nominee updated successfully!');
+                closeEditNomineeModal();
+                closeManageNomineesModal();
+            } catch (error) {
+                console.error('Error updating nominee:', error);
+                alert('Error updating nominee. Please try again.');
+            }
+        };
+
+        window.deleteNominee = async function(categoryIndex, nomineeIndex, nomineeName) {
+            if (!confirm(`Are you sure you want to delete "${nomineeName}"?\n\nThis will also remove all votes for this nominee.`)) {
+                return;
+            }
+
+            try {
+                const category = categories[categoryIndex];
+                category.nominees.splice(nomineeIndex, 1);
+
+                const categoryRef = ref(db, `categories/${categoryIndex}/nominees`);
+                await set(categoryRef, category.nominees);
+
+                // Remove votes for this nominee
+                await remove(ref(db, `categoryVotes/${category.name}/${nomineeName}`));
+
+                await logAction('nominee_deleted', true, { 
+                    categoryName: category.name, 
+                    nomineeName: nomineeName 
+                });
+
+                alert(`Nominee "${nomineeName}" deleted successfully!`);
+                closeManageNomineesModal();
+            } catch (error) {
+                console.error('Error deleting nominee:', error);
+                alert('Error deleting nominee. Please try again.');
+            }
+        };
+
         async function loadDashboardData() {
             unsubscribers.forEach(unsub => unsub());
             unsubscribers = [];
+
+            // Listen to categories
+            const categoriesUnsubscribe = onValue(ref(db, 'categories'), (snapshot) => {
+                if (snapshot.exists()) {
+                    categories = [];
+                    snapshot.forEach(child => {
+                        categories.push({
+                            id: child.key,
+                            ...child.val()
+                        });
+                    });
+                }
+                renderResults();
+            });
+            unsubscribers.push(categoriesUnsubscribe);
 
             const registeredUnsubscribe = onValue(ref(db, 'registeredStudents'), (snapshot) => {
                 registeredStudents = [];
@@ -901,6 +1269,10 @@
                     const color = log.success ? '#4caf50' : '#f44336';
                     const actionText = log.action === 'login' ? 'Admin Login' :
                         log.action === 'login_failed' ? `Failed Login (Attempt ${log.attempts || ''})` :
+                        log.action === 'category_edited' ? `Category Edited: ${log.categoryName || ''}` :
+                        log.action === 'nominee_added' ? `Nominee Added: ${log.nomineeName || ''} to ${log.categoryName || ''}` :
+                        log.action === 'nominee_edited' ? `Nominee Edited: ${log.oldName || ''} → ${log.newName || ''}` :
+                        log.action === 'nominee_deleted' ? `Nominee Deleted: ${log.nomineeName || ''} from ${log.categoryName || ''}` :
                         log.action === 'password_changed' ? 'Password Changed' :
                         log.action === 'password_change_attempted' ? 'Password Change Attempted' :
                         log.action === 'voting_locked' ? 'Voting Locked' :
@@ -1017,7 +1389,7 @@
                     <td><strong>${sanitizeInput(studentName)}</strong></td>
                     <td>${sanitizeInput(studentEmail)}</td>
                     <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    <td><strong>${votesCount}</strong> / 18</td>
+                    <td><strong>${votesCount}</strong> / ${categories.length}</td>
                     <td>${formatTime(lastActivity)}</td>
                     <td>
                         <button class="btn-delete" onclick="deleteStudent('${student.id}', '${sanitizeInput(studentName).replace(/'/g, "\\'")}')">Delete</button>
@@ -1070,23 +1442,36 @@
             const container = document.getElementById('resultsContainer');
             container.innerHTML = '';
 
-            categories.forEach(category => {
+            if (categories.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">No categories available</p>';
+                return;
+            }
+
+            categories.forEach((category, index) => {
                 const categoryVotes = allVotes[category.name] || {};
-                const sortedNominees = category.nominees
+                const nominees = category.nominees || [];
+                const sortedNominees = nominees
                     .map(nom => ({ name: nom, votes: categoryVotes[nom] || 0 }))
                     .sort((a, b) => b.votes - a.votes);
 
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 card.innerHTML = `
-                    <div class="result-header">${category.icon} <span>${sanitizeInput(category.name)}</span></div>
+                    <div class="result-header">
+                        <span>${category.icon} ${sanitizeInput(category.name)}</span>
+                        <div class="category-actions">
+                            <button class="btn-small btn-edit" onclick="showEditCategoryModal(${index})">✏️ Edit</button>
+                            <button class="btn-small btn-add-nominee" onclick="showAddNomineeModal(${index})">➕ Add</button>
+                            <button class="btn-small btn-edit" onclick="showManageNomineesModal(${index})">👥 Manage</button>
+                        </div>
+                    </div>
                     <div>
-                        ${sortedNominees.map(nominee =>
+                        ${sortedNominees.length > 0 ? sortedNominees.map(nominee =>
                             `<div class="nominee-result">
                                 <span class="nominee-name">${sanitizeInput(nominee.name)}</span>
-                                <span class="nominee-votes">${nominee.votes}</span>
+                                <span class="nominee-votes">${nominee.votes} votes</span>
                             </div>`
-                        ).join('')}
+                        ).join('') : '<p style="text-align: center; color: #999; padding: 1rem;">No nominees yet</p>'}
                     </div>
                 `;
                 container.appendChild(card);
@@ -1098,7 +1483,8 @@
                 let csvContent = "Category,Nominee,Votes\n";
                 categories.forEach(category => {
                     const categoryVotes = allVotes[category.name] || {};
-                    category.nominees.forEach(nominee => {
+                    const nominees = category.nominees || [];
+                    nominees.forEach(nominee => {
                         const votes = categoryVotes[nominee] || 0;
                         csvContent += `"${category.name}","${nominee}",${votes}\n`;
                     });
@@ -1141,16 +1527,16 @@
                 await remove(ref(db, 'categoryVotes'));
                 await remove(ref(db, 'userVotes'));
                 
-               const studentsSnapshot = await get(ref(db, 'students'));
-if (studentsSnapshot.exists()) {
-    const students = studentsSnapshot.val();
-    for (const key of Object.keys(students)) {
-        await update(ref(db, `students/${key}`), {
-            votesCount: 0,
-            hasVoted: false
-        });
-    }
-}
+                const studentsSnapshot = await get(ref(db, 'students'));
+                if (studentsSnapshot.exists()) {
+                    const students = studentsSnapshot.val();
+                    for (const key of Object.keys(students)) {
+                        await update(ref(db, `students/${key}`), {
+                            votesCount: 0,
+                            hasVoted: false
+                        });
+                    }
+                }
                 
                 await logAction('votes_reset', true);
                 alert('All votes have been reset.');
