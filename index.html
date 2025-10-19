@@ -355,10 +355,12 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            overflow-x: auto;
         }
 
         .nav-tab {
             flex: 1;
+            min-width: 100px;
             padding: 1rem;
             background: transparent;
             border: none;
@@ -377,6 +379,130 @@
 
         .nav-tab:hover {
             background: #f5f9ff;
+        }
+
+        .dashboard-section {
+            padding: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #1e88e5;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .voting-history-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+
+        .history-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f5f9ff;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #1e88e5;
+        }
+
+        .history-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .history-content {
+            flex: 1;
+        }
+
+        .history-category {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .history-nominee {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .category-description {
+            background: #fff8e1;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            font-size: 0.9rem;
+            color: #666;
+            border-left: 4px solid #ffa726;
+        }
+
+        .info-icon {
+            background: #ffa726;
+            color: white;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+            cursor: help;
         }
 
         .voting-page {
@@ -960,9 +1086,264 @@
                 margin-top: 0.5rem;
             }
         }
+
+        /* Skeleton Loader Styles */
+            .skeleton {
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                background-size: 200% 100%;
+                animation: shimmer 1.5s infinite;
+                border-radius: 0.75rem;
+        }
+
+        @keyframes shimmer {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+        }
+
+            .skeleton-category {
+                background: white;
+                border-radius: 1rem;
+                margin-bottom: 0.75rem;
+                padding: 1rem;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            }
+
+            .skeleton-header {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .skeleton-icon {
+                width: 2.5rem;
+                height: 2.5rem;
+                border-radius: 50%;
+            }
+
+            .skeleton-text {
+                flex: 1;
+            }
+
+            .skeleton-title {
+                height: 1.2rem;
+                width: 70%;
+                margin-bottom: 0.5rem;
+            }
+
+            .skeleton-subtitle {
+                height: 0.9rem;
+                width: 40%;
+            }
+
+            .skeleton-leaderboard-card {
+                background: white;
+                border-radius: 1rem;
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            }
+
+            .skeleton-leaderboard-title {
+                height: 1.5rem;
+                width: 60%;
+                margin-bottom: 1rem;
+            }
+
+            .skeleton-leaderboard-item {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .skeleton-rank {
+                width: 2rem;
+                height: 2rem;
+                border-radius: 50%;
+            }
+
+            .skeleton-leaderboard-content {
+                flex: 1;
+            }
+
+            .skeleton-leaderboard-name {
+                height: 1rem;
+                width: 50%;
+                margin-bottom: 0.5rem;
+            }
+
+            .skeleton-leaderboard-bar {
+                height: 0.5rem;
+                width: 100%;
+            }
+
+            /* Confetti Animation */
+            .confetti-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 9999;
+                overflow: hidden;
+            }
+
+            .confetti {
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                background: #f44336;
+                animation: confetti-fall 3s linear forwards;
+            }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+/* Success Modal */
+            .success-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.6);
+                backdrop-filter: blur(5px);
+                z-index: 10000;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+            }
+
+            .success-modal.active {
+                display: flex;
+            }
+
+            .success-content {
+                background: white;
+                border-radius: 2rem;
+                padding: 2rem;
+                max-width: 400px;
+                width: 100%;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                text-align: center;
+                animation: successPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            }
+
+        @keyframes successPop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+            .success-icon {
+                width: 5rem;
+                height: 5rem;
+                background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 1rem;
+                font-size: 3rem;
+                animation: checkPulse 0.6s ease-in-out;
+            }
+
+        @keyframes checkPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+            .success-title {
+                font-size: 1.8rem;
+                color: #333;
+                margin-bottom: 0.5rem;
+                font-weight: bold;
+            }
+
+            .success-text {
+                color: #666;
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .success-details {
+                background: #f5f9ff;
+                border-radius: 1rem;
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+                text-align: left;
+            }
+
+            .success-detail-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .success-detail-row:last-child {
+                margin-bottom: 0;
+            }
+
+            .success-detail-label {
+                color: #666;
+            }
+
+            .success-detail-value {
+                color: #1e88e5;
+                font-weight: 600;
+            }
+
+/* Category Progress Circle */
+            .category-progress {
+                position: relative;
+                width: 2.5rem;
+                height: 2.5rem;
+                margin-left: 0.5rem;
+            }
+
+            .progress-ring {
+                transform: rotate(-90deg);
+            }
+
+            .progress-ring-circle {
+                transition: stroke-dashoffset 0.5s ease;
+            }
+
+            .progress-text {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 0.7rem;
+                font-weight: bold;
+                color: #1e88e5;
+            }
+
     </style>
 </head>
 <body>
+    <!-- Confetti Container -->
+    <div id="confettiContainer" class="confetti-container"></div>
+
     <div id="homePage" class="container">
         <div class="home-page">
             <div class="hero">
@@ -1063,7 +1444,8 @@
     <div id="mainApp" class="container hidden">
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('voting', event)">🗳️ Vote</button>
-            <button class="nav-tab" onclick="switchTab('leaderboard', event)">📊 Leaderboard</button>
+            <button class="nav-tab" onclick="switchTab('dashboard', event)">📊 Dashboard</button>
+            <button class="nav-tab" onclick="switchTab('leaderboard', event)">🏆 Leaderboard</button>
         </div>
 
         <div id="votingSection">
@@ -1102,6 +1484,9 @@
                         <div class="votes-progress">
                             <div class="votes-progress-bar" id="votingProgress" style="width: 0%"></div>
                         </div>
+                        <div style="text-align: center; margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.9;">
+                            <span id="progressPercentage">0%</span> Complete
+                        </div>
                     </div>
                 </div>
 
@@ -1111,6 +1496,44 @@
 
                 <div class="categories-section" id="categoriesContainer">
                     <div class="loading">Loading categories...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboardSection" class="hidden">
+            <div class="dashboard-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="dashCategoriesVoted">0</div>
+                        <div class="stat-label">Categories Voted</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value" id="dashFreeVotesLeft">18</div>
+                        <div class="stat-label">Free Votes Left</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-value" id="dashExtraVotes">0</div>
+                        <div class="stat-label">Extra Votes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value" id="dashProgress">0%</div>
+                        <div class="stat-label">Completion</div>
+                    </div>
+                </div>
+
+                <div class="voting-history-card">
+                    <div class="history-title">📜 Your Voting History</div>
+                    <div id="votingHistoryContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🗳️</div>
+                            <p>No votes cast yet</p>
+                            <p style="font-size: 0.85rem; margin-top: 0.5rem;">Start voting to see your history here</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1140,11 +1563,39 @@
         </div>
     </div>
 
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="success-modal">
+        <div class="success-content">
+            <div class="success-icon">✓</div>
+            <h3 class="success-title">Vote Successful!</h3>
+            <p class="success-text">Your vote has been recorded successfully</p>
+            
+            <div class="success-details">
+                <div class="success-detail-row">
+                    <span class="success-detail-label">Category:</span>
+                    <span class="success-detail-value" id="successCategory">—</span>
+                </div>
+                <div class="success-detail-row">
+                    <span class="success-detail-label">Voted For:</span>
+                    <span class="success-detail-value" id="successNominee">—</span>
+                </div>
+                <div class="success-detail-row">
+                    <span class="success-detail-label">Total Votes Cast:</span>
+                    <span class="success-detail-value" id="successTotalVotes">—</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" style="width: 100%;" onclick="closeSuccessModal()">Continue Voting</button>
+        </div>
+    </div>
+
     <button class="admin-btn" title="Admin Panel" onclick="window.location.href='admin.html'">⚙️</button>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, set, get, update, onValue, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD1tYPF1ZlGAe7gzXxlo6rjw2QMeaZ_MHo",
@@ -1199,24 +1650,114 @@
         loadRegisteredStudents();
 
         const categories = [
-            { name: "Most Brilliant Diplomat", icon: "🎓", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
-            { name: "Most Handsome Diplomat", icon: "👔", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
-            { name: "Most Beautiful Diplomat", icon: "👗", nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"] },
-            { name: "Most Reserved Diplomat (Male)", icon: "🤐", nominees: ["MOR", "Christian Ogala", "Biggie"] },
-            { name: "Most Reserved Diplomat (Female)", icon: "🤫", nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"] },
-            { name: "Most Talented Diplomat", icon: "🎭", nominees: ["Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Solomon Stephen"] },
-            { name: "Most Creative Diplomat", icon: "🎨", nominees: ["Daibu Fareedah", "MOR", "Solomon Stephen", "Ernest Henry"] },
-            { name: "Most Social Diplomat (Male)", icon: "🎉", nominees: ["Ernest Henry", "Ayo Salimon Farouq", "Ugo Christsanctus"] },
-            { name: "Most Social Diplomat (Female)", icon: "💃", nominees: ["Debby Donatus", "Kowiat", "Abimbola"] },
-            { name: "Most Entrepreneurial Diplomat", icon: "💼", nominees: ["Nicholas Mirabel", "Debby Donatus", "MOH", "Olakunle Kazeem"] },
-            { name: "Most Popular Diplomat (Male)", icon: "⭐", nominees: ["Henry Ernest", "Ugochukwu Christsanctus", "Adebayo Julius"] },
-            { name: "Most Popular Diplomat (Female)", icon: "✨", nominees: ["Ashley Favour", "Shobayo Simbi", "Gift"] },
-            { name: "Favorite Diploma Lecturer", icon: "📚", nominees: ["Mr. Wilson", "Prof. Falode", "Mr. Femi"] },
-            { name: "Most Expensive Diplomat (Male)", icon: "💎", nominees: ["Kazeem Olakunle", "Ayo Briefcase Guy"] },
-            { name: "Most Expensive Diplomat (Female)", icon: "💍", nominees: ["Tess Nwanedo Chidera", "Chidera Donatus"] },
-            { name: "Diploma Fashionista (Male)", icon: "🕴️", nominees: ["Henry Ernest", "Bolu Olanrewaju", "Christian Farouq", "Emmy Indebted"] },
-            { name: "Diploma Fashionista (Female)", icon: "👠", nominees: ["Kowiat", "Tess", "Ifeoma", "Simbi"] },
-            { name: "Most Outstanding Diplomat", icon: "🏆", nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"] }
+            { 
+                name: "Most Brilliant Diplomat", 
+                icon: "🎓", 
+                nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"],
+                description: "Recognizes the diplomat with exceptional academic excellence, critical thinking, and intellectual contributions to the class."
+            },
+            { 
+                name: "Most Handsome Diplomat", 
+                icon: "👔", 
+                nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"],
+                description: "Celebrates the male diplomat with outstanding physical appearance, grooming, and style."
+            },
+            { 
+                name: "Most Beautiful Diplomat", 
+                icon: "👗", 
+                nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"],
+                description: "Honors the female diplomat who radiates beauty, grace, and confidence."
+            },
+            { 
+                name: "Most Reserved Diplomat (Male)", 
+                icon: "🤐", 
+                nominees: ["MOR", "Christian Ogala", "Biggie"],
+                description: "Acknowledges the male diplomat known for being quiet, observant, and maintaining a low profile."
+            },
+            { 
+                name: "Most Reserved Diplomat (Female)", 
+                icon: "🤫", 
+                nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"],
+                description: "Recognizes the female diplomat who is thoughtful, composed, and prefers to listen rather than speak."
+            },
+            { 
+                name: "Most Talented Diplomat", 
+                icon: "🎭", 
+                nominees: ["Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Solomon Stephen"],
+                description: "Celebrates exceptional skills in arts, music, sports, or other creative fields."
+            },
+            { 
+                name: "Most Creative Diplomat", 
+                icon: "🎨", 
+                nominees: ["Daibu Fareedah", "MOR", "Solomon Stephen", "Ernest Henry"],
+                description: "Honors innovative thinking, artistic expression, and unique problem-solving abilities."
+            },
+            { 
+                name: "Most Social Diplomat (Male)", 
+                icon: "🎉", 
+                nominees: ["Ernest Henry", "Ayo Salimon Farouq", "Ugo Christsanctus"],
+                description: "Recognizes the male diplomat who is outgoing, friendly, and the life of every gathering."
+            },
+            { 
+                name: "Most Social Diplomat (Female)", 
+                icon: "💃", 
+                nominees: ["Debby Donatus", "Kowiat", "Abimbola"],
+                description: "Celebrates the female diplomat with exceptional social skills and a vibrant personality."
+            },
+            { 
+                name: "Most Entrepreneurial Diplomat", 
+                icon: "💼", 
+                nominees: ["Nicholas Mirabel", "Debby Donatus", "MOH", "Olakunle Kazeem"],
+                description: "Honors the diplomat with business acumen, innovative ideas, and entrepreneurial spirit."
+            },
+            { 
+                name: "Most Popular Diplomat (Male)", 
+                icon: "⭐", 
+                nominees: ["Henry Ernest", "Ugochukwu Christsanctus", "Adebayo Julius"],
+                description: "Recognizes the male diplomat who is well-known, liked, and respected by everyone."
+            },
+            { 
+                name: "Most Popular Diplomat (Female)", 
+                icon: "✨", 
+                nominees: ["Ashley Favour", "Shobayo Simbi", "Gift"],
+                description: "Celebrates the female diplomat who has captured the hearts of the entire class."
+            },
+            { 
+                name: "Favorite Diploma Lecturer", 
+                icon: "📚", 
+                nominees: ["Mr. Wilson", "Prof. Falode", "Mr. Femi"],
+                description: "Honors the lecturer who has made the biggest positive impact on students' learning experience."
+            },
+            { 
+                name: "Most Expensive Diplomat (Male)", 
+                icon: "💎", 
+                nominees: ["Kazeem Olakunle", "Ayo Briefcase Guy"],
+                description: "Recognizes the male diplomat known for luxury lifestyle, expensive taste, and premium fashion."
+            },
+            { 
+                name: "Most Expensive Diplomat (Female)", 
+                icon: "💍", 
+                nominees: ["Tess Nwanedo Chidera", "Chidera Donatus"],
+                description: "Celebrates the female diplomat with sophisticated style and expensive fashion sense."
+            },
+            { 
+                name: "Diploma Fashionista (Male)", 
+                icon: "🕴️", 
+                nominees: ["Henry Ernest", "Bolu Olanrewaju", "Christian Farouq", "Emmy Indebted"],
+                description: "Honors the male diplomat with impeccable fashion sense, trendsetting style, and wardrobe excellence."
+            },
+            { 
+                name: "Diploma Fashionista (Female)", 
+                icon: "👠", 
+                nominees: ["Kowiat", "Tess", "Ifeoma", "Simbi"],
+                description: "Celebrates the female diplomat who consistently serves stunning looks and fashion inspiration."
+            },
+            { 
+                name: "Most Outstanding Diplomat", 
+                icon: "🏆", 
+                nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"],
+                description: "The ultimate award recognizing overall excellence across academics, leadership, character, and contributions to the class."
+            }
         ];
 
         let currentUser = { name: '', email: '', fullName: '' };
@@ -1298,24 +1839,28 @@
             return null;
         };
 
-        window.showHome = function() {
-            document.getElementById('homePage').classList.remove('hidden');
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainApp').classList.add('hidden');
-        };
-
-        window.showLogin = function() {
+       window.showLogin = function() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('mainApp').classList.add('hidden');
         };
 
+        // REPLACE THIS ENTIRE FUNCTION 👇
         window.showMainApp = async function() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Show skeleton immediately
+            showCategorySkeleton();
+            
             await loadUserData();
-            renderCategories();
+            
+            // Delay showing real data for smooth transition
+            setTimeout(() => {
+                renderCategories();
+            }, 500);
+            
             loadAllVotes();
         };
 
@@ -1409,35 +1954,34 @@
                 
                 const emailKey = email.replace(/\./g, ',');
 
-                // Update registered students with email
-const registeredStudentsRef = ref(db, 'registeredStudents');
-const registeredSnapshot = await get(registeredStudentsRef);
-let studentExists = false;
+                const registeredStudentsRef = ref(db, 'registeredStudents');
+                const registeredSnapshot = await get(registeredStudentsRef);
+                let studentExists = false;
 
-if (registeredSnapshot.exists()) {
-    const students = registeredSnapshot.val();
-    for (const key in students) {
-        if (students[key].name === currentUser.fullName) {
-            await update(ref(db, `registeredStudents/${key}`), {
-                email: email,
-                hasVoted: false,
-                lastActivity: Date.now()
-            });
-            studentExists = true;
-            break;
-        }
-    }
-}
+                if (registeredSnapshot.exists()) {
+                    const students = registeredSnapshot.val();
+                    for (const key in students) {
+                        if (students[key].name === currentUser.fullName) {
+                            await update(ref(db, `registeredStudents/${key}`), {
+                                email: email,
+                                hasVoted: false,
+                                lastActivity: Date.now()
+                            });
+                            studentExists = true;
+                            break;
+                        }
+                    }
+                }
 
-if (!studentExists) {
-    const newStudentRef = push(ref(db, 'registeredStudents'));
-    await set(newStudentRef, {
-        name: currentUser.fullName,
-        email: email,
-        hasVoted: false,
-        registeredAt: Date.now()
-    });
-}
+                if (!studentExists) {
+                    const newStudentRef = push(ref(db, 'registeredStudents'));
+                    await set(newStudentRef, {
+                        name: currentUser.fullName,
+                        email: email,
+                        hasVoted: false,
+                        registeredAt: Date.now()
+                    });
+                }
                 
                 await set(ref(db, `students/${emailKey}`), {
                     name: currentUser.fullName,
@@ -1523,13 +2067,65 @@ if (!studentExists) {
         };
 
         window.switchTab = function(tab, event) {
-            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+    document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    document.getElementById('votingSection').classList.toggle('hidden', tab !== 'voting');
+    document.getElementById('dashboardSection').classList.toggle('hidden', tab !== 'dashboard');
+    document.getElementById('leaderboardSection').classList.toggle('hidden', tab !== 'leaderboard');
+    
+    if (tab === 'dashboard') renderDashboard();
+    if (tab === 'leaderboard') {
+        showLeaderboardSkeleton();
+        setTimeout(() => {
+            renderLeaderboard();
+        }, 500);
+    }
+};
+
+        window.renderDashboard = function() {
+            const categoriesVoted = Object.keys(userVotes).length;
+            const freeVotesLeft = 18 - categoriesVoted;
+            const progress = Math.round((categoriesVoted / 18) * 100);
+
+            document.getElementById('dashCategoriesVoted').textContent = categoriesVoted;
+            document.getElementById('dashFreeVotesLeft').textContent = freeVotesLeft;
+            document.getElementById('dashExtraVotes').textContent = extraVotesPurchased;
+            document.getElementById('dashProgress').textContent = progress + '%';
+
+            // Update category progress visualization
+            updateCategoryProgressVisuals();
             
-            document.getElementById('votingSection').classList.toggle('hidden', tab !== 'voting');
-            document.getElementById('leaderboardSection').classList.toggle('hidden', tab !== 'leaderboard');
+            const historyContainer = document.getElementById('votingHistoryContainer');
             
-            if (tab === 'leaderboard') renderLeaderboard();
+            if (categoriesVoted === 0) {
+                historyContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🗳️</div>
+                        <p>No votes cast yet</p>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Start voting to see your history here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let historyHTML = '';
+            Object.entries(userVotes).forEach(([category, nominee]) => {
+                const categoryData = categories.find(c => c.name === category);
+                const icon = categoryData ? categoryData.icon : '🏆';
+                
+                historyHTML += `
+                    <div class="history-item">
+                        <div class="history-icon">${icon}</div>
+                        <div class="history-content">
+                            <div class="history-category">${category}</div>
+                            <div class="history-nominee">Voted for: ${nominee}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            historyContainer.innerHTML = historyHTML;
         };
 
         window.getInitials = function(name) {
@@ -1542,6 +2138,7 @@ if (!studentExists) {
 
             categories.forEach((category, idx) => {
                 const hasVoted = userVotes[category.name] !== undefined;
+                const progress = getCategoryProgress(category.name); // ADD THIS LINE
                 const card = document.createElement('div');
                 card.className = 'category-card';
                 card.setAttribute('data-category', category.name.toLowerCase());
@@ -1555,16 +2152,23 @@ if (!studentExists) {
                         <div class="category-left">
                             <div class="category-icon">${category.icon}</div>
                             <div class="category-info">
-                                <div class="category-title">${category.name}</div>
+                                <div class="category-title">
+                                    ${category.name}
+                                    <span class="info-icon" title="${category.description}">i</span>
+                                </div>
                                 <div class="category-count">${category.nominees.length} nominees</div>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
                             ${statusHTML}
+                            ${createProgressCircle(progress)}
                             <div class="category-arrow">›</div>
                         </div>
                     </div>
                     <div class="nominees-section">
+                        <div class="category-description">
+                            💡 <strong>About this category:</strong> ${category.description}
+                        </div>
                         ${category.nominees.map(nominee => {
                             const hasVotedForNominee = userVotes[category.name] === nominee;
                             return `
@@ -1636,10 +2240,12 @@ if (!studentExists) {
                     
                     console.log('✅ Vote recorded:', category, nominee, 'Total votes:', votesCount);
                     
-                    rateLimits.vote.attempts = 0;
+                   rateLimits.vote.attempts = 0;
                     updateVoteUI();
                     renderCategories();
-                    alert(`✅ Vote cast for ${nominee}!`);
+                    
+                    // Show success modal instead of alert
+                    showSuccessModal(category, nominee);
                 } catch (error) {
                     console.error('❌ Error casting vote:', error);
                     alert('Error casting vote. Please try again.');
@@ -1685,7 +2291,9 @@ if (!studentExists) {
                     console.log('✅ Extra vote purchased and cast');
                     
                     updateVoteUI();
-                    alert(`💰 Extra vote purchased and cast for ${pendingVote.nominee}!`);
+                    
+                    // Show success modal for extra vote
+                    showSuccessModal(pendingVote.category, pendingVote.nominee);
                 } catch (error) {
                     console.error('❌ Error with extra vote:', error);
                     alert('Error processing extra vote. Please try again.');
@@ -1703,6 +2311,17 @@ if (!studentExists) {
             document.getElementById('freeVotesLeft').textContent = freeVotesLeft;
             document.getElementById('extraVotesPurchased').textContent = extraVotesPurchased;
             document.getElementById('votingProgress').style.width = progress + '%';
+            
+            // Add these new lines:
+            const progressElem = document.getElementById('progressPercentage');
+            if (progressElem) {
+                progressElem.textContent = Math.round(progress) + '%';
+            }
+            
+            // Update progress circles if they exist
+            if (typeof updateCategoryProgressVisuals === 'function') {
+                updateCategoryProgressVisuals();
+            }
         }
 
         window.filterCategories = function() {
@@ -1789,6 +2408,174 @@ if (!studentExists) {
                 studentsUnsubscribe();
             }
         });
+
+            window.showLeaderboardSkeleton = function() {
+        const container = document.getElementById('leaderboardContainer');
+        container.innerHTML = '';
+
+        // Category Progress Circle Helper
+        window.calculateProgress = function(categoryName) {
+            const categoryData = categories.find(c => c.name === categoryName);
+            if (!categoryData) return 0;
+            
+            const totalNominees = categoryData.nominees.length;
+            const hasVoted = userVotes[categoryName] !== undefined;
+            
+            return hasVoted ? 100 : 0;
+        };
+
+        // Update visual progress circles
+        window.updateCategoryProgressVisuals = function() {
+            const cards = document.querySelectorAll('.category-card');
+            cards.forEach((card, idx) => {
+                const category = categories[idx];
+                const hasVoted = userVotes[category.name] !== undefined;
+                const progressCircle = card.querySelector('.progress-ring-circle');
+                
+                if (progressCircle && hasVoted) {
+                    const circumference = 2 * Math.PI * 16; // r=16
+                    const offset = circumference - (100 / 100) * circumference;
+                    progressCircle.style.strokeDashoffset = offset;
+                }
+            });
+        };
+
+        // Create 3 skeleton cards
+        for (let i = 0; i < 3; i++) {
+            const skeletonCard = document.createElement('div');
+            skeletonCard.className = 'skeleton-leaderboard-card';
+            skeletonCard.innerHTML = `
+                <div class="skeleton skeleton-leaderboard-title"></div>
+                ${[1, 2, 3].map(() => `
+                    <div class="skeleton-leaderboard-item">
+                        <div class="skeleton skeleton-rank"></div>
+                        <div class="skeleton-leaderboard-content">
+                            <div class="skeleton skeleton-leaderboard-name"></div>
+                            <div class="skeleton skeleton-leaderboard-bar"></div>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+            container.appendChild(skeletonCard);
+        }
+    };
+
+      // ADD THIS NEW FUNCTION HERE 👇
+        // Skeleton Loader for Categories
+        function showCategorySkeleton() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 6; i++) {
+                const skeleton = document.createElement('div');
+                skeleton.className = 'skeleton-category';
+                skeleton.innerHTML = `
+                    <div class="skeleton-header">
+                        <div class="skeleton skeleton-icon"></div>
+                        <div class="skeleton-text">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-subtitle"></div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(skeleton);
+            }
+        }
+
+        // Success Modal Functions
+        window.showSuccessModal = function(category, nominee) {
+            const totalVotes = Object.keys(userVotes).length;
+            
+            document.getElementById('successCategory').textContent = category;
+            document.getElementById('successNominee').textContent = nominee;
+            document.getElementById('successTotalVotes').textContent = totalVotes + '/18'; // CHANGED: added '/18'
+            
+            document.getElementById('successModal').classList.add('active');
+            
+            // Trigger confetti
+            triggerConfetti();
+            
+            // Auto close after 3 seconds
+            setTimeout(() => {
+                closeSuccessModal();
+            }, 3000);
+        };
+
+        window.closeSuccessModal = function() {
+            document.getElementById('successModal').classList.remove('active');
+        };
+
+        // Confetti Functions
+        window.triggerConfetti = function() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722'];
+            
+            // Create 50 confetti pieces
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                
+                container.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3500);
+            }
+        };
+
+        // ADD THESE NEW FUNCTIONS HERE 👇
+        // Calculate category progress percentage
+        function getCategoryProgress(categoryName) {
+            if (!allVotes[categoryName]) return 0;
+            
+            const categoryData = categories.find(c => c.name === categoryName);
+            if (!categoryData) return 0;
+            
+            const totalVotes = Object.values(allVotes[categoryName]).reduce((sum, votes) => sum + votes, 0);
+            const maxPossibleVotes = registeredStudents.length * categoryData.nominees.length;
+            
+            if (maxPossibleVotes === 0) return 0;
+            return Math.min(Math.round((totalVotes / maxPossibleVotes) * 100), 100);
+        }
+
+        // Create progress circle SVG
+        function createProgressCircle(percentage) {
+            const radius = 18;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (percentage / 100) * circumference;
+            
+            return `
+                <div class="category-progress">
+                    <svg class="progress-ring" width="40" height="40">
+                        <circle
+                            class="progress-ring-circle"
+                            stroke="#e0e0e0"
+                            stroke-width="4"
+                            fill="transparent"
+                            r="${radius}"
+                            cx="20"
+                            cy="20"
+                        />
+                        <circle
+                            class="progress-ring-circle"
+                            stroke="#1e88e5"
+                            stroke-width="4"
+                            fill="transparent"
+                            r="${radius}"
+                            cx="20"
+                            cy="20"
+                            style="stroke-dasharray: ${circumference}; stroke-dashoffset: ${offset};"
+                        />
+                    </svg>
+                    <div class="progress-text">${percentage}%</div>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
