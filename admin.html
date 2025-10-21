@@ -739,15 +739,15 @@
             <h2 class="section-title">📋 All Registered Students</h2>
             <input type="text" class="search-box" id="studentSearch" placeholder="Search students..." onkeyup="filterStudents()">
             <div class="table-container">
-                <table id="studentsTable">
+               <table id="studentsTable">
                     <thead>
                         <tr>
                             <th>Student Name</th>
-                            <th>Email</th>
-                            <th>Status</th>
                             <th>Votes Cast</th>
-                            <th>Last Activity</th>
+                            <th>Status</th>
                             <th>Actions</th>
+                            <th>Email</th>
+                            <th>Last Activity</th>
                         </tr>
                     </thead>
                     <tbody id="studentsTableBody">
@@ -1512,13 +1512,13 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${sanitizeInput(studentName)}</strong></td>
-                    <td>${sanitizeInput(studentEmail)}</td>
-                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     <td><strong>${votesCount}</strong> / ${categories.length}</td>
-                    <td>${formatTime(lastActivity)}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     <td>
                         <button class="btn-delete" onclick="deleteStudent('${student.id}', '${sanitizeInput(studentName).replace(/'/g, "\\'")}')">Delete</button>
                     </td>
+                    <td>${sanitizeInput(studentEmail)}</td>
+                    <td>${formatTime(lastActivity)}</td>
                 `;
                 tbody.appendChild(row);
             });
