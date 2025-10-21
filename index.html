@@ -1741,117 +1741,28 @@
         }
 
         loadRegisteredStudents();
+            let categories = [];
 
-        const categories = [
-            { 
-                name: "Most Brilliant Diplomat", 
-                icon: "🎓", 
-                nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"],
-                description: "Recognizes the diplomat with exceptional academic excellence, critical thinking, and intellectual contributions to the class."
-            },
-            { 
-                name: "Most Handsome Diplomat", 
-                icon: "👔", 
-                nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"],
-                description: "Celebrates the male diplomat with outstanding physical appearance, grooming, and style."
-            },
-            { 
-                name: "Most Beautiful Diplomat", 
-                icon: "👗", 
-                nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"],
-                description: "Honors the female diplomat who radiates beauty, grace, and confidence."
-            },
-            { 
-                name: "Most Reserved Diplomat (Male)", 
-                icon: "🤐", 
-                nominees: ["MOR", "Christian Ogala", "Biggie"],
-                description: "Acknowledges the male diplomat known for being quiet, observant, and maintaining a low profile."
-            },
-            { 
-                name: "Most Reserved Diplomat (Female)", 
-                icon: "🤫", 
-                nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"],
-                description: "Recognizes the female diplomat who is thoughtful, composed, and prefers to listen rather than speak."
-            },
-            { 
-                name: "Most Talented Diplomat", 
-                icon: "🎭", 
-                nominees: ["Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Solomon Stephen"],
-                description: "Celebrates exceptional skills in arts, music, sports, or other creative fields."
-            },
-            { 
-                name: "Most Creative Diplomat", 
-                icon: "🎨", 
-                nominees: ["Daibu Fareedah", "MOR", "Solomon Stephen", "Ernest Henry"],
-                description: "Honors innovative thinking, artistic expression, and unique problem-solving abilities."
-            },
-            { 
-                name: "Most Social Diplomat (Male)", 
-                icon: "🎉", 
-                nominees: ["Ernest Henry", "Ayo Salimon Farouq", "Ugo Christsanctus"],
-                description: "Recognizes the male diplomat who is outgoing, friendly, and the life of every gathering."
-            },
-            { 
-                name: "Most Social Diplomat (Female)", 
-                icon: "💃", 
-                nominees: ["Debby Donatus", "Kowiat", "Abimbola"],
-                description: "Celebrates the female diplomat with exceptional social skills and a vibrant personality."
-            },
-            { 
-                name: "Most Entrepreneurial Diplomat", 
-                icon: "💼", 
-                nominees: ["Nicholas Mirabel", "Debby Donatus", "MOH", "Olakunle Kazeem"],
-                description: "Honors the diplomat with business acumen, innovative ideas, and entrepreneurial spirit."
-            },
-            { 
-                name: "Most Popular Diplomat (Male)", 
-                icon: "⭐", 
-                nominees: ["Henry Ernest", "Ugochukwu Christsanctus", "Adebayo Julius"],
-                description: "Recognizes the male diplomat who is well-known, liked, and respected by everyone."
-            },
-            { 
-                name: "Most Popular Diplomat (Female)", 
-                icon: "✨", 
-                nominees: ["Ashley Favour", "Shobayo Simbi", "Gift"],
-                description: "Celebrates the female diplomat who has captured the hearts of the entire class."
-            },
-            { 
-                name: "Favorite Diploma Lecturer", 
-                icon: "📚", 
-                nominees: ["Mr. Wilson", "Prof. Falode", "Mr. Femi"],
-                description: "Honors the lecturer who has made the biggest positive impact on students' learning experience."
-            },
-            { 
-                name: "Most Expensive Diplomat (Male)", 
-                icon: "💎", 
-                nominees: ["Kazeem Olakunle", "Ayo Briefcase Guy"],
-                description: "Recognizes the male diplomat known for luxury lifestyle, expensive taste, and premium fashion."
-            },
-            { 
-                name: "Most Expensive Diplomat (Female)", 
-                icon: "💍", 
-                nominees: ["Tess Nwanedo Chidera", "Chidera Donatus"],
-                description: "Celebrates the female diplomat with sophisticated style and expensive fashion sense."
-            },
-            { 
-                name: "Diploma Fashionista (Male)", 
-                icon: "🕴️", 
-                nominees: ["Henry Ernest", "Bolu Olanrewaju", "Christian Farouq", "Emmy Indebted"],
-                description: "Honors the male diplomat with impeccable fashion sense, trendsetting style, and wardrobe excellence."
-            },
-            { 
-                name: "Diploma Fashionista (Female)", 
-                icon: "👠", 
-                nominees: ["Kowiat", "Tess", "Ifeoma", "Simbi"],
-                description: "Celebrates the female diplomat who consistently serves stunning looks and fashion inspiration."
-            },
-            { 
-                name: "Most Outstanding Diplomat", 
-                icon: "🏆", 
-                nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"],
-                description: "The ultimate award recognizing overall excellence across academics, leadership, character, and contributions to the class."
-            }
-        ];
+// Load categories from Firebase
+function loadCategories() {
+    const categoriesRef = ref(db, 'categories');
+    onValue(categoriesRef, (snapshot) => {
+        if (snapshot.exists()) {
+            categories = [];
+            snapshot.forEach(child => {
+                categories.push({
+                    id: child.key,
+                    ...child.val()
+                });
+            });
+            renderCategories();
+        }
+    });
+}
+
+// Call this after Firebase initializes
+loadCategories();
+            // Categories will be loaded from Firebase
 
         let currentUser = { name: '', email: '', fullName: '' };
         let userVotes = {};
