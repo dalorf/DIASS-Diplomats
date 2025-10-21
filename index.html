@@ -1389,10 +1389,82 @@
             50% {
                 transform: scale(1.1);
             }
-            100% {
+           100% {
                 transform: scale(1);
                 opacity: 1;
             }
+        }
+
+        /* ADD THIS ANIMATION 👇 */
+      @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ADD CONFIRMATION MODAL STYLES 👇 */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .confirm-modal.active {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .confirm-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .confirm-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .confirm-text {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .confirm-nominee {
+            background: #e3f2fd;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: #1e88e5;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .confirm-actions button {
+            flex: 1;
         }
 
             .success-icon {
@@ -1528,7 +1600,7 @@
                         <div class="step-number">1</div>
                         <div class="step-content">
                             <h4>Free Votes for All Categories</h4>
-                            <p>Vote once in each of the 18 categories for free</p>
+                            <p>Vote once in each of the ${TOTAL_CATEGORIES} categories for free</p>
                         </div>
                     </div>
                     <div class="info-step">
@@ -1731,13 +1803,33 @@
 
             <button class="btn-primary" style="width: 100%;" onclick="closeSuccessModal()">Continue Voting</button>
         </div>
+   </div>
+
+    <!-- ADD CONFIRMATION MODAL 👇 -->
+    <div id="confirmModal" class="confirm-modal">
+        <div class="confirm-content">
+            <div class="confirm-icon">🗳️</div>
+            <h3 class="confirm-title">Confirm Your Vote</h3>
+            <p class="confirm-text">Are you sure you want to vote for:</p>
+            <div class="confirm-nominee" id="confirmNomineeName">—</div>
+            <p class="confirm-text" style="font-size: 0.85rem; color: #999;">
+                <span id="confirmCategoryName">—</span>
+            </p>
+            <div class="confirm-actions">
+                <button class="btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmVoteAction()">Yes, Vote!</button>
+            </div>
+        </div>
     </div>
 
-    <button class="admin-btn" title="Admin Panel" onclick="window.location.href='admin.html'">⚙️</button>
+    <button class="admin-btn" title="Admin Panel" onclick="showAdminWarning()">⚙️</button>
+
+    
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, set, get, update, onValue, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+       import { getDatabase, ref, set, get, update, onValue, push, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+       import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD1tYPF1ZlGAe7gzXxlo6rjw2QMeaZ_MHo",
@@ -1751,25 +1843,130 @@
 
         let app, db;
 
-        try {
+       try {
             app = initializeApp(firebaseConfig);
             db = getDatabase(app);
+            const auth = getAuth(app); // ADD THIS LINE
             console.log('✅ Firebase initialized successfully');
+            
+            // ADD THIS DEBUG CODE 👇
+            console.log('🔍 Database URL:', firebaseConfig.databaseURL);
+            console.log('🔍 Database instance:', db);
+            
+            // Connection will be tested via the onValue listener below
+           console.log('🔌 Setting up connection monitoring...');
+            
+            // ADD THIS SECTION 👇
+            // Sign in anonymously for database access
+            signInAnonymously(auth)
+                .then(() => {
+                    console.log('✅ Signed in anonymously');
+                })
+                .catch((error) => {
+                    console.error('❌ Anonymous auth failed:', error);
+                    alert('Authentication failed. Please refresh the page.');
+                });
+            
+            // Monitor auth state
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log('✅ User authenticated:', user.uid);
+                } else {
+                    console.warn('⚠️ User not authenticated');
+                }
+            });
+
         } catch (error) {
             console.error('❌ Firebase initialization error:', error);
             alert('Failed to connect to database. Please refresh the page.');
             throw error;
         }
 
+       // Connection monitoring will be added after imports are moved
+        
+       let isConnected = false;
+        
+        // Monitor connection state with error handling
+        const connectedRef = ref(db, '.info/connected');
+        onValue(connectedRef, (snapshot) => {
+            isConnected = snapshot.val() === true;
+            
+            console.log('🔌 Connection status:', isConnected ? 'Connected' : 'Disconnected');
+            
+            if (isConnected) {
+                console.log('✅ Connected to Firebase');
+                // Remove disconnection notification
+                showConnectionStatus(true);
+                
+                // Update user's online status if logged in
+                if (currentUser.email) {
+                    const emailKey = currentUser.email.replace(/\./g, ',');
+                    const userStatusRef = ref(db, `students/${emailKey}/status`);
+                    set(userStatusRef, 'online');
+                    
+                    // Set offline on disconnect
+                    onDisconnect(userStatusRef).set('offline');
+                }
+            } else {
+                console.warn('⚠️ Disconnected from Firebase');
+                // Show a subtle notification to user
+                showConnectionStatus(false);
+            }
+        });
+        
+        
+// Hide notification on page load if connected
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (isConnected) {
+                    showConnectionStatus(true);
+                }
+            }, 1000);
+        });
+        
+        // Connection status notification function
+        function showConnectionStatus(connected) {            const existingNotif = document.getElementById('connectionNotification');
+            
+            if (connected) {
+                // Remove notification when connected
+                if (existingNotif) {
+                    existingNotif.remove();
+                }
+            } else {
+                // Only create notification if it doesn't exist
+                if (!existingNotif) {
+                    const notif = document.createElement('div');
+                    notif.id = 'connectionNotification';
+                    notif.style.cssText = `
+                        position: fixed;
+                        top: 10px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: #ff9800;
+                        color: white;
+                        padding: 0.75rem 1.5rem;
+                        border-radius: 2rem;
+                        z-index: 10000;
+                        font-size: 0.9rem;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    `;
+                    notif.textContent = '⚠️ Connection lost. Reconnecting...';
+                    document.body.appendChild(notif);
+                }
+            }
+        }
+
         let registeredStudents = [];
         let studentsUnsubscribe = null;
 
-        function loadRegisteredStudents() {
+      function loadRegisteredStudents() {
             const studentsRef = ref(db, 'registeredStudents');
+            
             studentsUnsubscribe = onValue(studentsRef, (snapshot) => {
                 registeredStudents = [];
                 
                 if (snapshot.exists()) {
+                    
                     const data = snapshot.val();
                     
                     Object.keys(data).forEach(studentKey => {
@@ -1780,14 +1977,45 @@
                         }
                     });
                     
-                    console.log('✅ Loaded registered students from Firebase:', registeredStudents.length);
+                   console.log('✅ Loaded registered students from Firebase:', registeredStudents.length);
                 } else {
                     console.warn('⚠️ No registered students found in Firebase');
                 }
-            }, (error) => {
-                console.error('❌ Error loading registered students:', error);
-            });
+                studentsLoaded = true; // ADD THIS LINE
+           }, (error) => {
+            console.error('❌ Error loading registered students:', error);
+            studentsLoaded = true; // Set to true even on error to allow retry
+            
+            // Remove "loading" message from UI
+            const nameError = document.getElementById('nameError');
+            if (nameError) {
+                nameError.textContent = '⚠️ Failed to load student list. Please refresh the page.';
+                nameError.classList.remove('show');
+            }
+        });
+    }
+
+    // Add retry mechanism
+    let studentLoadAttempts = 0;
+    function attemptLoadStudents() {
+        if (studentLoadAttempts < 3) {
+            studentLoadAttempts++;
+            console.log(`📚 Attempting to load students (attempt ${studentLoadAttempts}/3)...`);
+            loadRegisteredStudents();
         }
+    }
+
+    // Initial load with retry
+    attemptLoadStudents();
+    
+    // Retry after 2 seconds if not loaded
+    setTimeout(() => {
+        if (!studentsLoaded) {
+            console.warn('⚠️ Students not loaded, retrying...');
+            attemptLoadStudents();
+        }
+    }, 2000);
+        
 
         loadRegisteredStudents();
             let categories = [];
@@ -1804,6 +2032,12 @@ function loadCategories() {
                     ...child.val()
                 });
             });
+            
+            // ADD THESE LINES 👇
+            // Update total categories count dynamically
+            window.TOTAL_CATEGORIES = categories.length;
+            console.log('📊 Total categories loaded:', window.TOTAL_CATEGORIES);
+            
             renderCategories();
         }
     });
@@ -1811,18 +2045,54 @@ function loadCategories() {
 
 // Call this after Firebase initializes
 loadCategories();
-            // Categories will be loaded from Firebase
+
+        // ADD THIS VOTING LOCK LISTENER HERE 👇
+        const settingsRef = ref(db, 'settings/votingLocked');
+        onValue(settingsRef, (snapshot) => {
+            votingLocked = snapshot.exists() ? snapshot.val() : false;
+            console.log('🔒 Voting locked status:', votingLocked);
+            
+            // Update UI if already rendered
+            if (votingLocked) {
+                const voteButtons = document.querySelectorAll('.btn-vote');
+                voteButtons.forEach(btn => btn.disabled = true);
+            }
+        });
 
         let currentUser = { name: '', email: '', fullName: '' };
         let userVotes = {};
+        window.TOTAL_CATEGORIES = 18; // Changed to window.TOTAL_CATEGORIES for dynamic updates
         let extraVotesPurchased = 0;
         let pendingVote = null;
         let votingLocked = false;
-        let allVotes = {};
+       let allVotes = {};
+        let studentsLoaded = false; // ADD THIS LINE
         
-        const rateLimits = {
+       const rateLimits = {
             login: { attempts: 0, lastAttempt: 0, maxAttempts: 5, cooldown: 300000 },
             vote: { attempts: 0, lastAttempt: 0, maxAttempts: 20, cooldown: 60000 }
+        };
+
+        // ADD ERROR MESSAGE HELPER 👇
+        const ErrorMessages = {
+            NETWORK_ERROR: '🌐 Network error. Please check your internet connection and try again.',
+            PERMISSION_DENIED: '🔒 Permission denied. Please refresh the page and login again.',
+            DATABASE_ERROR: '💾 Database error. Our team has been notified. Please try again later.',
+            VALIDATION_ERROR: '⚠️ Invalid data. Please check your input and try again.',
+            UNKNOWN_ERROR: '❌ An unexpected error occurred. Please refresh the page.',
+            
+            getErrorMessage: function(error) {
+                if (!error) return this.UNKNOWN_ERROR;
+                
+                const errorCode = error.code || '';
+                const errorMessage = error.message || '';
+                
+                if (errorCode.includes('permission-denied')) return this.PERMISSION_DENIED;
+                if (errorCode.includes('network') || errorMessage.includes('network')) return this.NETWORK_ERROR;
+                if (errorCode.includes('database')) return this.DATABASE_ERROR;
+                
+                return this.UNKNOWN_ERROR;
+            }
         };
 
         function checkRateLimit(action) {
@@ -1843,8 +2113,47 @@ loadCategories();
             
             limit.attempts++;
             limit.lastAttempt = now;
-            return { allowed: true };
+           return { allowed: true };
         }
+
+        // ADD RATE LIMIT PERSISTENCE 👇
+        // Save rate limits to prevent refresh abuse
+        function saveRateLimits() {
+            try {
+                const rateLimitData = {
+                    login: { ...rateLimits.login },
+                    vote: { ...rateLimits.vote }
+                };
+                sessionStorage.setItem('rateLimits', JSON.stringify(rateLimitData));
+            } catch (e) {
+                console.warn('Could not save rate limits:', e);
+            }
+        }
+
+        // Load rate limits on page load
+        function loadRateLimits() {
+            try {
+                const saved = sessionStorage.getItem('rateLimits');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    rateLimits.login = data.login || rateLimits.login;
+                    rateLimits.vote = data.vote || rateLimits.vote;
+                }
+            } catch (e) {
+                console.warn('Could not load rate limits:', e);
+            }
+        }
+
+        // Load saved rate limits
+        loadRateLimits();
+
+        // Save rate limits whenever they change
+        const originalCheckRateLimit = checkRateLimit;
+        checkRateLimit = function(action) {
+            const result = originalCheckRateLimit.call(this, action);
+            saveRateLimits();
+            return result;
+        };
 
         let timeLeft = { days: 7, hours: 12, minutes: 30, seconds: 0 };
         function updateCountdown() {
@@ -1868,7 +2177,27 @@ loadCategories();
             document.getElementById('minutes').textContent = timeLeft.minutes;
             document.getElementById('seconds').textContent = timeLeft.seconds;
         }
-        setInterval(updateCountdown, 1000);
+      setInterval(updateCountdown, 1000);
+
+        // ADD THIS FUNCTION HERE 👇
+       window.showHome = function() {
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        };
+
+        // ADD THIS NEW FUNCTION 👇
+        window.sanitizeEmail = function(email) {
+            // Replace all special characters that Firebase doesn't allow as keys
+            return email
+                .toLowerCase()
+                .replace(/\./g, ',')
+                .replace(/\$/g, '_dollar_')
+                .replace(/\[/g, '_lb_')
+                .replace(/\]/g, '_rb_')
+                .replace(/\//g, '_slash_')
+                .replace(/#/g, '_hash_');
+        };
 
         window.findMatchingStudent = function(input) {
             if (registeredStudents.length === 0) {
@@ -1898,8 +2227,7 @@ loadCategories();
             document.getElementById('mainApp').classList.add('hidden');
         };
 
-        // REPLACE THIS ENTIRE FUNCTION 👇
-        window.showMainApp = async function() {
+window.showMainApp = async function() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
@@ -1909,6 +2237,9 @@ loadCategories();
             
             await loadUserData();
             
+            // Setup real-time listener
+            setupUserVotesListener();
+            
             // Delay showing real data for smooth transition
             setTimeout(() => {
                 renderCategories();
@@ -1917,17 +2248,26 @@ loadCategories();
             loadAllVotes();
         };
 
+
         window.handleLogin = async function() {
             const loginBtn = document.getElementById('loginBtn');
             loginBtn.disabled = true;
-            loginBtn.textContent = 'Verifying...';
+            
+            // ADD SPINNER ICON 👇
+            loginBtn.innerHTML = '<span style="display: inline-block; animation: spin 1s linear infinite;">⏳</span> Verifying...';
+            
+            // Add this CSS animation at the end of <style> section (around line 1200)
+            // @keyframes spin {
+            //     from { transform: rotate(0deg); }
+            //     to { transform: rotate(360deg); }
+            // }
 
             const rateCheck = checkRateLimit('login');
             if (!rateCheck.allowed) {
                 document.getElementById('rateLimitWarning').textContent = '⚠️ ' + rateCheck.message;
                 document.getElementById('rateLimitWarning').classList.add('show');
                 loginBtn.disabled = false;
-                loginBtn.textContent = 'Verify & Continue';
+                loginBtn.innerHTML = 'Verify & Continue'; // Changed to innerHTML
                 return;
             }
 
@@ -1939,6 +2279,15 @@ loadCategories();
             document.getElementById('emailError').classList.remove('show');
             
             let hasError = false;
+            
+            // ADD THIS CHECK HERE 👇
+            if (!studentsLoaded) {
+                document.getElementById('nameError').textContent = '⏳ Loading student list... Please wait a moment and try again.';
+                document.getElementById('nameError').classList.add('show');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Verify & Continue'; // Changed to innerHTML
+                return;
+            }
             
             if (!nameInput) {
                 document.getElementById('nameError').textContent = 'Please enter your name';
@@ -1968,8 +2317,8 @@ loadCategories();
             }
             
             if (hasError) {
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Verify & Continue';
+              loginBtn.disabled = false;
+              loginBtn.innerHTML = 'Verify & Continue'; // Changed to innerHTML
                 return;
             }
 
@@ -1989,7 +2338,7 @@ loadCategories();
                                 `⚠️ This name is already registered with a different email. Please use the correct email.`;
                             document.getElementById('emailError').classList.add('show');
                             loginBtn.disabled = false;
-                            loginBtn.textContent = 'Verify & Continue';
+                            loginBtn.innerHTML = 'Verify & Continue'; // Changed to innerHTML
                             return;
                         }
                     } else {
@@ -2005,7 +2354,7 @@ loadCategories();
                 currentUser.email = email;
                 document.getElementById('userName').textContent = currentUser.fullName;
                 
-                const emailKey = email.replace(/\./g, ',');
+                const emailKey = window.sanitizeEmail(email);
 
                 const registeredStudentsRef = ref(db, 'registeredStudents');
                 const registeredSnapshot = await get(registeredStudentsRef);
@@ -2035,7 +2384,8 @@ loadCategories();
                         registeredAt: Date.now()
                     });
                 }
-                
+
+                // Already using emailKey variable, no change needed
                 await set(ref(db, `students/${emailKey}`), {
                     name: currentUser.fullName,
                     email: email,
@@ -2051,34 +2401,54 @@ loadCategories();
                 showMainApp();
             } catch (error) {
                 console.error('❌ Login error:', error);
-                document.getElementById('emailError').textContent = 'An error occurred. Please try again.';
+                
+                // REPLACE WITH BETTER ERROR HANDLING 👇
+                const errorMsg = ErrorMessages.getErrorMessage(error);
+                document.getElementById('emailError').textContent = errorMsg;
                 document.getElementById('emailError').classList.add('show');
             } finally {
                 loginBtn.disabled = false;
-                loginBtn.textContent = 'Verify & Continue';
+                loginBtn.innerHTML = 'Verify & Continue'; // Changed to innerHTML
             }
         };
 
-        async function loadUserData() {
-            const emailKey = currentUser.email.replace(/\./g, ',');
+       // Real-time listener for user vote updates
+        function setupUserVotesListener() {
+            const emailKey = window.sanitizeEmail(currentUser.email);
             const userRef = ref(db, `userVotes/${emailKey}`);
-            const snapshot = await get(userRef);
             
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                userVotes = data.votes || {};
-                extraVotesPurchased = data.extraVotes || 0;
-                
-                const votesCount = Object.keys(userVotes).length;
-                const remaining = 18 - votesCount;
-                
-                if (votesCount > 0) {
-                    document.getElementById('welcomeBackMessage').classList.remove('hidden');
-                    document.getElementById('welcomeBackText').textContent = 
-                        `You have ${votesCount} vote${votesCount !== 1 ? 's' : ''} cast. ${remaining} categor${remaining !== 1 ? 'ies' : 'y'} remaining!`;
+            onValue(userRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    userVotes = data.votes || {};
+                    extraVotesPurchased = data.extraVotes || 0;
+                    
+                    updateVoteUI();
+                    
+                    // Auto-update dashboard if visible
+                    if (!document.getElementById('dashboardSection').classList.contains('hidden')) {
+                        renderDashboard();
+                    }
                 }
+            });
+        }
+
+// ADD THIS ENTIRE FUNCTION HERE 👇
+        async function loadUserData() {
+            const emailKey = window.sanitizeEmail(currentUser.email);
+            const userRef = ref(db, `userVotes/${emailKey}`);
+            
+            try {
+                const snapshot = await get(userRef);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    userVotes = data.votes || {};
+                    extraVotesPurchased = data.extraVotes || 0;
+                }
+                updateVoteUI();
+            } catch (error) {
+                console.error('Error loading user data:', error);
             }
-            updateVoteUI();
         }
 
         function loadAllVotes() {
@@ -2103,7 +2473,7 @@ loadCategories();
 
         window.handleLogout = async function() {
             if (confirm('Are you sure you want to logout? Your votes are saved and you can resume anytime.')) {
-                const emailKey = currentUser.email.replace(/\./g, ',');
+                const emailKey = window.sanitizeEmail(currentUser.email);
                 await update(ref(db, `students/${emailKey}`), {
                     status: 'offline',
                     lastActivity: Date.now()
@@ -2119,27 +2489,34 @@ loadCategories();
             }
         };
 
-        window.switchTab = function(tab, event) {
-    document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    document.getElementById('votingSection').classList.toggle('hidden', tab !== 'voting');
-    document.getElementById('dashboardSection').classList.toggle('hidden', tab !== 'dashboard');
-    document.getElementById('leaderboardSection').classList.toggle('hidden', tab !== 'leaderboard');
-    
-    if (tab === 'dashboard') renderDashboard();
-    if (tab === 'leaderboard') {
-        showLeaderboardSkeleton();
-        setTimeout(() => {
-            renderLeaderboard();
-        }, 500);
-    }
-};
+       window.switchTab = function(tab, event) {
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('votingSection').classList.toggle('hidden', tab !== 'voting');
+            document.getElementById('dashboardSection').classList.toggle('hidden', tab !== 'dashboard');
+            document.getElementById('leaderboardSection').classList.toggle('hidden', tab !== 'leaderboard');
+            
+            if (tab === 'dashboard') {
+                // Always refresh dashboard data when switching to it
+                setTimeout(() => {
+                    renderDashboard();
+                }, 50);
+            }
+            
+            if (tab === 'leaderboard') {
+                showLeaderboardSkeleton();
+                setTimeout(() => {
+                    renderLeaderboard();
+                }, 500);
+            }
+        };
 
         window.renderDashboard = function() {
+            // Force refresh from current state
             const categoriesVoted = Object.keys(userVotes).length;
-            const freeVotesLeft = 18 - categoriesVoted;
-            const progress = Math.round((categoriesVoted / 18) * 100);
+            const freeVotesLeft = window.TOTAL_CATEGORIES - categoriesVoted;
+            const progress = Math.round((categoriesVoted / window.TOTAL_CATEGORIES) * 100);
 
             document.getElementById('dashCategoriesVoted').textContent = categoriesVoted;
             document.getElementById('dashFreeVotesLeft').textContent = freeVotesLeft;
@@ -2147,9 +2524,16 @@ loadCategories();
             document.getElementById('dashProgress').textContent = progress + '%';
 
             // Update category progress visualization
-            updateCategoryProgressVisuals();
+            if (typeof updateCategoryProgressVisuals === 'function') {
+                updateCategoryProgressVisuals();
+            }
             
             const historyContainer = document.getElementById('votingHistoryContainer');
+            
+            if (!historyContainer) {
+                console.error('History container not found');
+                return;
+            }
             
             if (categoriesVoted === 0) {
                 historyContainer.innerHTML = `
@@ -2163,7 +2547,11 @@ loadCategories();
             }
 
             let historyHTML = '';
-            Object.entries(userVotes).forEach(([category, nominee]) => {
+            
+            // Sort by most recent votes first
+            const sortedVotes = Object.entries(userVotes).reverse();
+            
+            sortedVotes.forEach(([category, nominee]) => {
                 const categoryData = categories.find(c => c.name === category);
                 const icon = categoryData ? categoryData.icon : '🏆';
                 
@@ -2268,47 +2656,83 @@ loadCategories();
             const hasVotedInCategory = userVotes[category] !== undefined;
             
             if (!hasVotedInCategory) {
-                try {
-                    userVotes[category] = nominee;
-                    
-                    const emailKey = currentUser.email.replace(/\./g, ',');
-                    
-                    await set(ref(db, `userVotes/${emailKey}`), {
-                        votes: userVotes,
-                        extraVotes: extraVotesPurchased,
-                        fullName: currentUser.fullName,
-                        lastVote: Date.now()
-                    });
-                    
-                    const voteRef = ref(db, `categoryVotes/${category}/${nominee}`);
-                    const snapshot = await get(voteRef);
-                    const currentVotes = snapshot.exists() ? snapshot.val() : 0;
-                    await set(voteRef, currentVotes + 1);
-                    
-                    const votesCount = Object.keys(userVotes).length;
-                    await update(ref(db, `students/${emailKey}`), {
-                        votesCount: votesCount,
-                        hasVoted: votesCount > 0,
-                        lastActivity: Date.now()
-                    });
-                    
-                    console.log('✅ Vote recorded:', category, nominee, 'Total votes:', votesCount);
-                    
-                   rateLimits.vote.attempts = 0;
-                    updateVoteUI();
-                    renderCategories();
-                    
-                    // Show success modal instead of alert
-                    showSuccessModal(category, nominee);
-                } catch (error) {
-                    console.error('❌ Error casting vote:', error);
-                    alert('Error casting vote. Please try again.');
-                }
+                // ADD CONFIRMATION CHECK 👇
+                // Show confirmation modal for first vote
+                showConfirmModal(category, nominee);
+                return; // Exit here, actual vote happens in confirmVoteAction
             } else {
                 pendingVote = { category, nominee };
                 showPaymentModal();
             }
         };
+
+        // ADD NEW FUNCTION - ACTUAL VOTE EXECUTION 👇
+        async function executeVote(category, nominee) {
+            const rateCheck = checkRateLimit('vote');
+            if (!rateCheck.allowed) {
+                alert('🚫 ' + rateCheck.message);
+                return;
+            }
+
+            try {
+                    userVotes[category] = nominee;
+                
+                const emailKey = window.sanitizeEmail(currentUser.email);
+                
+                await set(ref(db, `userVotes/${emailKey}`), {
+                    votes: userVotes,
+                    extraVotes: extraVotesPurchased,
+                    fullName: currentUser.fullName,
+                    lastVote: Date.now()
+                });
+                
+                const voteRef = ref(db, `categoryVotes/${category}/${nominee}`);
+                const snapshot = await get(voteRef);
+                const currentVotes = snapshot.exists() ? snapshot.val() : 0;
+                
+                try {
+                    await set(voteRef, currentVotes + 1);
+                } catch (voteError) {
+                    console.error('❌ Failed to increment vote count:', voteError);
+                    delete userVotes[category];
+                    throw new Error('Failed to record vote. Please try again.');
+                }
+                
+                const votesCount = Object.keys(userVotes).length;
+                await update(ref(db, `students/${emailKey}`), {
+                    votesCount: votesCount,
+                    hasVoted: votesCount > 0,
+                    lastActivity: Date.now()
+                });
+                
+                console.log('✅ Vote recorded:', category, nominee, 'Total votes:', votesCount);
+                
+                rateLimits.vote.attempts = 0;
+                updateVoteUI();
+                renderCategories();
+                
+                if (!document.getElementById('dashboardSection').classList.contains('hidden')) {
+                    renderDashboard();
+                }
+                
+                showSuccessModal(category, nominee);
+            } catch (error) {
+                console.error('❌ Error casting vote:', error);
+                
+                const errorMsg = ErrorMessages.getErrorMessage(error);
+                const retry = confirm(errorMsg + '\n\nWould you like to retry?');
+                
+                if (retry) {
+                    setTimeout(() => {
+                        executeVote(category, nominee);
+                    }, 1000);
+                } else {
+                    delete userVotes[category];
+                    renderCategories();
+                    updateVoteUI();
+                }
+            }
+        }
 
         window.showPaymentModal = function() {
             document.getElementById('modalExtraVotes').textContent = extraVotesPurchased;
@@ -2322,6 +2746,22 @@ loadCategories();
 
         window.handlePayment = async function() {
             if (pendingVote) {
+                // ADD VERIFICATION 👇
+                // Verify this is a legitimate extra vote purchase
+                const verify = confirm(
+                    '💰 Purchase Extra Vote\n\n' +
+                    `Category: ${pendingVote.category}\n` +
+                    `Nominee: ${pendingVote.nominee}\n\n` +
+                    'Cost: ₦100 per extra vote\n\n' +
+                    'Note: This is a paid feature. Your vote will be recorded immediately.\n\n' +
+                    'Proceed with purchase?'
+                );
+                
+                if (!verify) {
+                    closeModal();
+                    return;
+                }
+                
                 try {
                     extraVotesPurchased++;
                     
@@ -2333,10 +2773,21 @@ loadCategories();
                         lastVote: Date.now()
                     });
                     
-                    const voteRef = ref(db, `categoryVotes/${pendingVote.category}/${pendingVote.nominee}`);
+                   const voteRef = ref(db, `categoryVotes/${category}/${nominee}`);
                     const snapshot = await get(voteRef);
                     const currentVotes = snapshot.exists() ? snapshot.val() : 0;
-                    await set(voteRef, currentVotes + 1);
+                    
+                    // REPLACE the single await set() with this try-catch 👇
+                    try {
+                        await set(voteRef, currentVotes + 1);
+                    } catch (voteError) {
+                        console.error('❌ Failed to increment vote count:', voteError);
+                        // Rollback local state
+                        delete userVotes[category];
+                        throw new Error('Failed to record vote. Please try again.');
+                    }
+                    
+                    const votesCount = Object.keys(userVotes).length;
                     
                     await update(ref(db, `students/${emailKey}`), {
                         lastActivity: Date.now()
@@ -2359,7 +2810,7 @@ loadCategories();
         function updateVoteUI() {
             const categoriesVoted = Object.keys(userVotes).length;
             const freeVotesLeft = 18 - categoriesVoted;
-            const progress = (categoriesVoted / 18) * 100;
+            const progress = (categoriesVoted / window.TOTAL_CATEGORIES) * 100;
 
             document.getElementById('categoriesVoted').textContent = categoriesVoted;
             document.getElementById('freeVotesLeft').textContent = freeVotesLeft;
@@ -2542,7 +2993,7 @@ loadCategories();
             
             document.getElementById('successCategory').textContent = category;
             document.getElementById('successNominee').textContent = nominee;
-            document.getElementById('successTotalVotes').textContent = totalVotes + '/18'; // CHANGED: added '/18'
+            document.getElementById('successTotalVotes').textContent = totalVotes + '/' + window.TOTAL_CATEGORIES;
             
             document.getElementById('successModal').classList.add('active');
             
@@ -2575,16 +3026,42 @@ loadCategories();
                 
                 container.appendChild(confetti);
                 
-                // Remove confetti after animation
+               // Remove confetti after animation (with safety check)
                 setTimeout(() => {
-                    confetti.remove();
+                    if (confetti.parentNode) { // ADD THIS CHECK
+                        confetti.remove();
+                    }
                 }, 3500);
             }
         };
 
-        // ADD THESE NEW FUNCTIONS HERE 👇
+// ADD CONFIRMATION MODAL FUNCTIONS 👇
+        let pendingConfirmVote = null;
+
+        window.showConfirmModal = function(category, nominee) {
+            pendingConfirmVote = { category, nominee };
+            document.getElementById('confirmNomineeName').textContent = nominee;
+            document.getElementById('confirmCategoryName').textContent = category;
+            document.getElementById('confirmModal').classList.add('active');
+        };
+
+        window.closeConfirmModal = function() {
+            document.getElementById('confirmModal').classList.remove('active');
+            pendingConfirmVote = null;
+        };
+
+        window.confirmVoteAction = function() {
+            if (pendingConfirmVote) {
+                const { category, nominee } = pendingConfirmVote;
+                closeConfirmModal();
+                // Call the actual vote function
+                executeVote(category, nominee);
+            }
+        };
+
         // Calculate category progress percentage
         function getCategoryProgress(categoryName) {
+            
             if (!allVotes[categoryName]) return 0;
             
             const categoryData = categories.find(c => c.name === categoryName);
@@ -2630,6 +3107,134 @@ loadCategories();
                 </div>
             `;
         }
+
+        // ADD ADMIN WARNING FUNCTION 👇
+        window.showAdminWarning = function() {
+            const isAdmin = confirm(
+                '🔐 ADMIN ACCESS\n\n' +
+                'This section is restricted to authorized administrators only.\n\n' +
+                'Unauthorized access may result in:\n' +
+                '• Account suspension\n' +
+                '• Loss of voting privileges\n' +
+                '• Disciplinary action\n\n' +
+                'Are you an authorized administrator?'
+            );
+            
+            if (isAdmin) {
+                const password = prompt('Enter admin password:');
+                
+                // You should verify this against Firebase
+                // For now, just a simple check (CHANGE THIS IN PRODUCTION!)
+                if (password === 'D2025A' || password === 'D2025A') {
+                    window.location.href = 'admin.html';
+                } else {
+                    alert('❌ Incorrect password. Access denied.\n\nThis attempt has been logged.');
+                    
+                    // Log the failed attempt
+                    if (currentUser.email) {
+                        const emailKey = window.sanitizeEmail(currentUser.email);
+                        const attemptRef = push(ref(db, 'securityLogs/failedAdminAccess'));
+                        set(attemptRef, {
+                            email: currentUser.email,
+                            name: currentUser.fullName,
+                            timestamp: Date.now(),
+                            userAgent: navigator.userAgent
+                        });
+                    }
+                }
+            }
+        };
+
+        // ADD SECURITY MONITORING 👇
+        // Monitor for suspicious activity
+        let rapidClickCount = 0;
+        let lastClickTime = 0;
+
+        document.addEventListener('click', function(e) {
+            const now = Date.now();
+            
+            if (now - lastClickTime < 100) { // Less than 100ms between clicks
+                rapidClickCount++;
+                
+                if (rapidClickCount > 10) { // More than 10 rapid clicks
+                    console.warn('⚠️ Suspicious activity detected');
+                    
+                    // Log suspicious activity
+                    if (currentUser.email) {
+                        const emailKey = window.sanitizeEmail(currentUser.email);
+                        const logRef = push(ref(db, 'securityLogs/suspiciousActivity'));
+                        set(logRef, {
+                            email: currentUser.email,
+                            name: currentUser.fullName,
+                            activity: 'rapid_clicking',
+                            count: rapidClickCount,
+                            timestamp: Date.now()
+                        });
+                    }
+                    
+                    rapidClickCount = 0;
+                }
+            } else {
+                rapidClickCount = 0;
+            }
+            
+            lastClickTime = now;
+        });
+
+        // Detect if someone is trying to manipulate the console
+        const originalConsoleLog = console.log;
+        console.log = function(...args) {
+            if (args.length > 0 && typeof args[0] === 'string') {
+                const suspicious = ['firebase', 'userVotes', 'extraVotes', 'adminPanel'];
+                const isSuspicious = suspicious.some(word => 
+                    args[0].toLowerCase().includes(word)
+                );
+                
+                if (isSuspicious && currentUser.email) {
+                    const emailKey = window.sanitizeEmail(currentUser.email);
+                    const logRef = push(ref(db, 'securityLogs/consoleAccess'));
+                    set(logRef, {
+                        email: currentUser.email,
+                        query: args[0],
+                        timestamp: Date.now()
+                    }).catch(() => {}); // Fail silently
+                }
+            }
+            
+            originalConsoleLog.apply(console, args);
+        };
+        // ADD TAB VISIBILITY MONITORING 👇
+        // Detect when user leaves the page
+        let awayTime = 0;
+        let visibilityChangeCount = 0;
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                awayTime = Date.now();
+            } else {
+                const timeAway = Date.now() - awayTime;
+                visibilityChangeCount++;
+                
+                // If user was away for more than 5 minutes and switches tabs frequently
+                if (timeAway > 300000 && visibilityChangeCount > 5) {
+                    console.warn('⚠️ Unusual tab switching detected');
+                    
+                    if (currentUser.email) {
+                        const emailKey = window.sanitizeEmail(currentUser.email);
+                        update(ref(db, `students/${emailKey}`), {
+                            suspiciousTabSwitching: visibilityChangeCount,
+                            lastTabSwitch: Date.now()
+                        }).catch(() => {});
+                    }
+                }
+            }
+        });
+
+        // Reset visibility count every 10 minutes
+        setInterval(() => {
+            visibilityChangeCount = 0;
+        }, 600000);
+
     </script>
 </body>
 </html>
