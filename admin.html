@@ -78,7 +78,7 @@
             margin-bottom: 0.5rem;
         }
 
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 0.875rem;
             border: 2px solid #ddd;
@@ -87,7 +87,7 @@
             transition: all 0.3s ease;
         }
 
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #f44336;
             box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
@@ -665,8 +665,8 @@
                 <input type="text" id="newStudentName" placeholder="e.g., Solomon Stephen Sunday">
             </div>
             <div class="form-group">
-                <label for="newStudentEmail">Email (Optional)</label>
-                <input type="email" id="newStudentEmail" placeholder="e.g., student@email.com">
+                <label for="newStudentEmail">Email Address (Optional)</label>
+                <input type="email" id="newStudentEmail" placeholder="e.g., solomon@example.com">
             </div>
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="closeAddStudentModal()">Cancel</button>
@@ -686,6 +686,10 @@
             <div class="form-group">
                 <label for="editCategoryIcon">Category Icon (Emoji)</label>
                 <input type="text" id="editCategoryIcon" placeholder="🏆" maxlength="2">
+            </div>
+            <div class="form-group">
+                <label for="editCategoryDescription">Category Description</label>
+                <textarea id="editCategoryDescription" placeholder="Describe what this category represents..." style="min-height: 100px; font-family: inherit; resize: vertical;"></textarea>
             </div>
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="closeEditCategoryModal()">Cancel</button>
@@ -788,7 +792,6 @@
             return hash.toString();
         }
 
-        // Initialize default categories if not exists
         async function initializeCategories() {
             try {
                 const categoriesRef = ref(db, 'categories');
@@ -796,24 +799,24 @@
                 
                 if (!snapshot.exists()) {
                     const defaultCategories = [
-                        { name: "Most Brilliant Diplomat", icon: "🎓", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
-                        { name: "Most Handsome Diplomat", icon: "👔", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
-                        { name: "Most Beautiful Diplomat", icon: "👗", nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"] },
-                        { name: "Most Reserved Diplomat (Male)", icon: "🤐", nominees: ["MOR", "Christian Ogala", "Biggie"] },
-                        { name: "Most Reserved Diplomat (Female)", icon: "🤫", nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"] },
-                        { name: "Most Talented Diplomat", icon: "🎭", nominees: ["Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Solomon Stephen"] },
-                        { name: "Most Creative Diplomat", icon: "🎨", nominees: ["Daibu Fareedah", "MOR", "Solomon Stephen", "Ernest Henry"] },
-                        { name: "Most Social Diplomat (Male)", icon: "🎉", nominees: ["Ernest Henry", "Ayo Salimon Farouq", "Ugo Christsanctus"] },
-                        { name: "Most Social Diplomat (Female)", icon: "💃", nominees: ["Debby Donatus", "Kowiat", "Abimbola"] },
-                        { name: "Most Entrepreneurial Diplomat", icon: "💼", nominees: ["Nicholas Mirabel", "Debby Donatus", "MOH", "Olakunle Kazeem"] },
-                        { name: "Most Popular Diplomat (Male)", icon: "⭐", nominees: ["Henry Ernest", "Ugochukwu Christsanctus", "Adebayo Julius"] },
-                        { name: "Most Popular Diplomat (Female)", icon: "✨", nominees: ["Ashley Favour", "Shobayo Simbi", "Gift"] },
-                        { name: "Favorite Diploma Lecturer", icon: "📚", nominees: ["Mr. Wilson", "Prof. Falode", "Mr. Femi"] },
-                        { name: "Most Expensive Diplomat (Male)", icon: "💎", nominees: ["Kazeem Olakunle", "Ayo Briefcase Guy"] },
-                        { name: "Most Expensive Diplomat (Female)", icon: "💍", nominees: ["Tess Nwanedo Chidera", "Chidera Donatus"] },
-                        { name: "Diploma Fashionista (Male)", icon: "🕴️", nominees: ["Henry Ernest", "Bolu Olanrewaju", "Christian Farouq", "Emmy Indebted"] },
-                        { name: "Diploma Fashionista (Female)", icon: "👠", nominees: ["Kowiat", "Tess", "Ifeoma", "Simbi"] },
-                        { name: "Most Outstanding Diplomat", icon: "🏆", nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"] }
+                        { name: "Most Brilliant Diplomat", icon: "🎓", description: "The most academically outstanding student", nominees: ["Ogunlade Pelumi", "Christian Ogala", "Daibu Fareedah", "Solomon Stephen", "Nicholas Mirabel"] },
+                        { name: "Most Handsome Diplomat", icon: "👔", description: "The most handsome male student", nominees: ["Adebayo Julius", "Salimon Farouq", "Solomon Stephen", "Olanrewaju Bolu"] },
+                        { name: "Most Beautiful Diplomat", icon: "👗", description: "The most beautiful female student", nominees: ["Nwanedo Chidera", "Donatus Chidera", "Shobayo Simbi", "Nicholas Mirabel", "Seyi Gandonu"] },
+                        { name: "Most Reserved Diplomat (Male)", icon: "🤐", description: "The most reserved male student", nominees: ["MOR", "Christian Ogala", "Biggie"] },
+                        { name: "Most Reserved Diplomat (Female)", icon: "🤫", description: "The most reserved female student", nominees: ["Treasure Ebube", "Solomon Joy", "Temmy"] },
+                        { name: "Most Talented Diplomat", icon: "🎭", description: "The student with exceptional talents", nominees: ["Ernest Henry", "Bolu Olanrewaju", "Ugochukwu Christsanctus", "Solomon Stephen"] },
+                        { name: "Most Creative Diplomat", icon: "🎨", description: "The most creative and innovative student", nominees: ["Daibu Fareedah", "MOR", "Solomon Stephen", "Ernest Henry"] },
+                        { name: "Most Social Diplomat (Male)", icon: "🎉", description: "The most social male student", nominees: ["Ernest Henry", "Ayo Salimon Farouq", "Ugo Christsanctus"] },
+                        { name: "Most Social Diplomat (Female)", icon: "💃", description: "The most social female student", nominees: ["Debby Donatus", "Kowiat", "Abimbola"] },
+                        { name: "Most Entrepreneurial Diplomat", icon: "💼", description: "The student with the best business mindset", nominees: ["Nicholas Mirabel", "Debby Donatus", "MOH", "Olakunle Kazeem"] },
+                        { name: "Most Popular Diplomat (Male)", icon: "⭐", description: "The most popular male student", nominees: ["Henry Ernest", "Ugochukwu Christsanctus", "Adebayo Julius"] },
+                        { name: "Most Popular Diplomat (Female)", icon: "✨", description: "The most popular female student", nominees: ["Ashley Favour", "Shobayo Simbi", "Gift"] },
+                        { name: "Favorite Diploma Lecturer", icon: "📚", description: "The most beloved lecturer", nominees: ["Mr. Wilson", "Prof. Falode", "Mr. Femi"] },
+                        { name: "Most Expensive Diplomat (Male)", icon: "💎", description: "The most expensively dressed male student", nominees: ["Kazeem Olakunle", "Ayo Briefcase Guy"] },
+                        { name: "Most Expensive Diplomat (Female)", icon: "💍", description: "The most expensively dressed female student", nominees: ["Tess Nwanedo Chidera", "Chidera Donatus"] },
+                        { name: "Diploma Fashionista (Male)", icon: "🕴️", description: "The most fashionable male student", nominees: ["Henry Ernest", "Bolu Olanrewaju", "Christian Farouq", "Emmy Indebted"] },
+                        { name: "Diploma Fashionista (Female)", icon: "👠", description: "The most fashionable female student", nominees: ["Kowiat", "Tess", "Ifeoma", "Simbi"] },
+                        { name: "Most Outstanding Diplomat", icon: "🏆", description: "The overall most outstanding student", nominees: ["Solomon Stephen", "Mr. Chris", "Ernest Henry", "Nicholas Mirabel", "Daibu Fareedah"] }
                     ];
                     
                     console.log('Initializing default categories...');
@@ -825,7 +828,6 @@
             } catch (error) {
                 console.error('Error initializing categories:', error);
                 console.log('⚠️ Using fallback: Categories will load from existing data or show empty');
-                // Don't throw error, let the app continue with existing data
             }
         }
 
@@ -964,12 +966,12 @@
             }
         };
 
-        // Category Management Functions
         window.showEditCategoryModal = function(categoryIndex) {
             currentEditingCategory = categoryIndex;
             const category = categories[categoryIndex];
             document.getElementById('editCategoryName').value = category.name;
             document.getElementById('editCategoryIcon').value = category.icon;
+            document.getElementById('editCategoryDescription').value = category.description || '';
             document.getElementById('editCategoryModal').classList.add('active');
         };
 
@@ -981,6 +983,8 @@
         window.saveCategory = async function() {
             const name = sanitizeInput(document.getElementById('editCategoryName').value);
             const icon = sanitizeInput(document.getElementById('editCategoryIcon').value);
+            const descriptionField = document.getElementById('editCategoryDescription');
+            const description = descriptionField ? sanitizeInput(descriptionField.value) : '';
 
             if (!name || name.length < 3) {
                 alert('Please enter a valid category name (at least 3 characters)');
@@ -991,7 +995,8 @@
                 const categoryRef = ref(db, `categories/${currentEditingCategory}`);
                 await update(categoryRef, {
                     name: name,
-                    icon: icon || '🏆'
+                    icon: icon || '🏆',
+                    description: description || 'No description available'
                 });
 
                 await logAction('category_edited', true, { categoryName: name });
@@ -1003,7 +1008,6 @@
             }
         };
 
-        // Nominee Management Functions
         window.showAddNomineeModal = function(categoryIndex) {
             currentEditingCategory = categoryIndex;
             const category = categories[categoryIndex];
@@ -1114,7 +1118,6 @@
                 const categoryRef = ref(db, `categories/${currentEditingCategory}/nominees`);
                 await set(categoryRef, category.nominees);
 
-                // Update votes if any exist for this nominee
                 const votesRef = ref(db, `categoryVotes/${category.name}`);
                 const votesSnapshot = await get(votesRef);
                 if (votesSnapshot.exists()) {
@@ -1153,7 +1156,6 @@
                 const categoryRef = ref(db, `categories/${categoryIndex}/nominees`);
                 await set(categoryRef, category.nominees);
 
-                // Remove votes for this nominee
                 await remove(ref(db, `categoryVotes/${category.name}/${nomineeName}`));
 
                 await logAction('nominee_deleted', true, { 
@@ -1173,16 +1175,30 @@
             unsubscribers.forEach(unsub => unsub());
             unsubscribers = [];
 
-            // Listen to categories
             const categoriesUnsubscribe = onValue(ref(db, 'categories'), (snapshot) => {
                 if (snapshot.exists()) {
-                    categories = [];
-                    snapshot.forEach(child => {
-                        categories.push({
-                            id: child.key,
-                            ...child.val()
+                    const data = snapshot.val();
+                    console.log('Categories data from Firebase:', data);
+                    
+                    if (Array.isArray(data)) {
+                        categories = data.map((cat, index) => ({
+                            id: index,
+                            ...cat
+                        }));
+                        console.log('Categories loaded as array:', categories.length, 'categories');
+                    } else {
+                        categories = [];
+                        snapshot.forEach(child => {
+                            categories.push({
+                                id: child.key,
+                                ...child.val()
+                            });
                         });
-                    });
+                        console.log('Categories loaded as object:', categories.length, 'categories');
+                    }
+                } else {
+                    console.log('No categories found in Firebase');
+                    categories = [];
                 }
                 renderResults();
             });
@@ -1440,31 +1456,49 @@
 
         function renderResults() {
             const container = document.getElementById('resultsContainer');
+            
+            if (!container) {
+                console.error('Results container not found!');
+                return;
+            }
+            
             container.innerHTML = '';
 
-            if (categories.length === 0) {
+            if (!categories || categories.length === 0) {
+                console.log('No categories to render');
                 container.innerHTML = '<p style="text-align: center; color: #666;">No categories available</p>';
                 return;
             }
 
+            console.log('Rendering', categories.length, 'categories');
+
             categories.forEach((category, index) => {
+                if (!category || !category.name) {
+                    console.warn('Invalid category at index', index, category);
+                    return;
+                }
+
                 const categoryVotes = allVotes[category.name] || {};
                 const nominees = category.nominees || [];
                 const sortedNominees = nominees
                     .map(nom => ({ name: nom, votes: categoryVotes[nom] || 0 }))
                     .sort((a, b) => b.votes - a.votes);
 
+                const icon = category.icon || '🏆';
+                const description = category.description || 'No description available';
+
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 card.innerHTML = `
                     <div class="result-header">
-                        <span>${category.icon} ${sanitizeInput(category.name)}</span>
+                        <span>${icon} ${sanitizeInput(category.name)}</span>
                         <div class="category-actions">
-                            <button class="btn-small btn-edit" onclick="showEditCategoryModal(${index})">✏️ Edit</button>
-                            <button class="btn-small btn-add-nominee" onclick="showAddNomineeModal(${index})">➕ Add</button>
-                            <button class="btn-small btn-edit" onclick="showManageNomineesModal(${index})">👥 Manage</button>
+                            <button class="btn-small btn-edit" onclick="showEditCategoryModal(${index})" title="Edit category details">✏️ Edit</button>
+                            <button class="btn-small btn-add-nominee" onclick="showAddNomineeModal(${index})" title="Add new nominee">➕ Add</button>
+                            <button class="btn-small btn-edit" onclick="showManageNomineesModal(${index})" title="Manage nominees">👥 Manage</button>
                         </div>
                     </div>
+                    <p style="color: #666; font-size: 0.85rem; margin: 0.5rem 0 1rem 0; font-style: italic;">${sanitizeInput(description)}</p>
                     <div>
                         ${sortedNominees.length > 0 ? sortedNominees.map(nominee =>
                             `<div class="nominee-result">
@@ -1476,6 +1510,8 @@
                 `;
                 container.appendChild(card);
             });
+            
+            console.log('Successfully rendered all categories');
         }
 
         window.exportResults = async function() {
