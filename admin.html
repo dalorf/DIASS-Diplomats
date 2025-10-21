@@ -859,6 +859,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, remove, push, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD1tYPF1ZlGAe7gzXxlo6rjw2QMeaZ_MHo",
@@ -872,6 +873,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const auth = getAuth(app); // ADD THIS LINE
 
         const MAX_ATTEMPTS = 3;
         const LOCKOUT_TIME = 5 * 60 * 1000;
@@ -940,23 +942,11 @@
             }
         }
 
-        window.handleAdminLogin = async function() {
-            const now = Date.now();
+       window.handleAdminLogin = async function() {
             const passwordInput = document.getElementById('passwordInput');
             const errorMsg = document.getElementById('passwordError');
             let password = sanitizeInput(passwordInput.value);
             errorMsg.classList.remove('show');
-
-            if (loginAttempts >= MAX_ATTEMPTS) {
-                const timeSinceLastAttempt = now - lastAttemptTime;
-                if (timeSinceLastAttempt < LOCKOUT_TIME) {
-                    const remainingTime = Math.ceil((LOCKOUT_TIME - timeSinceLastAttempt) / 60000);
-                    errorMsg.textContent = `🚫 Too many failed attempts. Wait ${remainingTime} min.`;
-                    errorMsg.classList.add('show');
-                    return;
-                }
-                loginAttempts = 0;
-            }
 
             if (!password || password.length < 6) {
                 errorMsg.textContent = 'Password must be at least 6 characters';
@@ -964,46 +954,23 @@
                 return;
             }
 
+            // Use Firebase Auth with a fixed admin email
+            const adminEmail = "admin@diploma2awards.com";
+
             try {
-                const passwordRef = ref(db, 'settings/adminPasswordHash');
-                const snapshot = await get(passwordRef);
-
-                if (!snapshot.exists()) {
-                    errorMsg.textContent = '⚠️ Admin password not configured';
-                    errorMsg.classList.add('show');
-                    return;
-                }
-
-                const storedHash = String(snapshot.val());
-                const enteredHash = simpleHash(password);
-
-                if (enteredHash === storedHash) {
-                    loginAttempts = 0;
-                    document.getElementById('adminLogin').style.display = 'none';
-                    document.getElementById('adminDashboard').classList.add('active');
-                    await logAction('login', true);
-                    await initializeCategories();
-                    loadDashboardData();
-                } else {
-                    loginAttempts++;
-                    lastAttemptTime = now;
-                    await logAction('login_failed', false, { attempts: loginAttempts });
-                    const remaining = MAX_ATTEMPTS - loginAttempts;
-                    if (remaining > 0) {
-                        errorMsg.textContent = `Incorrect password. ${remaining} attempt(s) left`;
-                    } else {
-                        errorMsg.textContent = 'Account locked for 5 minutes';
-                        passwordInput.disabled = true;
-                        setTimeout(() => {
-                            passwordInput.disabled = false;
-                            errorMsg.classList.remove('show');
-                        }, LOCKOUT_TIME);
-                    }
-                    errorMsg.classList.add('show');
-                }
+                await signInWithEmailAndPassword(auth, adminEmail, password);
+                // Success - onAuthStateChanged will handle the rest
             } catch (error) {
                 console.error('Login error:', error);
-                errorMsg.textContent = '❌ Connection error';
+                await logAction('login_failed', false);
+                
+                if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                    errorMsg.textContent = 'Incorrect password';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMsg.textContent = '🚫 Too many failed attempts. Try again later.';
+                } else {
+                    errorMsg.textContent = '❌ Connection error';
+                }
                 errorMsg.classList.add('show');
             }
         };
@@ -1021,13 +988,33 @@
             }
         }
 
-        window.handleLogout = function() {
-            if (confirm('Logout from admin dashboard?')) {
-                unsubscribers.forEach(unsub => unsub());
-                unsubscribers = [];
+       // Add this new function
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminDashboard').classList.add('active');
+                await logAction('login', true);
+                await initializeCategories();
+                loadDashboardData();
+            } else {
+                // User is signed out
                 document.getElementById('adminLogin').style.display = 'flex';
                 document.getElementById('adminDashboard').classList.remove('active');
-                document.getElementById('passwordInput').value = '';
+            }
+        });
+
+        window.handleLogout = async function() {
+            if (confirm('Logout from admin dashboard?')) {
+                try {
+                    await signOut(auth); // ADD THIS
+                    unsubscribers.forEach(unsub => unsub());
+                    unsubscribers = [];
+                    document.getElementById('passwordInput').value = '';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    alert('Error logging out');
+                }
             }
         };
 
