@@ -1552,11 +1552,96 @@
                 color: #1e88e5;
             }
 
+
+            .undo-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            animation: slideUp 0.3s ease;
+        }
+
+        .undo-banner.show {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .undo-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .undo-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .undo-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .btn-undo {
+            background: white;
+            color: #f57c00;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-undo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 480px) {
+            .undo-banner {
+                bottom: 10px;
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+                max-width: 90%;
+            }
+        }
+
     </style>
 </head>
 <body>
     <!-- Confetti Container -->
     <div id="confettiContainer" class="confetti-container"></div>
+
+<!-- Undo Banner -->
+    <div id="undoBanner" class="undo-banner">
+        <div class="undo-info">
+            <div class="undo-title">Vote Recorded!</div>
+            <div class="undo-subtitle"><span id="undoTimeLeft">2:00</span> to undo</div>
+        </div>
+        <button class="btn-undo" onclick="undoLastVote()">↩️ Undo</button>
+    </div>
 
     <div id="homePage" class="container">
         <div class="home-page">
@@ -1806,7 +1891,7 @@
    </div>
 
     <!-- ADD CONFIRMATION MODAL 👇 -->
-    <div id="confirmModal" class="confirm-modal">
+   <div id="confirmModal" class="confirm-modal">
         <div class="confirm-content">
             <div class="confirm-icon">🗳️</div>
             <h3 class="confirm-title">Confirm Your Vote</h3>
@@ -1815,6 +1900,12 @@
             <p class="confirm-text" style="font-size: 0.85rem; color: #999;">
                 <span id="confirmCategoryName">—</span>
             </p>
+            <div style="margin: 1rem 0; padding: 0.75rem; background: #f5f9ff; border-radius: 0.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem;">
+                    <input type="checkbox" id="dontShowConfirmAgain" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>Don't show this confirmation again</span>
+                </label>
+            </div>
             <div class="confirm-actions">
                 <button class="btn-secondary" onclick="closeConfirmModal()">Cancel</button>
                 <button class="btn-primary" onclick="confirmVoteAction()">Yes, Vote!</button>
@@ -2065,7 +2156,24 @@ loadCategories();
         let extraVotesPurchased = 0;
         let pendingVote = null;
         let votingLocked = false;
-       let allVotes = {};
+// Session timeout variables
+        let sessionTimeout = null;
+        let lastActivityTime = Date.now();
+        const SESSION_TIMEOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+        // Confirmation dialog preference
+        let skipConfirmation = false;
+
+        // Load preference from localStorage
+        try {
+            const saved = localStorage.getItem('skipVoteConfirmation');
+            skipConfirmation = saved === 'true';
+        } catch (e) {
+            console.warn('Could not load confirmation preference');
+        }
+        // Undo feature variables
+        let recentVotes = {}; // Store votes with timestamps
+        const UNDO_TIME_WINDOW = 2 * 60 * 1000; // 2 minutes in milliseconds
+        let allVotes = {};
         let studentsLoaded = false; // ADD THIS LINE
         
        const rateLimits = {
@@ -2199,6 +2307,215 @@ loadCategories();
                 .replace(/#/g, '_hash_');
         };
 
+        // IP and Device Detection
+        let userIPAddress = null;
+        let userDevice = null;
+
+        async function detectUserInfo() {
+            try {
+                // Get IP address
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                userIPAddress = ipData.ip;
+                
+                // Get device info
+                const ua = navigator.userAgent;
+                let browser = "Unknown";
+                let device = "Unknown";
+                
+                // Detect browser
+                if (ua.includes("Firefox")) browser = "Firefox";
+                else if (ua.includes("Chrome")) browser = "Chrome";
+                else if (ua.includes("Safari")) browser = "Safari";
+                else if (ua.includes("Edge")) browser = "Edge";
+                else if (ua.includes("Opera")) browser = "Opera";
+                
+                // Detect device type
+                if (/mobile/i.test(ua)) device = "Mobile";
+                else if (/tablet/i.test(ua)) device = "Tablet";
+                else device = "Desktop";
+                
+                userDevice = {
+                    browser: browser,
+                    type: device,
+                    os: navigator.platform
+                };
+                
+                console.log('✅ User info detected:', userIPAddress, userDevice);
+            } catch (error) {
+                console.warn('⚠️ Could not detect IP:', error);
+                userIPAddress = 'Unknown';
+                userDevice = { browser: 'Unknown', type: 'Unknown', os: 'Unknown' };
+            }
+        }
+
+        // Call on page load
+        detectUserInfo();
+
+        // Session timeout management
+        function resetSessionTimeout() {
+            lastActivityTime = Date.now();
+            
+            if (sessionTimeout) {
+                clearTimeout(sessionTimeout);
+            }
+            
+            // Only set timeout if user is logged in
+            if (currentUser.email) {
+                sessionTimeout = setTimeout(() => {
+                    handleSessionTimeout();
+                }, SESSION_TIMEOUT_DURATION);
+            }
+        }
+
+        async function handleSessionTimeout() {
+            if (!currentUser.email) return;
+            
+            const timeInactive = Date.now() - lastActivityTime;
+            
+            if (timeInactive >= SESSION_TIMEOUT_DURATION) {
+                alert('⏰ Your session has expired due to inactivity.\n\nPlease login again to continue voting.');
+                
+                // Log timeout
+                const emailKey = window.sanitizeEmail(currentUser.email);
+                try {
+                    await update(ref(db, `students/${emailKey}`), {
+                        status: 'offline',
+                        lastActivity: Date.now(),
+                        logoutReason: 'session_timeout'
+                    });
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                }
+                
+                // Logout user
+                currentUser = { name: '', email: '', fullName: '' };
+                userVotes = {};
+                extraVotesPurchased = 0;
+                document.getElementById('nameInput').value = '';
+                document.getElementById('emailInput').value = '';
+                showHome();
+            }
+        }
+
+        // Track user activity
+        function trackActivity() {
+            if (currentUser.email) {
+                resetSessionTimeout();
+            }
+        }
+
+        // Add activity listeners
+        ['mousedown', 'keypress', 'scroll', 'touchstart', 'click'].forEach(event => {
+            document.addEventListener(event, trackActivity, true);
+        });
+
+        // Undo functionality
+        function showUndoBanner(category, nominee) {
+            const banner = document.getElementById('undoBanner');
+            const timeLeftSpan = document.getElementById('undoTimeLeft');
+            
+            banner.classList.add('show');
+            
+            let timeLeft = UNDO_TIME_WINDOW;
+            const interval = setInterval(() => {
+                timeLeft -= 1000;
+                const minutes = Math.floor(timeLeft / 60000);
+                const seconds = Math.floor((timeLeft % 60000) / 1000);
+                timeLeftSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    banner.classList.remove('show');
+                    delete recentVotes[category];
+                }
+            }, 1000);
+            
+            // Store interval ID for cleanup
+            recentVotes[category].intervalId = interval;
+            
+            // Auto-hide after time window
+            setTimeout(() => {
+                banner.classList.remove('show');
+                delete recentVotes[category];
+            }, UNDO_TIME_WINDOW);
+        }
+
+        window.undoLastVote = async function() {
+            const lastVote = Object.keys(recentVotes).pop();
+            if (!lastVote) return;
+            
+            const voteData = recentVotes[lastVote];
+            const now = Date.now();
+            
+            if (now - voteData.timestamp > UNDO_TIME_WINDOW) {
+                alert('⏰ Undo time window has expired');
+                delete recentVotes[lastVote];
+                document.getElementById('undoBanner').classList.remove('show');
+                return;
+            }
+            
+            if (!confirm(`Undo your vote for "${voteData.nominee}" in "${lastVote}"?`)) {
+                return;
+            }
+            
+            try {
+                // Remove vote from user's votes
+                delete userVotes[lastVote];
+                
+                const emailKey = window.sanitizeEmail(currentUser.email);
+                await set(ref(db, `userVotes/${emailKey}`), {
+                    votes: userVotes,
+                    extraVotes: extraVotesPurchased,
+                    fullName: currentUser.fullName,
+                    lastVote: Date.now()
+                });
+                
+                // Decrement vote count
+                const voteRef = ref(db, `categoryVotes/${lastVote}/${voteData.nominee}`);
+                const snapshot = await get(voteRef);
+                const currentVotes = snapshot.exists() ? snapshot.val() : 0;
+                await set(voteRef, Math.max(0, currentVotes - 1));
+                
+                // Update student vote count
+                const votesCount = Object.keys(userVotes).length;
+                await update(ref(db, `students/${emailKey}`), {
+                    votesCount: votesCount,
+                    hasVoted: votesCount > 0,
+                    lastActivity: Date.now()
+                });
+                
+                // Log undo action
+                const undoLogRef = push(ref(db, 'voteLogs'));
+                await set(undoLogRef, {
+                    email: currentUser.email,
+                    name: currentUser.fullName,
+                    category: lastVote,
+                    nominee: voteData.nominee,
+                    timestamp: Date.now(),
+                    ipAddress: userIPAddress || 'Unknown',
+                    device: userDevice || {},
+                    voteType: 'undo'
+                });
+                
+                // Clear undo timer
+                if (voteData.intervalId) {
+                    clearInterval(voteData.intervalId);
+                }
+                
+                delete recentVotes[lastVote];
+                document.getElementById('undoBanner').classList.remove('show');
+                
+                updateVoteUI();
+                renderCategories();
+                
+                alert('✅ Vote successfully undone!');
+            } catch (error) {
+                console.error('Error undoing vote:', error);
+                alert('❌ Error undoing vote. Please try again.');
+            }
+        };
+
         window.findMatchingStudent = function(input) {
             if (registeredStudents.length === 0) {
                 console.warn('⚠️ No registered students available for matching');
@@ -2230,6 +2547,8 @@ loadCategories();
 window.showMainApp = async function() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('loginPage').classList.add('hidden');
+            // Start session timeout
+            resetSessionTimeout();
             document.getElementById('mainApp').classList.remove('hidden');
             
             // Show skeleton immediately
@@ -2655,11 +2974,14 @@ window.showMainApp = async function() {
 
             const hasVotedInCategory = userVotes[category] !== undefined;
             
-            if (!hasVotedInCategory) {
-                // ADD CONFIRMATION CHECK 👇
-                // Show confirmation modal for first vote
-                showConfirmModal(category, nominee);
-                return; // Exit here, actual vote happens in confirmVoteAction
+          if (!hasVotedInCategory) {
+                // Check if user wants to skip confirmation
+                if (skipConfirmation) {
+                    executeVote(category, nominee);
+                } else {
+                    showConfirmModal(category, nominee);
+                }
+                return;
             } else {
                 pendingVote = { category, nominee };
                 showPaymentModal();
@@ -2706,6 +3028,26 @@ window.showMainApp = async function() {
                 });
                 
                 console.log('✅ Vote recorded:', category, nominee, 'Total votes:', votesCount);
+                
+                // Log vote change with IP and device info
+                const voteLogRef = push(ref(db, 'voteLogs'));
+                await set(voteLogRef, {
+                    email: currentUser.email,
+                    name: currentUser.fullName,
+                    category: category,
+                    nominee: nominee,
+                    timestamp: Date.now(),
+                    ipAddress: userIPAddress || 'Unknown',
+                    device: userDevice || { browser: 'Unknown', type: 'Unknown', os: 'Unknown' },
+                    voteType: 'free'
+                });
+                
+                // Track for undo feature
+                recentVotes[category] = {
+                    nominee: nominee,
+                    timestamp: Date.now()
+                };
+                showUndoBanner(category, nominee);
                 
                 rateLimits.vote.attempts = 0;
                 updateVoteUI();
@@ -2794,6 +3136,19 @@ window.showMainApp = async function() {
                     });
                     
                     console.log('✅ Extra vote purchased and cast');
+                    
+                    // Log paid vote
+                    const paidVoteLogRef = push(ref(db, 'voteLogs'));
+                    await set(paidVoteLogRef, {
+                        email: currentUser.email,
+                        name: currentUser.fullName,
+                        category: pendingVote.category,
+                        nominee: pendingVote.nominee,
+                        timestamp: Date.now(),
+                        ipAddress: userIPAddress || 'Unknown',
+                        device: userDevice || { browser: 'Unknown', type: 'Unknown', os: 'Unknown' },
+                        voteType: 'paid'
+                    });
                     
                     updateVoteUI();
                     
@@ -3050,11 +3405,21 @@ window.showMainApp = async function() {
             pendingConfirmVote = null;
         };
 
-        window.confirmVoteAction = function() {
+       window.confirmVoteAction = function() {
             if (pendingConfirmVote) {
+                // Check if user wants to skip future confirmations
+                const checkbox = document.getElementById('dontShowConfirmAgain');
+                if (checkbox && checkbox.checked) {
+                    skipConfirmation = true;
+                    try {
+                        localStorage.setItem('skipVoteConfirmation', 'true');
+                    } catch (e) {
+                        console.warn('Could not save confirmation preference');
+                    }
+                }
+                
                 const { category, nominee } = pendingConfirmVote;
                 closeConfirmModal();
-                // Call the actual vote function
                 executeVote(category, nominee);
             }
         };
