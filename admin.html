@@ -1125,7 +1125,7 @@
 
         async function logAction(action, success, extraData = {}) {
             try {
-                await set(ref(db, `adminLogs/${Date.now()}`), {
+                await set(ref(db, `securityLogs/${Date.now()}`), {
                     action,
                     timestamp: Date.now(),
                     success,
@@ -1498,7 +1498,7 @@
         }
 
         function loadSecurityLogs() {
-            const logsRef = ref(db, 'adminLogs');
+            const logsRef = ref(db, 'securityLogs');
             const logsUnsubscribe = onValue(logsRef, (snapshot) => {
                 const logsContainer = document.getElementById('securityLogs');
                 
