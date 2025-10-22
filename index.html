@@ -1618,6 +1618,65 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
+.btn-dismiss-undo {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: 1px solid white;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-dismiss-undo:hover {
+            background: white;
+            color: #f57c00;
+            transform: scale(1.05);
+        }
+
+        .voting-blocked-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(2px);
+            z-index: 9998;
+            display: none;
+            pointer-events: all; /* ⭐ CHANGED from none to all */
+            cursor: not-allowed; /* ⭐ ADDED */
+        }
+
+      .voting-blocked-overlay.active {
+            display: block;
+        }
+
+        /* ⭐ Toast Animation */
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -20px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUpAnim {
+            from {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+            to {
+                transform: translate(-50%, -20px);
+                opacity: 0;
+            }
+        }
+
         @media (max-width: 480px) {
             .undo-banner {
                 bottom: 10px;
@@ -1633,14 +1692,19 @@
 <body>
     <!-- Confetti Container -->
     <div id="confettiContainer" class="confetti-container"></div>
+    <!-- Voting Blocked Overlay -->
+    <div id="votingBlockedOverlay" class="voting-blocked-overlay"></div>
 
 <!-- Undo Banner -->
     <div id="undoBanner" class="undo-banner">
         <div class="undo-info">
             <div class="undo-title">Vote Recorded!</div>
-            <div class="undo-subtitle"><span id="undoTimeLeft">2:00</span> to undo</div>
+            <div class="undo-subtitle"><span id="undoTimeLeft">0:30</span> to undo</div>
         </div>
-        <button class="btn-undo" onclick="undoLastVote()">↩️ Undo</button>
+        <div style="display: flex; gap: 0.5rem;">
+            <button class="btn-undo" onclick="undoLastVote()">↩️ Undo</button>
+            <button class="btn-dismiss-undo" onclick="dismissUndo()">Continue ✓</button>
+        </div>
     </div>
 
     <div id="homePage" class="container">
@@ -2170,9 +2234,11 @@ loadCategories();
         } catch (e) {
             console.warn('Could not load confirmation preference');
         }
-        // Undo feature variables
+       // Undo feature variables
         let recentVotes = {}; // Store votes with timestamps
-        const UNDO_TIME_WINDOW = 2 * 60 * 1000; // 2 minutes in milliseconds
+        const UNDO_TIME_WINDOW = 30 * 1000; // 30 seconds in milliseconds
+        let undoTimerActive = false; // Block voting during undo window
+        let currentUndoTimer = null; // Store timer reference
         let allVotes = {};
         let studentsLoaded = false; // ADD THIS LINE
         
@@ -2410,39 +2476,117 @@ loadCategories();
             document.addEventListener(event, trackActivity, true);
         });
 
-        // Undo functionality
-        function showUndoBanner(category, nominee) {
-            const banner = document.getElementById('undoBanner');
-            const timeLeftSpan = document.getElementById('undoTimeLeft');
-            
-            banner.classList.add('show');
+       // Undo functionality
+            function showUndoBanner(category, nominee) {
+        const banner = document.getElementById('undoBanner');
+        const timeLeftSpan = document.getElementById('undoTimeLeft');
+        const overlay = document.getElementById('votingBlockedOverlay');
+        
+        // ⭐ UPDATED: Block ALL voting during undo
+        undoTimerActive = true;
+        banner.classList.add('show');
+        overlay.classList.add('active');
+        
+            // Disable all vote buttons
+            document.querySelectorAll('.btn-vote').forEach(btn => {
+                if (!btn.classList.contains('voted')) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                }
+            });
             
             let timeLeft = UNDO_TIME_WINDOW;
             const interval = setInterval(() => {
                 timeLeft -= 1000;
-                const minutes = Math.floor(timeLeft / 60000);
-                const seconds = Math.floor((timeLeft % 60000) / 1000);
-                timeLeftSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                const seconds = Math.floor(timeLeft / 1000);
+                timeLeftSpan.textContent = `0:${seconds.toString().padStart(2, '0')}`;
                 
                 if (timeLeft <= 0) {
                     clearInterval(interval);
-                    banner.classList.remove('show');
-                    delete recentVotes[category];
+                    finishUndoWindow(category);
                 }
             }, 1000);
             
-            // Store interval ID for cleanup
             recentVotes[category].intervalId = interval;
+            currentUndoTimer = interval;
             
-            // Auto-hide after time window
-            setTimeout(() => {
-                banner.classList.remove('show');
-                delete recentVotes[category];
+            const timeout = setTimeout(() => {
+                finishUndoWindow(category);
             }, UNDO_TIME_WINDOW);
+            
+            recentVotes[category].timeoutId = timeout;
         }
 
-        window.undoLastVote = async function() {
-            const lastVote = Object.keys(recentVotes).pop();
+        function finishUndoWindow(category) {
+        const banner = document.getElementById('undoBanner');
+        const overlay = document.getElementById('votingBlockedOverlay');
+        
+        banner.classList.remove('show');
+        overlay.classList.remove('active');
+        undoTimerActive = false;
+        
+        // ⭐ UPDATED: Re-enable all vote buttons
+        document.querySelectorAll('.btn-vote').forEach(btn => {
+            if (!btn.classList.contains('voted') && !votingLocked) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            }
+        });
+        
+        if (recentVotes[category]) {
+            if (recentVotes[category].intervalId) {
+                clearInterval(recentVotes[category].intervalId);
+            }
+            if (recentVotes[category].timeoutId) {
+                clearTimeout(recentVotes[category].timeoutId);
+            }
+            delete recentVotes[category];
+        }
+        
+        currentUndoTimer = null;
+    }
+
+        // ⭐ NEW: Show temporary notification
+       function showToast(message, duration = 2000) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #333;
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 0.5rem;
+                z-index: 10001;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: slideDown 0.3s ease;
+                font-weight: 500;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideUpAnim 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+    
+        window.dismissUndo = function() {
+            const activeCategory = Object.keys(recentVotes)[0];
+            
+            if (!activeCategory) return;
+            
+            // ⭐ IMPROVED: Better confirmation message
+            if (confirm('✅ Continue Voting?\n\nYou won\'t be able to undo this vote.\n\nAre you sure you want to continue?')) {
+                finishUndoWindow(activeCategory);
+            }
+        };
+
+      window.undoLastVote = async function() {
+            const lastVote = Object.keys(recentVotes)[0]; // Changed from .pop() to [0]
             if (!lastVote) return;
             
             const voteData = recentVotes[lastVote];
@@ -2450,8 +2594,7 @@ loadCategories();
             
             if (now - voteData.timestamp > UNDO_TIME_WINDOW) {
                 alert('⏰ Undo time window has expired');
-                delete recentVotes[lastVote];
-                document.getElementById('undoBanner').classList.remove('show');
+                finishUndoWindow(lastVote);
                 return;
             }
             
@@ -2498,13 +2641,8 @@ loadCategories();
                     voteType: 'undo'
                 });
                 
-                // Clear undo timer
-                if (voteData.intervalId) {
-                    clearInterval(voteData.intervalId);
-                }
-                
-                delete recentVotes[lastVote];
-                document.getElementById('undoBanner').classList.remove('show');
+               // Clean up undo window
+                finishUndoWindow(lastVote);
                 
                 updateVoteUI();
                 renderCategories();
@@ -2513,6 +2651,8 @@ loadCategories();
             } catch (error) {
                 console.error('Error undoing vote:', error);
                 alert('❌ Error undoing vote. Please try again.');
+                // Still clean up on error
+                finishUndoWindow(lastVote);
             }
         };
 
@@ -2960,17 +3100,23 @@ window.showMainApp = async function() {
             cards[idx].classList.toggle('expanded');
         };
 
-        window.handleVote = async function(category, nominee) {
+       window.handleVote = async function(category, nominee) {
             const rateCheck = checkRateLimit('vote');
-            if (!rateCheck.allowed) {
-                alert('🚫 ' + rateCheck.message);
-                return;
-            }
+        if (!rateCheck.allowed) {
+            alert('🚫 ' + rateCheck.message);
+            return;
+        }
 
-            if (votingLocked) {
-                alert('Voting is currently locked by admin');
-                return;
-            }
+        if (votingLocked) {
+            alert('Voting is currently locked by admin');
+            return;
+        }
+
+        // ⭐ Block voting during undo window
+        if (undoTimerActive) {
+            showToast('⏳ Undo window active - please wait or dismiss');
+            return;
+        }
 
             const hasVotedInCategory = userVotes[category] !== undefined;
             
