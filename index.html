@@ -1618,65 +1618,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
-.btn-dismiss-undo {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            border: 1px solid white;
-            padding: 0.5rem 1rem;
-            border-radius: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .btn-dismiss-undo:hover {
-            background: white;
-            color: #f57c00;
-            transform: scale(1.05);
-        }
-
-        .voting-blocked-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(2px);
-            z-index: 9998;
-            display: none;
-            pointer-events: all; /* ⭐ CHANGED from none to all */
-            cursor: not-allowed; /* ⭐ ADDED */
-        }
-
-      .voting-blocked-overlay.active {
-            display: block;
-        }
-
-        /* ⭐ Toast Animation */
-        @keyframes slideDown {
-            from {
-                transform: translate(-50%, -20px);
-                opacity: 0;
-            }
-            to {
-                transform: translate(-50%, 0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUpAnim {
-            from {
-                transform: translate(-50%, 0);
-                opacity: 1;
-            }
-            to {
-                transform: translate(-50%, -20px);
-                opacity: 0;
-            }
-        }
-
         @media (max-width: 480px) {
             .undo-banner {
                 bottom: 10px;
@@ -1692,19 +1633,14 @@
 <body>
     <!-- Confetti Container -->
     <div id="confettiContainer" class="confetti-container"></div>
-    <!-- Voting Blocked Overlay -->
-    <div id="votingBlockedOverlay" class="voting-blocked-overlay"></div>
 
 <!-- Undo Banner -->
     <div id="undoBanner" class="undo-banner">
         <div class="undo-info">
             <div class="undo-title">Vote Recorded!</div>
-            <div class="undo-subtitle"><span id="undoTimeLeft">0:30</span> to undo</div>
+            <div class="undo-subtitle"><span id="undoTimeLeft">2:00</span> to undo</div>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
-            <button class="btn-undo" onclick="undoLastVote()">↩️ Undo</button>
-            <button class="btn-dismiss-undo" onclick="dismissUndo()">Continue ✓</button>
-        </div>
+        <button class="btn-undo" onclick="undoLastVote()">↩️ Undo</button>
     </div>
 
     <div id="homePage" class="container">
@@ -1977,7 +1913,7 @@
         </div>
     </div>
 
-    <button class="admin-btn" title="Admin Panel" onclick="showAdminWarning()">⚙️</button>
+   <button id="adminBtn" class="admin-btn hidden" title="Admin Panel" onclick="showAdminWarning()">⚙️</button>
 
     
 
@@ -2214,12 +2150,20 @@ loadCategories();
             }
         });
 
+       // Admin configuration
+        const ADMIN_EMAILS = {
+            'stephen@bi-okoto.com': 'superadmin',  // ← Replace with YOUR actual email
+            'Fareedahdaibumohammed2007@gmail.com': 'admin'           // ← Replace with FACILITATOR's actual email
+        };
+
         let currentUser = { name: '', email: '', fullName: '' };
         let userVotes = {};
-        window.TOTAL_CATEGORIES = 18; // Changed to window.TOTAL_CATEGORIES for dynamic updates
+        window.TOTAL_CATEGORIES = 18;
         let extraVotesPurchased = 0;
         let pendingVote = null;
         let votingLocked = false;
+        let currentUserRole = null; // ← NEW: Track user's admin role
+
 // Session timeout variables
         let sessionTimeout = null;
         let lastActivityTime = Date.now();
@@ -2234,11 +2178,9 @@ loadCategories();
         } catch (e) {
             console.warn('Could not load confirmation preference');
         }
-       // Undo feature variables
+        // Undo feature variables
         let recentVotes = {}; // Store votes with timestamps
-        const UNDO_TIME_WINDOW = 30 * 1000; // 30 seconds in milliseconds
-        let undoTimerActive = false; // Block voting during undo window
-        let currentUndoTimer = null; // Store timer reference
+        const UNDO_TIME_WINDOW = 2 * 60 * 1000; // 2 minutes in milliseconds
         let allVotes = {};
         let studentsLoaded = false; // ADD THIS LINE
         
@@ -2358,6 +2300,10 @@ loadCategories();
             document.getElementById('homePage').classList.remove('hidden');
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('mainApp').classList.add('hidden');
+            
+            // Hide admin button on home page
+            const adminBtn = document.getElementById('adminBtn');
+            if (adminBtn) adminBtn.classList.add('hidden');
         };
 
         // ADD THIS NEW FUNCTION 👇
@@ -2371,6 +2317,13 @@ loadCategories();
                 .replace(/\]/g, '_rb_')
                 .replace(/\//g, '_slash_')
                 .replace(/#/g, '_hash_');
+        };
+
+        // Check if current user is admin and get their role
+        window.checkAdminRole = function(email) {
+            if (!email) return null;
+            const normalizedEmail = email.toLowerCase().trim();
+            return ADMIN_EMAILS[normalizedEmail] || null;
         };
 
         // IP and Device Detection
@@ -2476,185 +2429,112 @@ loadCategories();
             document.addEventListener(event, trackActivity, true);
         });
 
-       // Undo functionality
-            function showUndoBanner(category, nominee) {
-        const banner = document.getElementById('undoBanner');
-        const timeLeftSpan = document.getElementById('undoTimeLeft');
-        const overlay = document.getElementById('votingBlockedOverlay');
-        
-        // ⭐ UPDATED: Block ALL voting during undo
-        undoTimerActive = true;
-        banner.classList.add('show');
-        overlay.classList.add('active');
-        
-            // Disable all vote buttons
-            document.querySelectorAll('.btn-vote').forEach(btn => {
-                if (!btn.classList.contains('voted')) {
-                    btn.disabled = true;
-                    btn.style.opacity = '0.5';
-                    btn.style.cursor = 'not-allowed';
-                }
-            });
+        // Undo functionality
+        function showUndoBanner(category, nominee) {
+            const banner = document.getElementById('undoBanner');
+            const timeLeftSpan = document.getElementById('undoTimeLeft');
+            
+            banner.classList.add('show');
             
             let timeLeft = UNDO_TIME_WINDOW;
             const interval = setInterval(() => {
                 timeLeft -= 1000;
-                const seconds = Math.floor(timeLeft / 1000);
-                timeLeftSpan.textContent = `0:${seconds.toString().padStart(2, '0')}`;
+                const minutes = Math.floor(timeLeft / 60000);
+                const seconds = Math.floor((timeLeft % 60000) / 1000);
+                timeLeftSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
                 
                 if (timeLeft <= 0) {
                     clearInterval(interval);
-                    finishUndoWindow(category);
+                    banner.classList.remove('show');
+                    delete recentVotes[category];
                 }
             }, 1000);
             
+            // Store interval ID for cleanup
             recentVotes[category].intervalId = interval;
-            currentUndoTimer = interval;
             
-            const timeout = setTimeout(() => {
-                finishUndoWindow(category);
+            // Auto-hide after time window
+            setTimeout(() => {
+                banner.classList.remove('show');
+                delete recentVotes[category];
             }, UNDO_TIME_WINDOW);
-            
-            recentVotes[category].timeoutId = timeout;
         }
 
-        function finishUndoWindow(category) {
-        const banner = document.getElementById('undoBanner');
-        const overlay = document.getElementById('votingBlockedOverlay');
+       window.undoLastVote = async function() {
+    const voteKeys = Object.keys(recentVotes);
+    if (voteKeys.length === 0) return;
+    const lastVote = voteKeys[voteKeys.length - 1];
+    
+    const voteData = recentVotes[lastVote];
+    const now = Date.now();
+    
+    if (now - voteData.timestamp > UNDO_TIME_WINDOW) {
+        alert('⏰ Undo time window has expired');
+        delete recentVotes[lastVote];
+        document.getElementById('undoBanner').classList.remove('show');
+        return;
+    }
+    
+    if (!confirm(`Undo your vote for "${voteData.nominee}" in "${lastVote}"?`)) {
+        return;
+    }
+    
+    try {
+        // Remove vote from user's votes
+        delete userVotes[lastVote];
         
-        banner.classList.remove('show');
-        overlay.classList.remove('active');
-        undoTimerActive = false;
-        
-        // ⭐ UPDATED: Re-enable all vote buttons
-        document.querySelectorAll('.btn-vote').forEach(btn => {
-            if (!btn.classList.contains('voted') && !votingLocked) {
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-            }
+        const emailKey = window.sanitizeEmail(currentUser.email);
+        await set(ref(db, `userVotes/${emailKey}`), {
+            votes: userVotes,
+            extraVotes: extraVotesPurchased,
+            fullName: currentUser.fullName,
+            lastVote: Date.now()
         });
         
-        if (recentVotes[category]) {
-            if (recentVotes[category].intervalId) {
-                clearInterval(recentVotes[category].intervalId);
-            }
-            if (recentVotes[category].timeoutId) {
-                clearTimeout(recentVotes[category].timeoutId);
-            }
-            delete recentVotes[category];
+        // Decrement vote count
+        const voteRef = ref(db, `categoryVotes/${lastVote}/${voteData.nominee}`);
+        const snapshot = await get(voteRef);
+        const currentVotes = snapshot.exists() ? snapshot.val() : 0;
+        await set(voteRef, Math.max(0, currentVotes - 1));
+        
+        // Update student vote count
+        const votesCount = Object.keys(userVotes).length;
+        await update(ref(db, `students/${emailKey}`), {
+            votesCount: votesCount,
+            hasVoted: votesCount > 0,
+            lastActivity: Date.now()
+        });
+        
+        // Log undo action
+        const undoLogRef = push(ref(db, 'voteLogs'));
+        await set(undoLogRef, {
+            email: currentUser.email,
+            name: currentUser.fullName,
+            category: lastVote,
+            nominee: voteData.nominee,
+            timestamp: Date.now(),
+            ipAddress: userIPAddress || 'Unknown',
+            device: userDevice || {},
+            voteType: 'undo'
+        });
+        
+        // Clear undo timer
+        if (voteData.intervalId) {
+            clearInterval(voteData.intervalId);
         }
         
-        currentUndoTimer = null;
+        delete recentVotes[lastVote];
+        document.getElementById('undoBanner').classList.remove('show');
+        
+        updateVoteUI();
+        renderCategories();
+        
+        alert('✅ Vote successfully undone!');
+    } catch (error) {
+        console.error('Error undoing vote:', error);
+        alert('❌ Error undoing vote. Please try again.');
     }
-
-        // ⭐ NEW: Show temporary notification
-       function showToast(message, duration = 2000) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 80px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #333;
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 0.5rem;
-                z-index: 10001;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                animation: slideDown 0.3s ease;
-                font-weight: 500;
-            `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.animation = 'slideUpAnim 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, duration);
-        }
-    
-        window.dismissUndo = function() {
-            const activeCategory = Object.keys(recentVotes)[0];
-            
-            if (!activeCategory) return;
-            
-            // ⭐ IMPROVED: Better confirmation message
-            if (confirm('✅ Continue Voting?\n\nYou won\'t be able to undo this vote.\n\nAre you sure you want to continue?')) {
-                finishUndoWindow(activeCategory);
-            }
-        };
-
-      window.undoLastVote = async function() {
-            const lastVote = Object.keys(recentVotes)[0]; // Changed from .pop() to [0]
-            if (!lastVote) return;
-            
-            const voteData = recentVotes[lastVote];
-            const now = Date.now();
-            
-            if (now - voteData.timestamp > UNDO_TIME_WINDOW) {
-                alert('⏰ Undo time window has expired');
-                finishUndoWindow(lastVote);
-                return;
-            }
-            
-            if (!confirm(`Undo your vote for "${voteData.nominee}" in "${lastVote}"?`)) {
-                return;
-            }
-            
-            try {
-                // Remove vote from user's votes
-                delete userVotes[lastVote];
-                
-                const emailKey = window.sanitizeEmail(currentUser.email);
-                await set(ref(db, `userVotes/${emailKey}`), {
-                    votes: userVotes,
-                    extraVotes: extraVotesPurchased,
-                    fullName: currentUser.fullName,
-                    lastVote: Date.now()
-                });
-                
-                // Decrement vote count
-                const voteRef = ref(db, `categoryVotes/${lastVote}/${voteData.nominee}`);
-                const snapshot = await get(voteRef);
-                const currentVotes = snapshot.exists() ? snapshot.val() : 0;
-                await set(voteRef, Math.max(0, currentVotes - 1));
-                
-                // Update student vote count
-                const votesCount = Object.keys(userVotes).length;
-                await update(ref(db, `students/${emailKey}`), {
-                    votesCount: votesCount,
-                    hasVoted: votesCount > 0,
-                    lastActivity: Date.now()
-                });
-                
-                // Log undo action
-                const undoLogRef = push(ref(db, 'voteLogs'));
-                await set(undoLogRef, {
-                    email: currentUser.email,
-                    name: currentUser.fullName,
-                    category: lastVote,
-                    nominee: voteData.nominee,
-                    timestamp: Date.now(),
-                    ipAddress: userIPAddress || 'Unknown',
-                    device: userDevice || {},
-                    voteType: 'undo'
-                });
-                
-               // Clean up undo window
-                finishUndoWindow(lastVote);
-                
-                updateVoteUI();
-                renderCategories();
-                
-                alert('✅ Vote successfully undone!');
-            } catch (error) {
-                console.error('Error undoing vote:', error);
-                alert('❌ Error undoing vote. Please try again.');
-                // Still clean up on error
-                finishUndoWindow(lastVote);
-            }
-        };
+};
 
         window.findMatchingStudent = function(input) {
             if (registeredStudents.length === 0) {
@@ -2678,18 +2558,30 @@ loadCategories();
             return null;
         };
 
-       window.showLogin = function() {
+      window.showLogin = function() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('mainApp').classList.add('hidden');
+            
+            // Hide admin button on login page
+            const adminBtn = document.getElementById('adminBtn');
+            if (adminBtn) adminBtn.classList.add('hidden');
         };
 
-window.showMainApp = async function() {
+        window.showMainApp = async function() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('loginPage').classList.add('hidden');
             // Start session timeout
             resetSessionTimeout();
             document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Show admin button only for admins
+            const adminBtn = document.getElementById('adminBtn');
+            if (currentUserRole) {
+                adminBtn.classList.remove('hidden');
+            } else {
+                adminBtn.classList.add('hidden');
+            }
             
             // Show skeleton immediately
             showCategorySkeleton();
@@ -2855,7 +2747,13 @@ window.showMainApp = async function() {
                     hasVoted: false
                 });
                 
-                console.log('✅ Student data saved to Firebase:', emailKey);
+              console.log('✅ Student data saved to Firebase:', emailKey);
+                
+                // Check if user is admin
+                currentUserRole = window.checkAdminRole(email);
+                if (currentUserRole) {
+                    console.log('🔐 Admin detected:', currentUserRole);
+                }
                 
                 showMainApp();
             } catch (error) {
@@ -2930,7 +2828,7 @@ window.showMainApp = async function() {
             });
         }
 
-        window.handleLogout = async function() {
+       window.handleLogout = async function() {
             if (confirm('Are you sure you want to logout? Your votes are saved and you can resume anytime.')) {
                 const emailKey = window.sanitizeEmail(currentUser.email);
                 await update(ref(db, `students/${emailKey}`), {
@@ -2939,6 +2837,7 @@ window.showMainApp = async function() {
                 });
                 
                 currentUser = { name: '', email: '', fullName: '' };
+                currentUserRole = null; // ← ADDED: Clear admin role
                 userVotes = {};
                 extraVotesPurchased = 0;
                 document.getElementById('nameInput').value = '';
@@ -3100,23 +2999,17 @@ window.showMainApp = async function() {
             cards[idx].classList.toggle('expanded');
         };
 
-       window.handleVote = async function(category, nominee) {
+        window.handleVote = async function(category, nominee) {
             const rateCheck = checkRateLimit('vote');
-        if (!rateCheck.allowed) {
-            alert('🚫 ' + rateCheck.message);
-            return;
-        }
+            if (!rateCheck.allowed) {
+                alert('🚫 ' + rateCheck.message);
+                return;
+            }
 
-        if (votingLocked) {
-            alert('Voting is currently locked by admin');
-            return;
-        }
-
-        // ⭐ Block voting during undo window
-        if (undoTimerActive) {
-            showToast('⏳ Undo window active - please wait or dismiss');
-            return;
-        }
+            if (votingLocked) {
+                alert('Voting is currently locked by admin');
+                return;
+            }
 
             const hasVotedInCategory = userVotes[category] !== undefined;
             
@@ -3621,38 +3514,33 @@ window.showMainApp = async function() {
 
         // ADD ADMIN WARNING FUNCTION 👇
         window.showAdminWarning = function() {
-            const isAdmin = confirm(
-                '🔐 ADMIN ACCESS\n\n' +
-                'This section is restricted to authorized administrators only.\n\n' +
-                'Unauthorized access may result in:\n' +
-                '• Account suspension\n' +
-                '• Loss of voting privileges\n' +
-                '• Disciplinary action\n\n' +
-                'Are you an authorized administrator?'
+            // Only allow access if user has admin role
+            if (!currentUserRole) {
+                alert('❌ Access Denied\n\nYou do not have administrator privileges.');
+                
+                // Log unauthorized attempt
+                const emailKey = window.sanitizeEmail(currentUser.email);
+                const attemptRef = push(ref(db, 'securityLogs/unauthorizedAdminAttempt'));
+                set(attemptRef, {
+                    email: currentUser.email,
+                    name: currentUser.fullName,
+                    timestamp: Date.now(),
+                    userAgent: navigator.userAgent
+                });
+                return;
+            }
+            
+            // Confirm admin wants to proceed
+            const proceed = confirm(
+                `🔐 ADMIN ACCESS\n\n` +
+                `Role: ${currentUserRole.toUpperCase()}\n` +
+                `Email: ${currentUser.email}\n\n` +
+                `Proceed to admin panel?`
             );
             
-            if (isAdmin) {
-                const password = prompt('Enter admin password:');
-                
-                // You should verify this against Firebase
-                // For now, just a simple check (CHANGE THIS IN PRODUCTION!)
-                if (password === 'D2025A' || password === 'D2025A') {
-                    window.location.href = 'admin.html';
-                } else {
-                    alert('❌ Incorrect password. Access denied.\n\nThis attempt has been logged.');
-                    
-                    // Log the failed attempt
-                    if (currentUser.email) {
-                        const emailKey = window.sanitizeEmail(currentUser.email);
-                        const attemptRef = push(ref(db, 'securityLogs/failedAdminAccess'));
-                        set(attemptRef, {
-                            email: currentUser.email,
-                            name: currentUser.fullName,
-                            timestamp: Date.now(),
-                            userAgent: navigator.userAgent
-                        });
-                    }
-                }
+            if (proceed) {
+                // Pass role to admin page via URL parameter
+                window.location.href = `admin.html?role=${currentUserRole}&email=${encodeURIComponent(currentUser.email)}`;
             }
         };
 
