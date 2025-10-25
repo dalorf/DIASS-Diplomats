@@ -805,22 +805,48 @@
             }
         }
 
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        
     </style>
 </head>
 <body>
-    <div id="adminLogin" class="admin-login">
+        <div id="adminLogin" class="admin-login">
         <div class="login-card">
-            <div class="login-icon">🔒</div>
-            <h2 class="login-title">Admin Access</h2>
-            <p class="login-subtitle">Enter admin password to continue</p>
-            <div class="form-group">
-                <label for="passwordInput">Password</label>
-                <input type="password" id="passwordInput" placeholder="Enter admin password" autocomplete="current-password">
-                <div class="error-message" id="passwordError">Incorrect password</div>
+            <div class="login-icon">🔄</div>
+            <h2 class="login-title">Verifying Access...</h2>
+            <p class="login-subtitle">Please wait while we verify your credentials</p>
+            <div style="text-align: center; margin-top: 2rem;">
+                <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1e88e5; border-radius: 50%; animation: spin 1s linear infinite;"></div>
             </div>
-            <button class="btn-primary" onclick="handleAdminLogin()">Access Dashboard</button>
         </div>
     </div>
+
+    <style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
 
     <div id="adminDashboard" class="admin-dashboard container">
         <div class="dashboard-header">
@@ -854,9 +880,9 @@
         <div class="action-buttons">
             <button class="btn-action btn-export" onclick="exportResults()">📥 Export Results (CSV)</button>
             <button class="btn-action btn-lock" onclick="toggleVoting()" id="lockBtn">🔒 Lock Voting</button>
-            <button class="btn-action" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white;" onclick="changeAdminPassword()">🔑 Change Password</button>
-            <button class="btn-action" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;" onclick="showAddStudentModal()">➕ Add Student</button>
-            <button class="btn-action btn-reset" onclick="resetVotes()">🔄 Reset All Votes</button>
+            <button class="btn-action" id="changePasswordBtn" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white;" onclick="changeAdminPassword()">🔑 Change Password</button>
+            <button class="btn-action" id="addStudentBtn" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;" onclick="showAddStudentModal()">➕ Add Student</button>
+            <button class="btn-action btn-reset" id="resetVotesBtn" onclick="resetVotes()">🔄 Reset All Votes</button>
         </div>
 
         <div class="section-card">
@@ -1007,7 +1033,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, remove, push, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getAuth, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD1tYPF1ZlGAe7gzXxlo6rjw2QMeaZ_MHo",
@@ -1090,38 +1116,202 @@
             }
         }
 
-       window.handleAdminLogin = async function() {
-            const passwordInput = document.getElementById('passwordInput');
-            const errorMsg = document.getElementById('passwordError');
-            let password = sanitizeInput(passwordInput.value);
-            errorMsg.classList.remove('show');
+       // Verify admin session on page load
+async function verifyAdminAccess() {
+    try {
+        // Get session data
+        const adminAuthStr = sessionStorage.getItem('adminAuth');
+        
+        if (!adminAuthStr) {
+            showAccessDenied('No admin session found. Please login through the main app.');
+            return;
+        }
+        
+        const adminAuth = JSON.parse(adminAuthStr);
+        
+        // Check session age (max 1 hour)
+        const sessionAge = Date.now() - adminAuth.timestamp;
+        if (sessionAge > 3600000) {
+            sessionStorage.removeItem('adminAuth');
+            showAccessDenied('Session expired. Please login again through the main app.');
+            return;
+        }
+        
+        // Sign in anonymously and WAIT for auth to be ready
+        await signInAnonymously(auth);
 
-            if (!password || password.length < 6) {
-                errorMsg.textContent = 'Password must be at least 6 characters';
-                errorMsg.classList.add('show');
-                return;
-            }
-
-            // Use Firebase Auth with a fixed admin email
-            const adminEmail = "admin@diploma2awards.com";
-
-            try {
-                await signInWithEmailAndPassword(auth, adminEmail, password);
-                // Success - onAuthStateChanged will handle the rest
-            } catch (error) {
-                console.error('Login error:', error);
-                await logAction('login_failed', false);
-                
-                if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                    errorMsg.textContent = 'Incorrect password';
-                } else if (error.code === 'auth/too-many-requests') {
-                    errorMsg.textContent = '🚫 Too many failed attempts. Try again later.';
-                } else {
-                    errorMsg.textContent = '❌ Connection error';
+        // Wait for auth state to be confirmed
+        await new Promise((resolve) => {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    unsubscribe();
+                    resolve();
                 }
-                errorMsg.classList.add('show');
-            }
+            });
+        });
+
+        console.log('✅ Firebase authentication ready');
+
+        // ✅ FIX: Verify using EMAIL instead of UID
+        const emailKey = adminAuth.email.toLowerCase().replace(/\./g, ',');
+        const adminCheck = await get(ref(db, `adminEmails/${emailKey}`));
+        
+        if (!adminCheck.exists()) {
+            sessionStorage.removeItem('adminAuth');
+            showAccessDenied('Access denied. Your account does not have admin privileges.');
+            return;
+        }
+        
+        const dbRole = adminCheck.val();
+        
+        // Verify role matches
+        if (dbRole !== adminAuth.role) {
+            sessionStorage.removeItem('adminAuth');
+            showAccessDenied('Role mismatch detected. Please login again.');
+            return;
+        }
+        
+        // Store current admin info
+        window.currentAdmin = {
+            uid: adminAuth.uid,
+            email: adminAuth.email,
+            role: dbRole
         };
+        
+       console.log('✅ Admin verified:', window.currentAdmin);
+        
+        // Show dashboard
+        document.getElementById('adminLogin').style.display = 'none';
+        document.getElementById('adminDashboard').classList.add('active');
+        
+        // Show welcome notification
+        showWelcomeNotification(adminAuth.email, dbRole);
+        
+        // Log successful access
+        await logAction('admin_access', true, { role: dbRole });
+        
+        // Load dashboard data
+        await initializeCategories();
+        loadDashboardData();
+        
+        // Apply role restrictions
+        applyRoleRestrictions(dbRole);
+        
+    } catch (error) {
+        console.error('❌ Admin verification error:', error);
+        showAccessDenied('Verification failed: ' + error.message);
+    }
+}
+
+function showAccessDenied(message) {
+    document.getElementById('adminLogin').innerHTML = `
+        <div class="login-card" style="text-align: center;">
+            <div class="login-icon" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">🚫</div>
+            <h2 class="login-title">Access Denied</h2>
+            <p class="login-subtitle">${message}</p>
+            <button class="btn-primary" onclick="window.location.href='index.html'" style="margin-top: 1.5rem;">
+                ← Return to Main App
+            </button>
+        </div>
+    `;
+}
+
+            // Apply role-based restrictions
+            function applyRoleRestrictions(role) {
+                if (role === 'admin') {
+                    // Hide dangerous buttons for regular admin
+                    const dangerousButtons = [
+                        document.getElementById('changePasswordBtn'),
+                        document.getElementById('addStudentBtn'),
+                        document.getElementById('resetVotesBtn')
+                    ];
+                    
+                    dangerousButtons.forEach(btn => {
+                        if (btn) {
+                            btn.style.display = 'none';
+                        }
+                    });
+                    
+                    // Make voting lock button read-only for admin
+                    const lockBtn = document.getElementById('lockBtn');
+                    if (lockBtn) {
+                        lockBtn.disabled = true;
+                        lockBtn.style.opacity = '0.6';
+                        lockBtn.title = 'Only superadmin can lock/unlock voting';
+                    }
+                    
+                    // Hide all export buttons
+                    document.querySelectorAll('.btn-export').forEach(btn => {
+                        btn.style.display = 'none';
+                    });
+                    
+                    // Hide all edit/delete buttons after page loads
+                    setTimeout(() => {
+                        document.querySelectorAll('.btn-small, .btn-delete').forEach(btn => {
+                            btn.style.display = 'none';
+                        });
+                    }, 1000);
+                    
+                    // Add READ ONLY badge
+                    const title = document.querySelector('.dashboard-title');
+                    if (title && !title.querySelector('.read-only-badge')) {
+                        const badge = document.createElement('span');
+                        badge.className = 'read-only-badge';
+                        badge.style.cssText = 'background: #ff9800; color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; margin-left: 0.5rem;';
+                        badge.textContent = '👁️ READ ONLY';
+                        title.appendChild(badge);
+                    }
+                    
+                    console.log('🔒 Read-only mode enabled for admin');
+                } else {
+                    console.log('🔓 Full access granted for superadmin');
+                }
+            }
+
+        function showWelcomeNotification(email, role) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                padding: 1.5rem;
+                border-radius: 1rem;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                z-index: 9999;
+                max-width: 350px;
+                border-left: 5px solid ${role === 'superadmin' ? '#4caf50' : '#ff9800'};
+                animation: slideIn 0.3s ease;
+            `;
+            
+            const roleIcon = role === 'superadmin' ? '👑' : '👁️';
+            const roleText = role === 'superadmin' ? 'Superadmin' : 'Read-Only Admin';
+            const roleColor = role === 'superadmin' ? '#4caf50' : '#ff9800';
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
+                    <div style="font-size: 2rem;">${roleIcon}</div>
+                    <div>
+                        <div style="font-weight: bold; font-size: 1.1rem; color: #333;">Welcome Back!</div>
+                        <div style="color: #666; font-size: 0.85rem; margin-top: 0.25rem;">${email}</div>
+                    </div>
+                </div>
+                <div style="background: ${roleColor}15; padding: 0.75rem; border-radius: 0.5rem; margin-top: 0.75rem;">
+                    <div style="color: ${roleColor}; font-weight: 600; font-size: 0.9rem;">
+                        ${roleIcon} Logged in as ${roleText}
+                    </div>
+                    ${role === 'admin' ? '<div style="color: #666; font-size: 0.8rem; margin-top: 0.25rem;">View-only access • Cannot modify data</div>' : '<div style="color: #666; font-size: 0.8rem; margin-top: 0.25rem;">Full administrative access</div>'}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
 
         async function logAction(action, success, extraData = {}) {
             try {
@@ -1137,34 +1327,35 @@
         }
 
        // Add this new function
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // User is signed in
-                document.getElementById('adminLogin').style.display = 'none';
-                document.getElementById('adminDashboard').classList.add('active');
-                await logAction('login', true);
-                await initializeCategories();
-                loadDashboardData();
-            } else {
-                // User is signed out
-                document.getElementById('adminLogin').style.display = 'flex';
-                document.getElementById('adminDashboard').classList.remove('active');
-            }
-        });
+        // Run verification when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    verifyAdminAccess();
+});
 
         window.handleLogout = async function() {
-            if (confirm('Logout from admin dashboard?')) {
-                try {
-                    await signOut(auth); // ADD THIS
-                    unsubscribers.forEach(unsub => unsub());
-                    unsubscribers = [];
-                    document.getElementById('passwordInput').value = '';
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    alert('Error logging out');
-                }
-            }
-        };
+    if (confirm('Logout from admin dashboard?')) {
+        try {
+            // Clear session
+            sessionStorage.removeItem('adminAuth');
+            
+            // Log logout
+            await logAction('admin_logout', true);
+            
+            // Unsubscribe from listeners
+            unsubscribers.forEach(unsub => unsub());
+            unsubscribers = [];
+            
+            // Sign out
+            await signOut(auth);
+            
+            // Redirect to main app
+            window.location.href = 'index.html';
+        } catch (error) {
+            console.error('Logout error:', error);
+            alert('Error logging out');
+        }
+    }
+};
 
         window.showAddStudentModal = function() {
             document.getElementById('addStudentModal').classList.add('active');
@@ -2037,15 +2228,6 @@
             }
         };
 
-        document.getElementById('passwordInput').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                handleAdminLogin();
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('passwordInput').focus();
-        });
     </script>
 </body>
 </html>
