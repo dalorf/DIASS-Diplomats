@@ -1687,6 +1687,28 @@
             }
         }
 
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1997,13 +2019,12 @@
             appId: "1:1093369035381:web:129a5fb1b1a029efa3963c"
         };
 
-        let app, db;
+        let app, db, auth; // 👈 ADD auth HERE
 
-       try {
+        try {
             app = initializeApp(firebaseConfig);
             db = getDatabase(app);
-            const auth = getAuth(app); // ADD THIS LINE
-            console.log('✅ Firebase initialized successfully');
+            auth = getAuth(app); // 👈 REMOVE 'const'
             
             // ADD THIS DEBUG CODE 👇
             console.log('🔍 Database URL:', firebaseConfig.databaseURL);
@@ -2011,37 +2032,62 @@
             
             // Connection will be tested via the onValue listener below
            console.log('🔌 Setting up connection monitoring...');
-            
-            // ADD THIS SECTION 👇
-            // Sign in anonymously for database access
-            signInAnonymously(auth)
-                .then(() => {
-                    console.log('✅ Signed in anonymously');
-                })
-                .catch((error) => {
-                    console.error('❌ Anonymous auth failed:', error);
-                    alert('Authentication failed. Please refresh the page.');
-                });
-            
-            // Monitor auth state
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    console.log('✅ User authenticated:', user.uid);
-                } else {
-                    console.warn('⚠️ User not authenticated');
-                }
-            });
-
         } catch (error) {
             console.error('❌ Firebase initialization error:', error);
-            alert('Failed to connect to database. Please refresh the page.');
-            throw error;
+            alert('Failed to connect to the database. Please refresh the page.');
+        };
+
+        // 👇 DEFINE ADMIN INITIALIZATION FUNCTION FIRST
+        async function initializeAdminEmails() {
+            try {
+                const adminEmailsRef = ref(db, 'adminEmails');
+                
+                // Always update to ensure correct format
+                console.log('🔐 Updating admin emails...');
+                
+                await set(adminEmailsRef, {
+                    'fareedahdaibumohammed2007@gmail,com': 'admin',  // ✅ Correct
+                    'stephen@bi-okoto,com': 'superadmin'              // ✅ Correct
+                });
+                
+                console.log('✅ Admin emails updated successfully');
+            } catch (error) {
+                console.error('❌ Failed to initialize admin emails:', error);
+            }
         }
 
-       // Connection monitoring will be added after imports are moved
+        // ADD THIS DEBUG CODE
+        console.log('🔍 Database URL:', firebaseConfig.databaseURL);
+        console.log('🔍 Database instance:', db);
+        console.log('🔌 Setting up connection monitoring...');
         
+        // Sign in anonymously for database access
+        signInAnonymously(auth)
+            .then(() => {
+                console.log('✅ Signed in anonymously');
+                initializeAdminEmails();  // Call the function
+                loadRegisteredStudents();
+                loadCategories();
+            })
+            .catch((error) => {
+                console.error('❌ Anonymous auth failed:', error);
+                alert('Authentication failed. Please refresh the page.');
+            });
+
+        // Monitor auth state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('✅ User authenticated:', user.uid);
+                if (registeredStudents.length === 0 && !studentsLoaded) {
+                    attemptLoadStudents();
+                }
+            } else {
+                console.warn('⚠️ User not authenticated');
+            }
+        });
+
        let isConnected = false;
-        
+
         // Monitor connection state with error handling
         const connectedRef = ref(db, '.info/connected');
         onValue(connectedRef, (snapshot) => {
@@ -2161,20 +2207,8 @@
         }
     }
 
-    // Initial load with retry
-    attemptLoadStudents();
-    
-    // Retry after 2 seconds if not loaded
-    setTimeout(() => {
-        if (!studentsLoaded) {
-            console.warn('⚠️ Students not loaded, retrying...');
-            attemptLoadStudents();
-        }
-    }, 2000);
-        
-
-        loadRegisteredStudents();
-            let categories = [];
+    // REMOVED: Don't load students here - wait for auth first
+    // Students will be loaded after authentication in onAuthStateChanged
 
 // Load categories from Firebase
 function loadCategories() {
@@ -2200,7 +2234,6 @@ function loadCategories() {
 }
 
 // Call this after Firebase initializes
-loadCategories();
 
         // ADD THIS VOTING LOCK LISTENER HERE 👇
         const settingsRef = ref(db, 'settings/votingLocked');
@@ -2218,7 +2251,7 @@ loadCategories();
        // Admin configuration
         const ADMIN_EMAILS = {
             'stephen@bi-okoto.com': 'superadmin',  // ← Replace with YOUR actual email
-            'Fareedahdaibumohammed2007@gmail.com': 'admin'           // ← Replace with FACILITATOR's actual email
+            'fareedahdaibumohammed2007@gmail.com': 'admin'           // ← Replace with FACILITATOR's actual email
         };
 
         let currentUser = { name: '', email: '', fullName: '' };
@@ -2228,6 +2261,7 @@ loadCategories();
         let pendingVote = null;
         let votingLocked = false;
         let currentUserRole = null; // ← NEW: Track user's admin role
+        let categories = []; // 👈 ADD THIS LINE
 
 // Session timeout variables
         let sessionTimeout = null;
@@ -2378,6 +2412,7 @@ loadCategories();
             // Replace all special characters that Firebase doesn't allow as keys
             return email
                 .toLowerCase()
+                .trim()  // 👈 ADD THIS LINE
                 .replace(/\./g, ',')
                 .replace(/\$/g, '_dollar_')
                 .replace(/\[/g, '_lb_')
@@ -2386,11 +2421,23 @@ loadCategories();
                 .replace(/#/g, '_hash_');
         };
 
-        // Check if current user is admin and get their role
-        window.checkAdminRole = function(email) {
+       // Check if current user is admin and get their role
+        window.checkAdminRole = async function(email) {
             if (!email) return null;
-            const normalizedEmail = email.toLowerCase().trim();
-            return ADMIN_EMAILS[normalizedEmail] || null;
+            
+            // Check Firebase directly for admin status
+            try {
+                const emailKey = window.sanitizeEmail(email);
+                const adminCheck = await get(ref(db, `adminEmails/${emailKey}`));
+                
+                if (adminCheck.exists()) {
+                    return adminCheck.val(); // Returns 'admin' or 'superadmin'
+                }
+                return null;
+            } catch (error) {
+                console.error('Error checking admin role:', error);
+                return null;
+            }
         };
 
         // IP and Device Detection
@@ -2711,11 +2758,9 @@ loadCategories();
         window.showMainApp = async function() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('loginPage').classList.add('hidden');
-            // Start session timeout
             resetSessionTimeout();
             document.getElementById('mainApp').classList.remove('hidden');
             
-            // Show admin button only for admins
             const adminBtn = document.getElementById('adminBtn');
             if (currentUserRole) {
                 adminBtn.classList.remove('hidden');
@@ -2723,21 +2768,70 @@ loadCategories();
                 adminBtn.classList.add('hidden');
             }
             
-            // Show skeleton immediately
             showCategorySkeleton();
             
             await loadUserData();
-            
-            // Setup real-time listener
             setupUserVotesListener();
             
-            // Delay showing real data for smooth transition
             setTimeout(() => {
                 renderCategories();
             }, 500);
             
             loadAllVotes();
+            showWelcomeNotification(); // 👈 ADD THIS LINE
         };
+
+        // 👇 ADD THIS FUNCTION AFTER showMainApp
+        function showWelcomeNotification() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                padding: 1.5rem;
+                border-radius: 1rem;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                z-index: 9999;
+                max-width: 350px;
+                border-left: 5px solid ${currentUserRole ? (currentUserRole === 'superadmin' ? '#4caf50' : '#ff9800') : '#2196f3'};
+                animation: slideIn 0.3s ease;
+            `;
+            
+            const roleIcon = currentUserRole === 'superadmin' ? '👑' : 
+                           currentUserRole === 'admin' ? '👁️' : '🎓';
+            const roleText = currentUserRole === 'superadmin' ? 'Superadmin' : 
+                           currentUserRole === 'admin' ? 'Admin (Read-Only)' : 'Student';
+            const roleColor = currentUserRole === 'superadmin' ? '#4caf50' : 
+                            currentUserRole === 'admin' ? '#ff9800' : '#2196f3';
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
+                    <div style="font-size: 2rem;">${roleIcon}</div>
+                    <div>
+                        <div style="font-weight: bold; font-size: 1.1rem; color: #333;">Welcome Back!</div>
+                        <div style="color: #666; font-size: 0.85rem; margin-top: 0.25rem;">${currentUser.fullName}</div>
+                    </div>
+                </div>
+                ${currentUserRole ? `
+                <div style="background: ${roleColor}15; padding: 0.75rem; border-radius: 0.5rem; margin-top: 0.75rem;">
+                    <div style="color: ${roleColor}; font-weight: 600; font-size: 0.9rem;">
+                        ${roleIcon} ${roleText}
+                    </div>
+                    <div style="color: #666; font-size: 0.8rem; margin-top: 0.25rem;">
+                        ${currentUserRole === 'admin' ? 'View-only admin access' : 'Full system access'}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
 
 
         window.handleLogin = async function() {
@@ -2889,13 +2983,18 @@ loadCategories();
                 
               console.log('✅ Student data saved to Firebase:', emailKey);
                 
-                // Check if user is admin
-                currentUserRole = window.checkAdminRole(email);
+                // Wait a moment for admin emails to be fully saved
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Check if user is admin (await the async function)
+                currentUserRole = await window.checkAdminRole(email);
+                console.log('👀 Checking admin role for:', email, 'Result:', currentUserRole);
                 if (currentUserRole) {
                     console.log('🔐 Admin detected:', currentUserRole);
                 }
                 
                 showMainApp();
+
             } catch (error) {
                 console.error('❌ Login error:', error);
                 
@@ -3658,96 +3757,102 @@ loadCategories();
             `;
         }
 
-        // ADD ADMIN WARNING FUNCTION 👇
-        window.showAdminWarning = function() {
-            // Only allow access if user has admin role
-            if (!currentUserRole) {
-                alert('❌ Access Denied\n\nYou do not have administrator privileges.');
-                
-                // Log unauthorized attempt
-                const emailKey = window.sanitizeEmail(currentUser.email);
-                const attemptRef = push(ref(db, 'securityLogs/unauthorizedAdminAttempt'));
-                set(attemptRef, {
-                    email: currentUser.email,
-                    name: currentUser.fullName,
-                    timestamp: Date.now(),
-                    userAgent: navigator.userAgent
-                });
-                return;
-            }
+    window.showAdminWarning = async function() {
+    // ADD THESE DEBUG LINES 👇
+    console.log('🔍 Current user email:', currentUser.email);
+    console.log('🔍 Sanitized email:', window.sanitizeEmail(currentUser.email));
+    console.log('🔍 Current user role:', currentUserRole);
+    
+    // Only allow access if user has admin role
+    if (!currentUserRole) {
+        alert('❌ Access Denied\n\nYou do not have administrator privileges.');
+        // ... rest of code
+        
+        // Log unauthorized attempt
+        const emailKey = window.sanitizeEmail(currentUser.email);
+        const attemptRef = push(ref(db, 'securityLogs/unauthorizedAdminAttempt'));
+        set(attemptRef, {
+            email: currentUser.email,
+            name: currentUser.fullName,
+            timestamp: Date.now(),
+            userAgent: navigator.userAgent
+        }).catch(err => console.warn('Could not log unauthorized attempt:', err));
+        return;
+    }
+    
+    // Get current Firebase user
+    const user = auth.currentUser;
+    if (!user) {
+        alert('❌ Session Error\n\nPlease logout and login again.');
+        return;
+    }
+    
+    // ✅ FIX: Verify admin status using sanitized EMAIL key
+    try {
+        const emailKey = window.sanitizeEmail(currentUser.email);
+        console.log('🔍 Checking admin access for:', emailKey);  // 👈 ADD THIS LINE
+        
+        const adminCheck = await get(ref(db, `adminEmails/${emailKey}`));
+        
+        if (!adminCheck.exists()) {
+            alert('❌ Access Denied\n\nYour email is not registered as an admin.\n\nContact the system administrator.');
+            return;
+        }
+        
+        const adminRole = adminCheck.val();
+        console.log('✅ Admin role found:', adminRole);  // 👈 ADD THIS LINE
+        
+        // Double-check it matches local role
+        if (adminRole !== currentUserRole) {
+            alert('⚠️ Role Mismatch\n\nYour local role does not match the database.\n\nPlease logout and login again.');
+            return;
+        }
+        
+        // Confirm admin wants to proceed
+        const proceed = confirm(
+            `🔐 ADMIN ACCESS\n\n` +
+            `Role: ${adminRole.toUpperCase()}\n` +
+            `Email: ${currentUser.email}\n\n` +
+            `Proceed to admin panel?`
+        );
+        
+        // After admin verification succeeds in index.html
+        if (proceed) {
+            const accessLogRef = push(ref(db, 'securityLogs/adminAccess'));
+            await set(accessLogRef, {
+                email: currentUser.email,
+                name: currentUser.fullName,
+                role: adminRole,
+                timestamp: Date.now(),
+                userAgent: navigator.userAgent
+            });
             
-            // Confirm admin wants to proceed
-            const proceed = confirm(
-                `🔐 ADMIN ACCESS\n\n` +
-                `Role: ${currentUserRole.toUpperCase()}\n` +
-                `Email: ${currentUser.email}\n\n` +
-                `Proceed to admin panel?`
-            );
+            // ✅ NEW: Store active admin session with their anonymous UID
+            const activeSessionRef = ref(db, `activeSessions/${user.uid}`);
+            await set(activeSessionRef, {
+                email: currentUser.email,
+                role: adminRole,
+                startedAt: Date.now(),
+                expiresAt: Date.now() + 3600000 // 1 hour
+            });
             
-            if (proceed) {
-                // Pass role to admin page via URL parameter
-                window.location.href = `admin.html?role=${currentUserRole}&email=${encodeURIComponent(currentUser.email)}`;
-            }
-        };
+            sessionStorage.setItem('adminAuth', JSON.stringify({
+                uid: user.uid,
+                email: currentUser.email,
+                role: adminRole,
+                timestamp: Date.now()
+            }));
+            
+            window.location.href = 'admin.html';
+        }
+        
 
-        // ADD SECURITY MONITORING 👇
-        // Monitor for suspicious activity
-        let rapidClickCount = 0;
-        let lastClickTime = 0;
+    } catch (error) {
+        console.error('Admin verification error:', error);
+        alert('❌ Verification Error\n\n' + error.message + '\n\nPlease try again.');
+    }
+};
 
-        document.addEventListener('click', function(e) {
-            const now = Date.now();
-            
-            if (now - lastClickTime < 100) { // Less than 100ms between clicks
-                rapidClickCount++;
-                
-                if (rapidClickCount > 10) { // More than 10 rapid clicks
-                    console.warn('⚠️ Suspicious activity detected');
-                    
-                    // Log suspicious activity
-                    if (currentUser.email) {
-                        const emailKey = window.sanitizeEmail(currentUser.email);
-                        const logRef = push(ref(db, 'securityLogs/suspiciousActivity'));
-                        set(logRef, {
-                            email: currentUser.email,
-                            name: currentUser.fullName,
-                            activity: 'rapid_clicking',
-                            count: rapidClickCount,
-                            timestamp: Date.now()
-                        });
-                    }
-                    
-                    rapidClickCount = 0;
-                }
-            } else {
-                rapidClickCount = 0;
-            }
-            
-            lastClickTime = now;
-        });
-
-        // Detect if someone is trying to manipulate the console
-        const originalConsoleLog = console.log;
-        console.log = function(...args) {
-            if (args.length > 0 && typeof args[0] === 'string') {
-                const suspicious = ['firebase', 'userVotes', 'extraVotes', 'adminPanel'];
-                const isSuspicious = suspicious.some(word => 
-                    args[0].toLowerCase().includes(word)
-                );
-                
-                if (isSuspicious && currentUser.email) {
-                    const emailKey = window.sanitizeEmail(currentUser.email);
-                    const logRef = push(ref(db, 'securityLogs/consoleAccess'));
-                    set(logRef, {
-                        email: currentUser.email,
-                        query: args[0],
-                        timestamp: Date.now()
-                    }).catch(() => {}); // Fail silently
-                }
-            }
-            
-            originalConsoleLog.apply(console, args);
-        };
         // ADD TAB VISIBILITY MONITORING 👇
         // Detect when user leaves the page
         let awayTime = 0;
