@@ -142,6 +142,34 @@
             transform: none;
         }
 
+/* Accessibility: Focus styles */
+        *:focus-visible {
+            outline: 3px solid #42a5f5;
+            outline-offset: 2px;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid #42a5f5;
+            outline-offset: 2px;
+        }
+
+        .btn-primary:focus-visible {
+            outline-color: #1e88e5;
+        }
+
+        .btn-vote:focus-visible {
+            outline-color: #1e88e5;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+        }
+
+        .nav-tab:focus-visible {
+            outline-color: #1e88e5;
+            background: #f5f9ff;
+        }
+
         .info-section {
             max-width: 600px;
             margin: 3rem auto;
@@ -1709,6 +1737,7 @@
             }
         }
 
+        
     </style>
 </head>
 <body>
@@ -1719,14 +1748,15 @@
 
 
     <!-- Undo Banner -->
-    <div id="undoBanner" class="undo-banner">
+    <!-- Undo Banner -->
+    <div id="undoBanner" class="undo-banner" role="alert" aria-live="assertive">
         <div class="undo-info">
             <div class="undo-title">Vote Recorded!</div>
-            <div class="undo-subtitle"><span id="undoTimeLeft">0:30</span> to undo</div>
+            <div class="undo-subtitle"><span id="undoTimeLeft" aria-live="polite">0:30</span> to undo</div>
         </div>
         <div style="display: flex; gap: 0.5rem;">
-            <button class="btn-undo" onclick="undoLastVote()">↩️ Undo</button>
-            <button class="btn-dismiss-undo" onclick="dismissUndo()">Continue ✓</button>
+            <button class="btn-undo" onclick="undoLastVote()" aria-label="Undo your last vote">↩️ Undo</button>
+            <button class="btn-dismiss-undo" onclick="dismissUndo()" aria-label="Keep vote and continue">Continue ✓</button>
         </div>
     </div>
 
@@ -1809,40 +1839,52 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Student Name</label>
-                    <input type="text" id="nameInput" placeholder="e.g., Solomon Stephen or Daibu Mohammed">
-                    <div class="error-message" id="nameError">Name not recognized</div>
+                    <label for="nameInput">Student Name</label>
+                    <input 
+                        type="text" 
+                        id="nameInput" 
+                        placeholder="e.g., Solomon Stephen or Daibu Mohammed"
+                        aria-describedby="nameError"
+                        aria-required="true"
+                    >
+                    <div class="error-message" id="nameError" role="alert" aria-live="polite">Name not recognized</div>
                 </div>
 
                 <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="emailInput" placeholder="yourname@example.com">
-                    <div class="error-message" id="emailError">Please enter a valid email</div>
-                    <div class="warning-message" id="rateLimitWarning"></div>
+                    <label for="emailInput">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="emailInput" 
+                        placeholder="yourname@example.com"
+                        aria-describedby="emailError rateLimitWarning"
+                        aria-required="true"
+                    >
+                    <div class="error-message" id="emailError" role="alert" aria-live="polite">Please enter a valid email</div>
+                    <div class="warning-message" id="rateLimitWarning" role="alert" aria-live="polite"></div>
                 </div>
 
-                <button class="btn-primary" id="loginBtn" style="width: 100%;" onclick="handleLogin()">Verify & Continue</button>
-                <button class="btn-back" onclick="showHome()">← Back to Home</button>
+                <button class="btn-primary" id="loginBtn" style="width: 100%;" onclick="handleLogin()" aria-label="Verify credentials and continue to voting">Verify & Continue</button>
+                <button class="btn-back" onclick="showHome()" aria-label="Return to home page">← Back to Home</button>
             </div>
         </div>
     </div>
 
     <div id="mainApp" class="container hidden">
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('voting', event)">🗳️ Vote</button>
-            <button class="nav-tab" onclick="switchTab('dashboard', event)">📊 Dashboard</button>
-            <button class="nav-tab" onclick="switchTab('leaderboard', event)">🏆 Leaderboard</button>
-        </div>
+        <nav class="nav-tabs" role="tablist" aria-label="Main navigation">
+            <button class="nav-tab active" onclick="switchTab('voting', event)" role="tab" aria-selected="true" aria-controls="votingSection" id="votingTab">🗳️ Vote</button>
+            <button class="nav-tab" onclick="switchTab('dashboard', event)" role="tab" aria-selected="false" aria-controls="dashboardSection" id="dashboardTab">📊 Dashboard</button>
+            <button class="nav-tab" onclick="switchTab('leaderboard', event)" role="tab" aria-selected="false" aria-controls="leaderboardSection" id="leaderboardTab">🏆 Leaderboard</button>
+        </nav>
 
-        <div id="votingSection">
+        <div id="votingSection" role="tabpanel" aria-labelledby="votingTab">
             <div class="voting-page">
                 <div class="voting-header">
                     <div class="header-top">
                         <div class="header-info">
                             <h2>DIASS Diplomat Awards</h2>
-                            <p id="userName"></p>
+                            <p id="userName" aria-live="polite"></p>
                         </div>
-                        <button class="btn-logout" onclick="handleLogout()">
+                        <button class="btn-logout" onclick="handleLogout()" aria-label="Logout from voting system">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                 <polyline points="16 17 21 12 16 7"></polyline>
@@ -1851,19 +1893,19 @@
                         </button>
                     </div>
 
-                    <div class="vote-counter">
-                        <div class="live-badge">ONGOING</div>
+                    <div class="vote-counter" role="region" aria-label="Voting progress">
+                        <div class="live-badge" aria-label="Voting is currently ongoing">ONGOING</div>
                         <div class="vote-stats">
                             <div class="vote-stat">
-                                <div class="vote-stat-value" id="categoriesVoted">0</div>
+                                <div class="vote-stat-value" id="categoriesVoted" aria-live="polite">0</div>
                                 <div class="vote-stat-label">Categories</div>
                             </div>
-                            <div class="vote-stat">
-                                <div class="vote-stat-value" id="freeVotesLeft">18</div>
+                           <div class="vote-stat">
+                                <div class="vote-stat-value" id="freeVotesLeft" aria-live="polite">18</div>
                                 <div class="vote-stat-label">Free Left</div>
                             </div>
                             <div class="vote-stat">
-                                <div class="vote-stat-value" id="extraVotesPurchased">0</div>
+                                <div class="vote-stat-value" id="extraVotesPurchased" aria-live="polite">0</div>
                                 <div class="vote-stat-label">Extra Votes</div>
                             </div>
                         </div>
@@ -1877,21 +1919,29 @@
                 </div>
 
                 <div class="search-section">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search categories or nominees..." onkeyup="filterCategories()">
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput" 
+                        placeholder="Search categories or nominees..." 
+                        onkeyup="filterCategories()"
+                        aria-label="Search categories or nominees"
+                        role="searchbox"
+                    >
                 </div>
 
-                <div class="categories-section" id="categoriesContainer">
+                <div class="categories-section" id="categoriesContainer" role="region" aria-label="Voting categories">
                     <div class="loading">Loading categories...</div>
                 </div>
             </div>
         </div>
 
-        <div id="dashboardSection" class="hidden">
+        <div id="dashboardSection" class="hidden" role="tabpanel" aria-labelledby="dashboardTab">
             <div class="dashboard-section">
-                <div class="stats-grid">
+                <div class="stats-grid" role="region" aria-label="Voting statistics">
                     <div class="stat-card">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-value" id="dashCategoriesVoted">0</div>
+                        <div class="stat-icon" aria-hidden="true">✅</div>
+                        <div class="stat-value" id="dashCategoriesVoted" aria-live="polite">0</div>
                         <div class="stat-label">Categories Voted</div>
                     </div>
                     <div class="stat-card">
@@ -1913,7 +1963,7 @@
 
                 <div class="voting-history-card">
                     <div class="history-title">📜 Your Voting History</div>
-                    <div id="votingHistoryContainer">
+                    <div id="votingHistoryContainer" role="list" aria-label="Your voting history">
                         <div class="empty-state">
                             <div class="empty-state-icon">🗳️</div>
                             <p>No votes cast yet</p>
@@ -1924,27 +1974,27 @@
             </div>
         </div>
 
-        <div id="leaderboardSection" class="hidden">
-            <div class="leaderboard-section" id="leaderboardContainer">
+        <div id="leaderboardSection" class="hidden" role="tabpanel" aria-labelledby="leaderboardTab">
+            <div class="leaderboard-section" id="leaderboardContainer" role="region" aria-label="Category leaderboards" aria-live="polite">
                 <div class="loading">Loading leaderboard...</div>
             </div>
         </div>
     </div>
 
-    <div id="paymentModal" class="modal">
+    <div id="paymentModal" class="modal" role="dialog" aria-labelledby="paymentModalTitle" aria-modal="true">
         <div class="modal-content">
-            <div class="modal-icon">⭐</div>
-            <h3 class="modal-title">Purchase Extra Vote</h3>
+            <div class="modal-icon" aria-hidden="true">⭐</div>
+            <h3 class="modal-title" id="paymentModalTitle">Purchase Extra Vote</h3>
             <p class="modal-text">You've already voted in this category. Buy an extra vote to support this nominee even more!</p>
 
             <div class="modal-votes">
                 <p>Extra Votes Purchased</p>
-                <p id="modalExtraVotes">0</p>
+                <p id="modalExtraVotes" aria-live="polite">0</p>
             </div>
 
-            <div class="modal-actions">
-                <button class="btn-primary" style="width: 100%;" onclick="handlePayment()">Pay & Vote Now</button>
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+           <div class="modal-actions">
+                <button class="btn-primary" style="width: 100%;" onclick="handlePayment()" aria-label="Purchase extra vote and submit">Pay & Vote Now</button>
+                <button class="btn-secondary" onclick="closeModal()" aria-label="Cancel extra vote purchase">Cancel</button>
             </div>
         </div>
     </div>
@@ -1952,55 +2002,55 @@
     </div>
 
     <!-- Success Modal -->
-    <div id="successModal" class="success-modal">
+    <div id="successModal" class="success-modal" role="dialog" aria-labelledby="successModalTitle" aria-modal="true">
         <div class="success-content">
-            <div class="success-icon">✓</div>
-            <h3 class="success-title">Vote Successful!</h3>
+            <div class="success-icon" aria-hidden="true">✓</div>
+            <h3 class="success-title" id="successModalTitle">Vote Successful!</h3>
             <p class="success-text">Your vote has been recorded successfully</p>
             
-            <div class="success-details">
+            <div class="success-details" role="status">
                 <div class="success-detail-row">
                     <span class="success-detail-label">Category:</span>
-                    <span class="success-detail-value" id="successCategory">—</span>
+                    <span class="success-detail-value" id="successCategory" aria-live="polite">—</span>
                 </div>
                 <div class="success-detail-row">
                     <span class="success-detail-label">Voted For:</span>
-                    <span class="success-detail-value" id="successNominee">—</span>
+                    <span class="success-detail-value" id="successNominee" aria-live="polite">—</span>
                 </div>
                 <div class="success-detail-row">
                     <span class="success-detail-label">Total Votes Cast:</span>
-                    <span class="success-detail-value" id="successTotalVotes">—</span>
+                    <span class="success-detail-value" id="successTotalVotes" aria-live="polite">—</span>
                 </div>
             </div>
 
-            <button class="btn-primary" style="width: 100%;" onclick="closeSuccessModal()">Continue Voting</button>
+            <button class="btn-primary" style="width: 100%;" onclick="closeSuccessModal()" aria-label="Close success message and continue voting">Continue Voting</button>
         </div>
    </div>
 
     <!-- ADD CONFIRMATION MODAL 👇 -->
-   <div id="confirmModal" class="confirm-modal">
+   <div id="confirmModal" class="confirm-modal" role="dialog" aria-labelledby="confirmModalTitle" aria-modal="true">
         <div class="confirm-content">
-            <div class="confirm-icon">🗳️</div>
-            <h3 class="confirm-title">Confirm Your Vote</h3>
-            <p class="confirm-text">Are you sure you want to vote for:</p>
-            <div class="confirm-nominee" id="confirmNomineeName">—</div>
+            <div class="confirm-icon" aria-hidden="true">🗳️</div>
+            <h3 class="confirm-title" id="confirmModalTitle">Confirm Your Vote</h3>
+           <p class="confirm-text">Are you sure you want to vote for:</p>
+            <div class="confirm-nominee" id="confirmNomineeName" aria-live="polite">—</div>
             <p class="confirm-text" style="font-size: 0.85rem; color: #999;">
-                <span id="confirmCategoryName">—</span>
+                <span id="confirmCategoryName" aria-live="polite">—</span>
             </p>
-            <div style="margin: 1rem 0; padding: 0.75rem; background: #f5f9ff; border-radius: 0.5rem;">
-                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem;">
-                    <input type="checkbox" id="dontShowConfirmAgain" style="width: 18px; height: 18px; cursor: pointer;">
+           <div style="margin: 1rem 0; padding: 0.75rem; background: #f5f9ff; border-radius: 0.5rem;">
+                <label for="dontShowConfirmAgain" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem;">
+                    <input type="checkbox" id="dontShowConfirmAgain" style="width: 18px; height: 18px; cursor: pointer;" aria-label="Skip confirmation dialog for future votes">
                     <span>Don't show this confirmation again</span>
                 </label>
             </div>
-            <div class="confirm-actions">
-                <button class="btn-secondary" onclick="closeConfirmModal()">Cancel</button>
-                <button class="btn-primary" onclick="confirmVoteAction()">Yes, Vote!</button>
+           <div class="confirm-actions">
+                <button class="btn-secondary" onclick="closeConfirmModal()" aria-label="Cancel vote and close dialog">Cancel</button>
+                <button class="btn-primary" onclick="confirmVoteAction()" aria-label="Confirm and submit vote">Yes, Vote!</button>
             </div>
         </div>
     </div>
 
-   <button id="adminBtn" class="admin-btn hidden" title="Admin Panel" onclick="showAdminWarning()">⚙️</button>
+   <button id="adminBtn" class="admin-btn hidden" title="Admin Panel" onclick="showAdminWarning()" aria-label="Open admin panel">⚙️</button>
 
     
 
@@ -3087,9 +3137,15 @@ function loadCategories() {
         };
 
        window.switchTab = function(tab, event) {
-            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+            });
             event.target.classList.add('active');
+            event.target.setAttribute('aria-selected', 'true');
             
+            // Update panels
             document.getElementById('votingSection').classList.toggle('hidden', tab !== 'voting');
             document.getElementById('dashboardSection').classList.toggle('hidden', tab !== 'dashboard');
             document.getElementById('leaderboardSection').classList.toggle('hidden', tab !== 'leaderboard');
