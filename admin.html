@@ -552,6 +552,38 @@
         }
     }
 
+/* Accessibility: Focus styles */
+        *:focus-visible {
+            outline: 3px solid #2196f3;
+            outline-offset: 2px;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid #2196f3;
+            outline-offset: 2px;
+        }
+
+        .btn-action:focus-visible {
+            outline-color: #1e88e5;
+            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.2);
+        }
+
+        .btn-logout:focus-visible {
+            outline-color: #f44336;
+        }
+
+        .btn-delete:focus-visible {
+            outline-color: #d32f2f;
+        }
+
+        .btn-small:focus-visible {
+            outline-width: 2px;
+        }
+
+
     @media (max-width: 480px) {
         .stats-grid {
             grid-template-columns: 1fr;
@@ -827,12 +859,103 @@
             }
         }
         
+        /* Pagination Styles */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .page-numbers {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .btn-page, .btn-page-number {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-page:hover:not(:disabled), .btn-page-number:hover {
+            background: #f5f9ff;
+            border-color: #2196f3;
+        }
+
+        .btn-page:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-page-number.active {
+            background: #2196f3;
+            color: white;
+            border-color: #2196f3;
+        }
+
+        .items-per-page {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .items-per-page label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .items-per-page select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .pagination-container {
+                flex-direction: column;
+            }
+            
+            .pagination-controls {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .btn-page, .btn-page-number {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+            }
+        }
+
     </style>
 </head>
 <body>
         <div id="adminLogin" class="admin-login">
-        <div class="login-card">
-            <div class="login-icon">🔄</div>
+        <div class="login-card" role="status" aria-live="polite">
+            <div class="login-icon" aria-hidden="true">🔄</div>
             <h2 class="login-title">Verifying Access...</h2>
             <p class="login-subtitle">Please wait while we verify your credentials</p>
             <div style="text-align: center; margin-top: 2rem;">
@@ -852,80 +975,80 @@
         <div class="dashboard-header">
             <div class="header-top">
                 <h1 class="dashboard-title">
-                    <span class="live-indicator"></span>
+                    <span class="live-indicator" aria-label="Live indicator"></span>
                     Admin Dashboard
                 </h1>
-                <button class="btn-logout" onclick="handleLogout()">Logout</button>
+                <button class="btn-logout" onclick="handleLogout()" aria-label="Logout from admin panel">Logout</button>
             </div>
-            <div class="stats-grid">
+            <div class="stats-grid" role="region" aria-label="Voting statistics">
                 <div class="stat-card">
-                    <div class="stat-value" id="totalVotes">0</div>
+                    <div class="stat-value" id="totalVotes" aria-live="polite">0</div>
                     <div class="stat-label">Total Votes</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="totalVoters">0</div>
+                    <div class="stat-value" id="totalVoters" aria-live="polite">0</div>
                     <div class="stat-label">Active Voters</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="freeVotesCount">0</div>
+                    <div class="stat-value" id="freeVotesCount" aria-live="polite">0</div>
                     <div class="stat-label">Free Votes</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="paidVotesCount">0</div>
+                    <div class="stat-value" id="paidVotesCount" aria-live="polite">0</div>
                     <div class="stat-label">Paid Votes</div>
                 </div>
             </div>
         </div>
 
-        <div class="action-buttons">
-            <button class="btn-action btn-export" onclick="exportResults()">📥 Export Results (CSV)</button>
-            <button class="btn-action btn-lock" onclick="toggleVoting()" id="lockBtn">🔒 Lock Voting</button>
-            <button class="btn-action" id="changePasswordBtn" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white;" onclick="changeAdminPassword()">🔑 Change Password</button>
-            <button class="btn-action" id="addStudentBtn" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;" onclick="showAddStudentModal()">➕ Add Student</button>
-            <button class="btn-action btn-reset" id="resetVotesBtn" onclick="resetVotes()">🔄 Reset All Votes</button>
+        <div class="action-buttons" role="toolbar" aria-label="Admin actions">
+            <button class="btn-action btn-export" onclick="exportResults()" aria-label="Export voting results as CSV file">📥 Export Results (CSV)</button>
+            <button class="btn-action btn-lock" onclick="toggleVoting()" id="lockBtn" aria-label="Lock or unlock voting for all users">🔒 Lock Voting</button>
+            <button class="btn-action" id="changePasswordBtn" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white;" onclick="changeAdminPassword()" aria-label="Change admin password">🔑 Change Password</button>
+            <button class="btn-action" id="addStudentBtn" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;" onclick="showAddStudentModal()" aria-label="Add new student to voting system">➕ Add Student</button>
+            <button class="btn-action btn-reset" id="resetVotesBtn" onclick="resetVotes()" aria-label="Reset all votes - Warning: Cannot be undone">🔄 Reset All Votes</button>
         </div>
 
         <div class="section-card">
             <h2 class="section-title">🔍 Recent Security Events</h2>
-            <div id="securityLogs" style="max-height: 300px; overflow-y: auto;">
+            <div id="securityLogs" style="max-height: 300px; overflow-y: auto;" role="log" aria-label="Security event logs" aria-live="polite">
                 <p style="text-align: center; color: #666;">Loading security logs...</p>
             </div>
         </div>
 
         <div class="section-card">
             <h2 class="section-title">📊 Vote Logs & Analytics</h2>
-            <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <select id="voteTypeFilter" class="search-box" style="flex: 1; min-width: 150px;" onchange="filterVoteLogs()">
+            <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;" role="search">
+                <select id="voteTypeFilter" class="search-box" style="flex: 1; min-width: 150px;" onchange="filterVoteLogs()" aria-label="Filter votes by type">
                     <option value="all">All Vote Types</option>
                     <option value="free">Free Votes</option>
                     <option value="paid">Paid Votes</option>
                     <option value="undo">Undo Actions</option>
                 </select>
-                <input type="text" id="voteLogSearch" class="search-box" style="flex: 2; min-width: 200px;" placeholder="Search by student, category, or nominee..." onkeyup="filterVoteLogs()">
-                <button class="btn-action btn-export" style="padding: 0.5rem 1rem; margin: 0;" onclick="exportVoteLogs()">📥 Export Logs</button>
+                <input type="text" id="voteLogSearch" class="search-box" style="flex: 2; min-width: 200px;" placeholder="Search by student, category, or nominee..." oninput="filterVoteLogs()" aria-label="Search vote logs">
+                <button class="btn-action btn-export" style="padding: 0.5rem 1rem; margin: 0;" onclick="exportVoteLogs()" aria-label="Export vote logs as CSV">📥 Export Logs</button>
             </div>
-            <div id="voteLogsContainer" style="max-height: 500px; overflow-y: auto;">
+            <div id="voteLogsContainer" style="max-height: 500px; overflow-y: auto;" role="log" aria-label="Vote logs" aria-live="polite">
                 <p style="text-align: center; color: #666;">Loading vote logs...</p>
             </div>
         </div>
 
         <div class="section-card">
             <h2 class="section-title">📋 All Registered Students</h2>
-            <input type="text" class="search-box" id="studentSearch" placeholder="Search students..." onkeyup="filterStudents()">
+            <input type="text" class="search-box" id="studentSearch" placeholder="Search students..." oninput="filterStudents()" aria-label="Search registered students" role="searchbox">
             <div class="table-container">
-               <table id="studentsTable">
+               <table id="studentsTable" role="table" aria-label="Registered students list">
                     <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>Votes Cast</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                            <th>Email</th>
-                            <th>Last Activity</th>
+                        <tr role="row">
+                            <th role="columnheader">Student Name</th>
+                            <th role="columnheader">Votes Cast</th>
+                            <th role="columnheader">Status</th>
+                            <th role="columnheader">Actions</th>
+                            <th role="columnheader">Email</th>
+                            <th role="columnheader">Last Activity</th>
                         </tr>
-                    </thead>
-                    <tbody id="studentsTableBody">
-                        <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                   </thead>
+                    <tbody id="studentsTableBody" role="rowgroup">
+                        <tr role="row"><td colspan="6" style="text-align: center; padding: 2rem;">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -933,99 +1056,99 @@
 
         <div class="section-card">
             <h2 class="section-title">🏆 Manage Categories & Nominees</h2>
-            <div class="results-grid" id="resultsContainer">
+            <div class="results-grid" id="resultsContainer" role="region" aria-label="Categories and nominees management" aria-live="polite">
                 <p style="text-align: center; color: #666;">Loading categories...</p>
             </div>
         </div>
     </div>
 
     <!-- Add Student Modal -->
-    <div id="addStudentModal" class="modal">
+    <div id="addStudentModal" class="modal" role="dialog" aria-labelledby="addStudentModalTitle" aria-modal="true">
         <div class="modal-content">
-            <h3 class="modal-header">➕ Add New Student</h3>
+            <h3 class="modal-header" id="addStudentModalTitle">➕ Add New Student</h3>
             <div class="form-group">
                 <label for="newStudentName">Full Name</label>
-                <input type="text" id="newStudentName" placeholder="e.g., Solomon Stephen Sunday">
+                <input type="text" id="newStudentName" placeholder="e.g., Solomon Stephen Sunday" aria-required="true">
             </div>
             <div class="form-group">
                 <label for="newStudentEmail">Email Address (Optional)</label>
                 <input type="email" id="newStudentEmail" placeholder="e.g., solomon@example.com">
             </div>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeAddStudentModal()">Cancel</button>
-                <button class="btn-submit" onclick="addStudent()">Add Student</button>
+                <button class="btn-cancel" onclick="closeAddStudentModal()" aria-label="Cancel and close modal">Cancel</button>
+                <button class="btn-submit" onclick="addStudent()" aria-label="Add student to system">Add Student</button>
             </div>
         </div>
     </div>
 
     <!-- Edit Category Modal -->
-    <div id="editCategoryModal" class="modal">
+    <div id="editCategoryModal" class="modal" role="dialog" aria-labelledby="editCategoryModalTitle" aria-modal="true">
         <div class="modal-content">
-            <h3 class="modal-header">✏️ Edit Category</h3>
+            <h3 class="modal-header" id="editCategoryModalTitle">✏️ Edit Category</h3>
             <div class="form-group">
                 <label for="editCategoryName">Category Name</label>
-                <input type="text" id="editCategoryName" placeholder="Category name">
+                <input type="text" id="editCategoryName" placeholder="Category name" aria-required="true">
             </div>
             <div class="form-group">
                 <label for="editCategoryIcon">Category Icon (Emoji)</label>
-                <input type="text" id="editCategoryIcon" placeholder="🏆" maxlength="2">
+                <input type="text" id="editCategoryIcon" placeholder="🏆" maxlength="2" aria-label="Enter emoji icon for category">
             </div>
             <div class="form-group">
                 <label for="editCategoryDescription">Category Description</label>
-                <textarea id="editCategoryDescription" placeholder="Describe what this category represents..." style="min-height: 100px; font-family: inherit; resize: vertical;"></textarea>
+                <textarea id="editCategoryDescription" placeholder="Describe what this category represents..." style="min-height: 100px; font-family: inherit; resize: vertical;" aria-required="true"></textarea>
             </div>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeEditCategoryModal()">Cancel</button>
-                <button class="btn-submit" onclick="saveCategory()">Save Changes</button>
+                <button class="btn-cancel" onclick="closeEditCategoryModal()" aria-label="Cancel and close modal">Cancel</button>
+                <button class="btn-submit" onclick="saveCategory()" aria-label="Save category changes">Save Changes</button>
             </div>
         </div>
     </div>
 
     <!-- Add Nominee Modal -->
-    <div id="addNomineeModal" class="modal">
+    <div id="addNomineeModal" class="modal" role="dialog" aria-labelledby="addNomineeModalTitle" aria-modal="true">
         <div class="modal-content">
-            <h3 class="modal-header">➕ Add Nominee</h3>
+            <h3 class="modal-header" id="addNomineeModalTitle">➕ Add Nominee</h3>
             <div class="form-group">
-                <label>Category: <strong id="addNomineeCategoryName"></strong></label>
+                <label>Category: <strong id="addNomineeCategoryName" aria-live="polite"></strong></label>
             </div>
             <div class="form-group">
                 <label for="newNomineeName">Nominee Name</label>
-                <input type="text" id="newNomineeName" placeholder="Enter nominee name">
+                <input type="text" id="newNomineeName" placeholder="Enter nominee name" aria-required="true">
             </div>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeAddNomineeModal()">Cancel</button>
-                <button class="btn-submit" onclick="addNominee()">Add Nominee</button>
+                <button class="btn-cancel" onclick="closeAddNomineeModal()" aria-label="Cancel and close modal">Cancel</button>
+                <button class="btn-submit" onclick="addNominee()" aria-label="Add nominee to category">Add Nominee</button>
             </div>
         </div>
     </div>
 
     <!-- Manage Nominees Modal -->
-    <div id="manageNomineesModal" class="modal">
+    <div id="manageNomineesModal" class="modal" role="dialog" aria-labelledby="manageNomineesModalTitle" aria-modal="true">
         <div class="modal-content">
-            <h3 class="modal-header">👥 Manage Nominees</h3>
+            <h3 class="modal-header" id="manageNomineesModalTitle">👥 Manage Nominees</h3>
             <div class="form-group">
-                <label>Category: <strong id="manageNomineeCategoryName"></strong></label>
+                <label>Category: <strong id="manageNomineeCategoryName" aria-live="polite"></strong></label>
             </div>
-            <div class="nominee-list" id="nomineesList">
+            <div class="nominee-list" id="nomineesList" role="list" aria-label="List of nominees">
                 <p style="text-align: center; color: #666;">Loading nominees...</p>
             </div>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeManageNomineesModal()">Close</button>
+                <button class="btn-cancel" onclick="closeManageNomineesModal()" aria-label="Close modal">Close</button>
             </div>
         </div>
     </div>
 
     <!-- Edit Nominee Modal -->
-    <div id="editNomineeModal" class="modal">
+    <div id="editNomineeModal" class="modal" role="dialog" aria-labelledby="editNomineeModalTitle" aria-modal="true">
         <div class="modal-content">
-            <h3 class="modal-header">✏️ Edit Nominee</h3>
+            <h3 class="modal-header" id="editNomineeModalTitle">✏️ Edit Nominee</h3>
             <div class="form-group">
                 <label for="editNomineeName">Nominee Name</label>
-                <input type="text" id="editNomineeName" placeholder="Enter nominee name">
+                <input type="text" id="editNomineeName" placeholder="Enter nominee name" aria-required="true">
             </div>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeEditNomineeModal()">Cancel</button>
-                <button class="btn-submit" onclick="saveNomineeEdit()">Save Changes</button>
+                <button class="btn-cancel" onclick="closeEditNomineeModal()" aria-label="Cancel and close modal">Cancel</button>
+                <button class="btn-submit" onclick="saveNomineeEdit()" aria-label="Save nominee changes">Save Changes</button>
             </div>
         </div>
     </div>
@@ -1062,6 +1185,102 @@
         let categories = [];
         let currentEditingCategory = null;
         let currentEditingNominee = null;
+        // Pagination variables
+        let currentPage = 1;
+        let itemsPerPage = 25;
+        let totalPages = 1;
+        let allStudentsData = [];
+        let currentFilter = '';
+
+        // Debounce utility function
+        function debounce(func, delay) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        }
+
+        // Vote caching system
+        const voteCache = {
+            data: {},
+            lastUpdate: 0,
+            updateInterval: 30000, // 30 seconds
+            listeners: []
+        };
+
+        // Initialize vote cache
+        async function initVoteCache() {
+            try {
+                const snapshot = await get(ref(db, 'categoryVotes'));
+                if (snapshot.exists()) {
+                    voteCache.data = snapshot.val();
+                    voteCache.lastUpdate = Date.now();
+                    console.log('✅ Vote cache initialized');
+                }
+                
+                // Set up real-time listener with throttling
+                let updateTimeout = null;
+                
+                onValue(ref(db, 'categoryVotes'), (snapshot) => {
+                    if (updateTimeout) {
+                        clearTimeout(updateTimeout);
+                    }
+                    
+                    // Throttle updates to max once per second
+                    updateTimeout = setTimeout(() => {
+                        if (snapshot.exists()) {
+                            voteCache.data = snapshot.val();
+                            voteCache.lastUpdate = Date.now();
+                            
+                            // Update allVotes
+                            allVotes = voteCache.data;
+                            
+                            // Re-render if needed
+                            if (typeof renderResults === 'function') {
+                                renderResults();
+                            }
+                            
+                            console.log('📊 Vote cache updated');
+                        }
+                    }, 1000);
+                });
+                
+            } catch (error) {
+                console.error('❌ Vote cache error:', error);
+            }
+        }
+
+        // Get cached votes
+        function getCachedVotes(categoryName = null) {
+            if (categoryName) {
+                return voteCache.data[categoryName] || {};
+            }
+            return voteCache.data;
+        }
+
+    // Performance metrics
+            let firebaseReadCount = 0;
+            let cacheHitCount = 0;
+
+            // Track Firebase reads
+            const originalGet = get;
+            
+            // Override get function to track reads
+            window.get = async function(...args) {
+                firebaseReadCount++;
+                console.log(`📖 Firebase read #${firebaseReadCount}`);
+                return originalGet(...args);
+            };
+
+            // Log performance stats every 5 minutes
+            setInterval(() => {
+                console.log('📊 Performance Stats:');
+                console.log(`  - Firebase Reads: ${firebaseReadCount}`);
+                console.log(`  - Cache Age: ${Math.round((Date.now() - voteCache.lastUpdate) / 1000)}s`);
+            }, 300000);
 
         function sanitizeInput(input) {
             if (!input) return '';
@@ -1192,6 +1411,7 @@ async function verifyAdminAccess() {
         
         // Load dashboard data
         await initializeCategories();
+        await initVoteCache(); // Initialize cache first
         loadDashboardData();
         
         // Apply role restrictions
@@ -1640,27 +1860,8 @@ document.addEventListener('DOMContentLoaded', () => {
             unsubscribers.push(categoriesUnsubscribe);
 
             const registeredUnsubscribe = onValue(ref(db, 'registeredStudents'), (snapshot) => {
-                registeredStudents = [];
-                
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    
-                    Object.keys(data).forEach(studentKey => {
-                        const studentData = data[studentKey];
-                        
-                        if (studentData && typeof studentData === 'object' && studentData.name) {
-                            registeredStudents.push({
-                                id: studentKey,
-                                name: studentData.name,
-                                email: studentData.email || null,
-                                hasVoted: studentData.hasVoted || false,
-                                registeredAt: studentData.registeredAt || null
-                            });
-                        }
-                    });
-                }
-                
-                renderStudentsTable();
+                // Trigger reload with pagination
+                loadAllStudents();
             });
             unsubscribers.push(registeredUnsubscribe);
 
@@ -1671,12 +1872,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             unsubscribers.push(studentsUnsubscribe);
 
-            const votesUnsubscribe = onValue(ref(db, 'categoryVotes'), (snapshot) => {
-                allVotes = snapshot.exists() ? snapshot.val() : {};
-                renderResults();
-                updateStats();
-            });
-            unsubscribers.push(votesUnsubscribe);
+            // Use cached votes instead of direct listener
+            allVotes = getCachedVotes();
+            renderResults();
+            updateStats();
 
             const lockUnsubscribe = onValue(ref(db, 'settings/votingLocked'), (snapshot) => {
                 votingLocked = snapshot.exists() ? snapshot.val() : false;
@@ -1875,7 +2074,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        window.filterVoteLogs = function() {
+       // Debounced vote log filter
+        const debouncedVoteLogFilter = debounce(function() {
             const voteTypeFilter = document.getElementById('voteTypeFilter').value;
             const searchTerm = document.getElementById('voteLogSearch').value.toLowerCase().trim();
             
@@ -1902,6 +2102,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             renderVoteLogs(filtered);
+        }, 300); // 300ms delay
+
+        window.filterVoteLogs = function() {
+            debouncedVoteLogFilter();
         };
 
         window.exportVoteLogs = async function() {
@@ -1991,75 +2195,204 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('paidVotesCount').textContent = paidVotes;
         }
 
-        function renderStudentsTable() {
+        // Load and cache all students
+        async function loadAllStudents() {
+            try {
+                const registeredSnapshot = await get(ref(db, 'registeredStudents'));
+                const studentsSnapshot = await get(ref(db, 'students'));
+                
+                allStudentsData = [];
+                
+                if (registeredSnapshot.exists()) {
+                    const registered = registeredSnapshot.val();
+                    const students = studentsSnapshot.exists() ? studentsSnapshot.val() : {};
+                    
+                    Object.keys(registered).forEach(studentKey => {
+                        const student = registered[studentKey];
+                        const emailKey = student.email ? student.email.replace(/\./g, ',') : null;
+                        const studentData = emailKey && students[emailKey] ? students[emailKey] : {};
+                        
+                        allStudentsData.push({
+                            id: studentKey,
+                            name: student.name,
+                            email: student.email || 'No email',
+                            votesCount: studentData.votesCount || 0,
+                            status: studentData.status || 'never',
+                            lastActivity: studentData.lastActivity || null
+                        });
+                    });
+                }
+                
+                // Sort by name
+                allStudentsData.sort((a, b) => a.name.localeCompare(b.name));
+                
+                console.log('✅ Loaded', allStudentsData.length, 'students');
+                renderPaginatedStudents();
+                
+            } catch (error) {
+                console.error('❌ Error loading students:', error);
+            }
+        }
+
+        // Filter students by search term
+        function filterStudentsBySearch(searchTerm) {
+            currentFilter = searchTerm.toLowerCase();
+            currentPage = 1; // Reset to first page
+            renderPaginatedStudents();
+        }
+
+        // Get filtered students
+        function getFilteredStudents() {
+            if (!currentFilter) return allStudentsData;
+            
+            return allStudentsData.filter(student => 
+                student.name.toLowerCase().includes(currentFilter) ||
+                student.email.toLowerCase().includes(currentFilter)
+            );
+        }
+
+        // Render paginated students
+        function renderPaginatedStudents() {
+            const filteredStudents = getFilteredStudents();
+            totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+            
+            // Calculate slice indices
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageStudents = filteredStudents.slice(startIndex, endIndex);
+            
             const tbody = document.getElementById('studentsTableBody');
             tbody.innerHTML = '';
-
-            if (registeredStudents.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">No students registered yet</td></tr>';
+            
+            if (pageStudents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">No students found</td></tr>';
+                updatePaginationControls(0);
                 return;
             }
-
-            registeredStudents.forEach(student => {
-                const studentName = student.name;
-                const studentEmail = student.email || 'No email provided';
-                
-                let studentData = null;
-                let votesCount = 0;
-                let lastActivity = null;
-                let status = 'never';
-                
-                if (student.email) {
-                    const emailKey = student.email.replace(/\./g, ',');
-                    if (studentsData[emailKey]) {
-                        studentData = studentsData[emailKey];
-                    }
-                }
-                
-                if (!studentData) {
-                    const nameNormalized = studentName.toLowerCase().replace(/\s+/g, '');
-                    for (let key in studentsData) {
-                        const data = studentsData[key];
-                        if (data && data.name) {
-                            const dataNormalized = data.name.toLowerCase().replace(/\s+/g, '');
-                            if (dataNormalized === nameNormalized) {
-                                studentData = data;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if (studentData) {
-                    status = studentData.status || 'never';
-                    votesCount = studentData.votesCount || 0;
-                    lastActivity = studentData.lastActivity;
-                }
-
+            
+            pageStudents.forEach(student => {
                 let statusClass = 'status-never';
                 let statusText = 'Not Active';
-                if (status === 'online') {
+                
+                if (student.status === 'online') {
                     statusClass = 'status-online';
                     statusText = 'Online';
-                } else if (status === 'offline') {
+                } else if (student.status === 'offline') {
                     statusClass = 'status-offline';
                     statusText = 'Offline';
                 }
-
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><strong>${sanitizeInput(studentName)}</strong></td>
-                    <td><strong>${votesCount}</strong> / ${categories.length}</td>
+                    <td><strong>${sanitizeInput(student.name)}</strong></td>
+                    <td><strong>${student.votesCount}</strong> / ${categories.length}</td>
                     <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     <td>
-                        <button class="btn-delete" onclick="deleteStudent('${student.id}', '${sanitizeInput(studentName).replace(/'/g, "\\'")}')">Delete</button>
+                        <button class="btn-delete" onclick="deleteStudent('${student.id}', '${sanitizeInput(student.name).replace(/'/g, "\\'")}')">Delete</button>
                     </td>
-                    <td>${sanitizeInput(studentEmail)}</td>
-                    <td>${formatTime(lastActivity)}</td>
+                    <td>${sanitizeInput(student.email)}</td>
+                    <td>${formatTime(student.lastActivity)}</td>
                 `;
                 tbody.appendChild(row);
             });
+            
+            updatePaginationControls(filteredStudents.length);
         }
+
+        // Generate page numbers (show max 7 pages)
+        function generatePageNumbers() {
+            let html = '';
+            let startPage = Math.max(1, currentPage - 3);
+            let endPage = Math.min(totalPages, currentPage + 3);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const active = i === currentPage ? 'active' : '';
+                html += `<button class="btn-page-number ${active}" onclick="changePage(${i})">${i}</button>`;
+            }
+            
+            return html;
+        }
+
+        // Update pagination controls
+        function updatePaginationControls(totalItems) {
+            if (totalItems === 0) {
+                // Remove existing pagination if no items
+                const existingPagination = document.querySelector('.pagination-container');
+                if (existingPagination) existingPagination.remove();
+                return;
+            }
+            
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+            
+            let paginationHTML = `
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing ${startItem} - ${endItem} of ${totalItems}
+                    </div>
+                    
+                    <div class="pagination-controls">
+                        <button class="btn-page" onclick="changePage(1)" ${currentPage === 1 ? 'disabled' : ''}>
+                            « First
+                        </button>
+                        <button class="btn-page" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                            ‹ Prev
+                        </button>
+                        
+                        <div class="page-numbers">
+                            ${generatePageNumbers()}
+                        </div>
+                        
+                        <button class="btn-page" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                            Next ›
+                        </button>
+                        <button class="btn-page" onclick="changePage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>
+                            Last »
+                        </button>
+                    </div>
+                    
+                    <div class="items-per-page">
+                        <label>Show:</label>
+                        <select onchange="changeItemsPerPage(this.value)">
+                            <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                            <option value="25" ${itemsPerPage === 25 ? 'selected' : ''}>25</option>
+                            <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                            <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            // Insert after table
+            const tableContainer = document.querySelector('.table-container');
+            let existingPagination = document.querySelector('.pagination-container');
+            
+            if (existingPagination) {
+                existingPagination.remove();
+            }
+            
+            tableContainer.insertAdjacentHTML('afterend', paginationHTML);
+        }
+
+        // Change page
+        window.changePage = function(newPage) {
+            if (newPage < 1 || newPage > totalPages) return;
+            currentPage = newPage;
+            renderPaginatedStudents();
+            
+            // Scroll to top of table
+            const sectionCard = document.querySelector('.section-card');
+            if (sectionCard) {
+                sectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
+
+        // Change items per page
+        window.changeItemsPerPage = function(newSize) {
+            itemsPerPage = parseInt(newSize);
+            currentPage = 1;
+            renderPaginatedStudents();
+        };
 
         window.deleteStudent = async function(studentId, studentName) {
             if (!confirm(`Are you sure you want to delete student "${studentName}"?\n\nThis will remove them from the registered students list.`)) {
@@ -2091,13 +2424,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return `${days}d ago`;
         }
 
+        // Debounced student search
+        const debouncedStudentSearch = debounce(function(searchTerm) {
+            filterStudentsBySearch(searchTerm);
+        }, 300); // 300ms delay
+
         window.filterStudents = function() {
-            const searchTerm = sanitizeInput(document.getElementById('studentSearch').value.toLowerCase());
-            const rows = document.querySelectorAll('#studentsTableBody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
+            const searchTerm = document.getElementById('studentSearch').value;
+            debouncedStudentSearch(searchTerm);
         };
 
         function renderResults() {
